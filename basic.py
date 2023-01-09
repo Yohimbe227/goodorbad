@@ -174,6 +174,24 @@ def main() -> None:
     bot = Bot(token=TELEGRAM_TOKEN)
     # send_message(bot, 'проверка')
     dp = Dispatcher(bot)
+    async def on_startup(_):
+        print('Бот вышел в онлайн')
+    '''**************client****************'''
+
+    @dp.message_handler(commands=['start', 'help'])
+    async def commands_start(message: types.Message):
+        try:
+            await bot.send_message(message.from_user.id,
+                                   'Приветственное сообщение', )
+            await message.delete()
+        except Exception:
+            await message.reply(
+                'Общение с ботом через ЛС.\nhttps://t.me/goodorbad')
+
+    @dp.message_handler(commands=['Оботе', ])
+    async def about_bot(message: types.Message):
+        await bot.send_message(message.from_user.id,
+                               'Бот для обмена опыта посещение различных заведений')
 
     @dp.message_handler()
     async def echo_send(message: types.Message):
@@ -181,8 +199,7 @@ def main() -> None:
         # await message.reply(message.text)
         await bot.send_message(message.from_user.id, message.text)
 
-    executor.start_polling(dp, skip_updates=True)
-
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
 
 
 if __name__ == '__main__':
