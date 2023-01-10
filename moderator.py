@@ -1,4 +1,5 @@
 import re
+import string
 from fuzzywuzzy import fuzz
 
 dict = {
@@ -39,26 +40,34 @@ dict = {
 
 
 CWF = open('banned_words.txt', 'r', encoding='utf-8')
-CurseWords = ''.join(CWF.readlines()).split(', ')
+CurseWords = ''.join(CWF.readlines()).split('\n')[:-1]
 
 
-def replace_letters(word=None):
+def replace_letters(word: str = None) -> str:
     word = word.lower()
     for key, value in dict.items():
         word = re.sub(value, key, word)
     return word
 
 
-def filter_word(msg):
-    msg = msg.split()
-    for w in msg:
-        w = ''.join([w[i] for i in range(len(w) - 1) if w[i + 1] != w[i]] + [w[-1]]).lower()  # Здесь убираю символы которые повторяються "Приииииивет" -> "Привет"
-        w = replace_letters(w)
-        for word in CurseWords:
-            b = fuzz.token_sort_ratio(word,
-                                      w)  # Проверяю сходство слов из списка
-            if b >= 85:
-                print(f'{w} | {b}% Матерное слово {word}')
+def filter_word(msg: str) -> bool:
+    punctuation = r'!|"|#|$|%|&|,|-|;|>|@|_|~| '
+
+    msg = re.split(punctuation, msg)
+
+    for word in msg:
+        # word = ''.join([word[i] for i in range(len(word) - 1) if
+        #                 word[i + 1] != word[i]] + [word[
+        #                                                -1]]).lower()  # Здесь убираю символы которые повторяються "Приииииивет" -> "Привет"
+        word = replace_letters(word)
+        for word_bad in CurseWords:
+            b = fuzz.token_sort_ratio(word_bad,
+                                      word)  # Проверяю сходство слов из списка
+            if b >= 75:
+                print(f'{word_bad} | {b}% Матерное слово {word_bad}')
+                # print(CurseWords)
                 return True
-            else:
-                pass
+        #    print('тест', word, word_bad)
+    return False
+#
+# print(filter_word('пиииидор'))
