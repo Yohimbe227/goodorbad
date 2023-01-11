@@ -9,7 +9,7 @@ from decorators import func_logger
 from aiogram.utils import executor
 
 from handlers import client, admin, other
-from database import sqliete_db
+from database import sqllite_db
 
 load_dotenv()
 
@@ -68,7 +68,7 @@ def main() -> None:
 
     async def on_startup(_):
         print('Бот вышел в онлайн')
-        sqliete_db.sql_start()
+        sqllite_db.sql_start()
 
     client.register_handlers_client(dp)
     admin.register_handlers_admin(dp)

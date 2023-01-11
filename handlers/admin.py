@@ -2,8 +2,11 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import InlineKeyboardMarkup
 
 from creation import dp, bot
+from database import sqllite_db
+from keyboards import admin_kb
 
 ID = None
 
@@ -19,7 +22,8 @@ class FSMAdmin(StatesGroup):
 async def make_changes_command(message: types.Message):
     global ID
     ID = message.from_user.id
-    await bot.send_message(message.from_user.id, 'Слушаю, босс.')
+    await bot.send_message(message.from_user.id, 'Слушаю, босс.',
+                           reply_markup=admin_kb.button_case_admin)
     await message.delete()
 
 
@@ -69,20 +73,41 @@ async def load_description(message: types.Message, state: FSMContext):
     if message.from_user.id == ID:
         async with state.proxy() as data:
             data['description'] = message.text
-
+        await sqllite_db.sql_add_command(state)
         async with state.proxy() as data:
             await message.reply(str(data))
             await message.reply('Добавление нового заведения закончено')
         await state.finish()
 
 
+async def del_callback_run(callback_query: types.CallbackQuery):
+    await sqllite_db.sql_delete_command(callback_query.data.replace('del ', ''))
+    await callback_query.answer(text=f'{callback_query.data.replace("del ", "")} удалена.', show_alert=True)
+
+
+async def delete_item(message: types.Message):
+    if message.from_user.id == ID:
+        read = await sqllite_db.sql_read()
+        for ret in read:
+            await bot.send_photo(message.from_user.id, ret[0],
+                                 f'{ret[1]}\nГород: {ret[2]}\nИмя заведения {ret[-1]}')
+            await bot.send_message(message.from_user.id, text='^^^',
+                                   reply_markup=InlineKeyboardMarkup().add(
+                                       InlineKeyboardMarkup(
+                                           f'Удалить {ret[1]}',
+                                           callback_data=f'del {ret[1]}')))
+
+
 def register_handlers_admin(disp: Dispatcher):
-    disp.register_message_handler(cm_start, commands=['Загрузить', ], state=None)
+    disp.register_message_handler(cm_start, commands=['Загрузить', ],
+                                  state=None)
     disp.register_message_handler(cancel_handler, state='*', commands='Отмена')
     disp.register_message_handler(cancel_handler,
                                   Text(equals='отмена', ignore_case=True),
                                   state='*')
-    disp.register_message_handler(load_photo, content_types=['photo', ], state=FSMAdmin.photo)
+    disp.register_message_handler(load_photo, content_types=['photo', ],
+                                  state=FSMAdmin.photo)
     disp.register_message_handler(load_name, state=FSMAdmin.name)
     disp.register_message_handler(load_description, state=FSMAdmin.description)
-    disp.register_message_handler(make_changes_command, commands=['moderator'], is_chat_admin=True)
+    disp.register_message_handler(make_changes_command, commands=['moderator'],
+                                  is_chat_admin=True)
