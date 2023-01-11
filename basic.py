@@ -3,23 +3,22 @@ import os
 
 from dotenv import load_dotenv
 
-from bot_creation import dp
+from creation import dp, bot
 from exceptions import HTTPError, SendMessageError, StatusError, TokenError
 from decorators import func_logger
 from aiogram.utils import executor
 
 from handlers import client, admin, other
-
+from database import sqliete_db
 
 load_dotenv()
 
-PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 notoken = [
     token
-    for token in ('PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID')
+    for token in ('TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID')
     if globals().get(token) is None
 ]
 
@@ -69,8 +68,10 @@ def main() -> None:
 
     async def on_startup(_):
         print('Бот вышел в онлайн')
+        sqliete_db.sql_start()
 
     client.register_handlers_client(dp)
+    admin.register_handlers_admin(dp)
     other.register_handlers_other(dp)
 
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)

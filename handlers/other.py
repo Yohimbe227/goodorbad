@@ -1,6 +1,6 @@
 from aiogram import types, Dispatcher
 
-from bot_creation import bot, dp
+from creation import bot, dp
 from moderator import filter_word
 
 
@@ -12,6 +12,5 @@ async def filtered_send(message: types.Message):
         await bot.send_message(message.from_user.id, message.text)
 
 
-def register_handlers_other(dp: Dispatcher):
-    dp.register_message_handler(filtered_send)
-
+def register_handlers_other(disp: Dispatcher):
+    disp.register_message_handler(filtered_send)
