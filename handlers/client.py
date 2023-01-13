@@ -1,5 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import Dispatcher
+from aiogram.dispatcher.filters import Text
 
 from creation import dp, bot
 from keyboards.client_kb import kb_client
@@ -8,9 +9,12 @@ from database import sqllite_db
 
 
 # @dp.message_handler(commands=['start', 'help'])
+from utils import send_message
+
+
 async def command_start(message: types.Message):
     try:
-        await bot.send_message(message.from_user.id,
+        await send_message(bot, message,
                                'Приветственное сообщение', reply_markup=kb_client)
         await message.delete()
     except Exception as err:

@@ -2,11 +2,12 @@ import sqlite3 as sq
 
 from creation import bot
 
+base = sq.connect('bars.db')
+cur = base.cursor()
+
 
 def sql_start():
-    global base, cur
-    base = sq.connect('bars.db')
-    cur = base.cursor()
+
     if base:
         print('Data base connected OK')
     base.execute(
@@ -22,15 +23,15 @@ async def sql_add_command(state):
 
 
 async def sql_data_base(message):
-    for ret in cur.execute('SELECT * FROM places').fetchall():
-        await bot.send_photo(message.from_user.id, ret[0],
-                             f'{ret[1]}\nГорода: {ret[2]}\nИмя заведения {ret[-1]}')
+    for value in cur.execute('SELECT * FROM places').fetchall():
+        await bot.send_photo(message.from_user.id, value[0],
+                             f'{value[1]}\nГород: {value[2]}\nИмя заведения {value[-1]}')
 
 
 async def sql_read():
-    return cur.execute('SELECT * FROM place').fetchall()
+    return cur.execute('SELECT * FROM places').fetchall()
 
 
 async def sql_delete_command(data):
-    cur.execute('DELETE FROM place WHERE name == ?', (data,))
+    cur.execute('DELETE FROM places WHERE name == ?', (data,))
     base.commit()
