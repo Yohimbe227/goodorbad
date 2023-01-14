@@ -11,21 +11,25 @@ def sql_start():
     if base:
         print('Data base connected OK')
     base.execute(
-        'CREATE TABLE IF NOT EXISTS places(img TEXT, name TEXT PRIMARY KEY, description TEXT)')
+        'CREATE TABLE IF NOT EXISTS places(img TEXT, name TEXT PRIMARY KEY, description TEXT)'
+    )
     base.commit()
 
 
 async def sql_add_command(state):
     async with state.proxy() as data:
-        cur.execute('INSERT INTO places VALUES (?, ?, ?)',
-                    tuple(data.values()))
+        cur.execute(
+            'INSERT INTO places VALUES (?, ?, ?)', tuple(data.values())
+        )
         base.commit()
 
 
 async def sql_data_base(message):
     for value in cur.execute('SELECT * FROM places').fetchall():
-        await bot.send_photo(message.from_user.id, value[0],
-                             f'{value[1]}\nГород: {value[2]}\nИмя заведения {value[-1]}')
+        await bot.send_message(
+            message.from_user.id,
+            f'Город: {value[0]}\nИмя заведения:{value[1]}\nОписание:{value[2]}',
+        )
 
 
 async def sql_read():

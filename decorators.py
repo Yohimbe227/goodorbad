@@ -2,8 +2,7 @@ import logging
 from functools import wraps
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s, %(levelname)s, %(message)s'
+    level=logging.INFO, format='%(asctime)s, %(levelname)s, %(message)s'
 )
 logger = logging.getLogger(__name__)
 
@@ -35,7 +34,6 @@ def func_logger(message, level: str = 'debug'):
     """
 
     def _func_logger(function):
-
         @wraps(function)
         def wrapper(*args2, **kwargs):
             ret = function(*args2, **kwargs)
@@ -43,12 +41,14 @@ def func_logger(message, level: str = 'debug'):
                 'debug': logger.debug,
                 'info': logger.info,
                 'error': logger.error,
-                'critical': logger.critical
+                'critical': logger.critical,
             }
             if level in log_level:
                 log_level.get(level)(message)
             else:
                 raise NameError(f'Unknown parametr {level}')
             return ret
+
         return wrapper
+
     return _func_logger

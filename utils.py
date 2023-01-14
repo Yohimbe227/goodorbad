@@ -5,8 +5,7 @@ from aiogram import types
 from aiogram.bot import bot
 
 from decorators import func_logger
-from exceptions import TokenError, SendMessageError
-
+from exceptions import SendMessageError, TokenError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,7 +28,9 @@ def check_tokens(token) -> None:
 
 
 @func_logger('Отправка сообщения в телеграм', level='info')
-async def send_message(mybot: bot, message: types.Message, message_text, **kwargs: Any) -> None:
+async def send_message(
+    mybot: bot, message: types.Message, message_text, **kwargs: Any
+) -> None:
     """
     Отправляет сообщения в телеграм.
 

@@ -1,44 +1,61 @@
-from aiogram import types, Dispatcher
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
+from aiogram.dispatcher.filters.builtin import Text, IDFilter
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup
 
-from creation import bot, ID
+from creation import ID, bot, dp
 from database import sqllite_db
 from keyboards import admin_kb
 from keyboards.admin_kb import kb_admin
+from keyboards.city_kb import kb_city
+from keyboards.client_kb import kb_client
+from moderator import IsCurseMessage
 from utils import send_message
 
 
 class FSMAdmin(StatesGroup):
-    photo = State()
+    """
+    Class of states.
+    """
+    city = State()
     name = State()
     description = State()
 
 
-async def cm_start(message: types.Message):
+async def cm_start(message: types.Message) -> None:
     """
-    Начало диалога загрузки нового заведения.
+    Starting a dialog to load a new place.
 
     Args:
-        message: передаваемое сообщение
+        message: message being sent
 
     Raises:
-        SendMessageError: Если ошибка отправки сообщения через телеграм
+        SendMessageError: If there is an error sending a message via Telegram
     """
-    if message.from_user.id == ID:
-        await send_message(bot, message,
-                               'Приветствую босс!',
-                               reply_markup=kb_admin)
-        await FSMAdmin.photo.set()
-        await message.reply('Загрузи фото')
+    # if message.from_user.id == ID:
+    await send_message(
+        bot, message, 'Приветствую босс!', reply_markup=kb_admin
+    )
+    await FSMAdmin.city.set()
+    await message.reply(
+        'Введите Ваш город',
+        reply_markup=kb_city,
+    )
+
+    # await message.reply('Введите название заведения')
 
 
-# Выход из состояния
 # @dp.message_handler(state='*', commands='Отмена')
 # @dp.register_message_handler(Text(equals='отмена', ignore_case=True), state='*')
-async def cancel_handler(message: types.Message, state: FSMContext):
+async def cancel_handler(message: types.Message, state: FSMContext) -> None:
+    """
+    Exit from the state.
+
+    Args:
+        message: message being sent
+        state: current state
+    """
     current_state = await state.get_state()
     if current_state is None:
         return
@@ -46,72 +63,140 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     await message.reply('OK')
 
 
-# Ловим первый ответ и пишем в словарь
-# @dp.message_handler(content_types=['photo', ], state=FSMAdmin.photo)
-async def load_photo(message: types.Message, state: FSMContext):
+async def load_city(message: types.Message, state: FSMContext) -> None:
+    """
+    Process the second answer and write it in the dictionary.
+
+    Args:
+        message: message being sent
+        state: current state
+    """
     async with state.proxy() as data:
-        data['photo'] = message.photo[0].file_id
+        data['city'] = message.text
     await FSMAdmin.next()
-    await message.reply('Введите название')
+    await message.reply('Введите название заведения')
 
 
-# Ловим второй ответ
 # @dp.message_handler(state=FSMAdmin.name)
-async def load_name(message: types.Message, state: FSMContext):
+# async def load_city(message: types.Message, state: FSMContext) -> None:
+#     """
+#     Process the first answer and write it in the dictionary.
+#
+#     Args:
+#         message: message being sent
+#         state: current state
+#     """
+#     async with state.proxy() as data:
+#         data['city'] = message.text
+#     await FSMAdmin.next()
+#     await message.reply('Введите Ваш город')
+
+
+# @dp.message_handler(state=FSMAdmin.name)
+async def load_name(message: types.Message, state: FSMContext) -> None:
+    """
+    Process the second answer and write it in the dictionary.
+
+    Args:
+        message: message being sent
+        state: current state
+    """
     async with state.proxy() as data:
         data['name'] = message.text
     await FSMAdmin.next()
     await message.reply('Введите описание')
 
 
-# Ловим третий ответ
 # @dp.message_handler(state=FSMAdmin.description)
-async def load_description(message: types.Message, state: FSMContext):
+async def load_description(message: types.Message, state: FSMContext) -> None:
+    """
+    Process the third answer and write it in the dictionary.
+
+    Args:
+        message: message being sent
+        state: current state
+    """
     async with state.proxy() as data:
         data['description'] = message.text
     await sqllite_db.sql_add_command(state)
     async with state.proxy() as data:
-        await message.reply(str(data))
-        await message.reply('Добавление нового заведения закончено')
+        await send_message(bot, message, str(data._data)[1:-1])
+        await send_message(
+            bot, message, 'Добавление нового заведения закончено'
+        )
     await state.finish()
 
 
-async def del_callback_run(callback_query: types.CallbackQuery):
+async def del_callback_run(callback_query: types.CallbackQuery) -> None:
+    """
+    Deleting a place.
+
+    Args:
+        callback_query: callback query
+    """
     await sqllite_db.sql_delete_command(
-        callback_query.data.replace('del ', ''))
+        callback_query.data.replace('del ', '')
+    )
     await callback_query.answer(
         text=f'{callback_query.data.replace("del ", "")} удалена.',
-        show_alert=True)
+        show_alert=True,
+    )
 
 
-async def delete_item(message: types.Message):
+async def delete_item(message: types.Message) -> None:
+    """
+    Issuing a database to delete a part of it
+
+    Args:
+        message: message being sent
+    """
     if message.from_user.id == ID:
         read = await sqllite_db.sql_read()
         for value in read:
-            await bot.send_photo(message.from_user.id, value[0],
-                                 f'{value[1]}\nГород: {value[2]}\nИмя заведения {value[-1]}')
-            await bot.send_message(message.from_user.id, text='^^^',
-                                   reply_markup=InlineKeyboardMarkup().add(
-                                       InlineKeyboardMarkup(
-                                           text=f'Удалить {value[1]}',
-                                           callback_data=f'del {value[1]}')))
+            await send_message(
+                bot,
+                message,
+                f'Город: {value[0]}\nИмя заведения:{value[1]}\nОписание:{value[2]}',
+            )
+            await send_message(
+                bot,
+                message,
+                '^^^',
+                reply_markup=InlineKeyboardMarkup().add(
+                    InlineKeyboardMarkup(
+                        text=f'Удалить {value[1]}',
+                        callback_data=f'del {value[1]}',
+                    )
+                ),
+            )
 
 
-def register_handlers_admin(disp: Dispatcher):
-    disp.register_message_handler(cm_start, commands=['Загрузить', ],
-                                  state=None)
+def register_handlers_admin(disp: Dispatcher) -> None:
+    """
+    Handler registration.
+
+    Args:
+        disp: Dispatcher object
+    """
+    disp.register_message_handler(
+        cm_start, IDFilter(user_id=ID),
+        commands=[
+            'загрузить',
+        ],
+        state=None,
+    )
     disp.register_message_handler(cancel_handler, state='*', commands='Отмена')
-    disp.register_message_handler(cancel_handler,
-                                  Text(equals='отмена', ignore_case=True),
-                                  state='*')
-    disp.register_message_handler(load_photo, content_types=['photo', ],
-                                  state=FSMAdmin.photo)
+    disp.register_message_handler(
+        cancel_handler, Text(equals='отмена', ignore_case=True), state='*'
+    )
+    disp.register_message_handler(load_city, state=FSMAdmin.city)
     disp.register_message_handler(load_name, state=FSMAdmin.name)
     disp.register_message_handler(load_description, state=FSMAdmin.description)
-    disp.register_callback_query_handler(del_callback_run, lambda
-        command: command.data and command.data.startswith('del '))
+    disp.register_callback_query_handler(
+        del_callback_run,
+        lambda command: command.data and command.data.startswith('del '),
+    )
     disp.register_message_handler(delete_item, commands='Удалить')
-
 
     # disp.register_message_handler(admin_panel, IDFilter(user_id=ADMIN_1),
     #                         commands='admin', state='*')
