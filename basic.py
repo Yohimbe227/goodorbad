@@ -22,10 +22,10 @@ def main() -> None:
         logger.info('Бот запущен!')
 
     dp.filters_factory.bind(IsCurseMessage)
+
     client.register_handlers_client(dp)
     admin.register_handlers_admin(dp)
     other.register_handlers_other(dp)
-    # dp.bind_filter(IsAdmin)
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
 
 

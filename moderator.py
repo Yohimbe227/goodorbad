@@ -4,8 +4,13 @@ from aiogram import types
 from fuzzywuzzy import fuzz
 from aiogram.dispatcher.filters import BoundFilter
 
+STRICTNESS_FILTER = 75
+
 
 class IsCurseMessage(BoundFilter):
+    """
+    Filter for curse words.
+    """
     alphabet = {
         'а': '[@|а|а́|a]',
         'б': '[б|6|b]',
@@ -40,33 +45,52 @@ class IsCurseMessage(BoundFilter):
         'я': '[я|r]',
         ' ': '[.|,|!|?|&|)|(|\\|\/|*|-|_|"|\'|;|®]',
     }
-    # Регулярки для замены похожих букв и символов на русские
 
     CWF = open('banned_words.txt', 'r', encoding='utf-8')
     CurseWords = ''.join(CWF.readlines()).split('\n')[:-1]
 
     def replace_letters(self, word: str = None) -> str:
+        """
+        Taking into account the replacement of letters, symbols
+        and their combinations when checking words.
+        Args:
+            word: checking word
+        Returns:
+        """
         word = word.lower()
         for key, value in self.alphabet.items():
             word = re.sub(value, key, word)
         return word
 
-    async def check(self, msg: str) -> bool:
-        punctuation = r'!|"|#|$|%|&|,|-|;|>|@|_|~| '
-        msg = re.split(punctuation, msg.text)
+    async def check(self, message: types.Message) -> bool:
+        """
+        Curse word filter.
 
-        for word in msg:
-            # word = ''.join([word[i] for i in range(len(word) - 1) if
-            #                 word[i + 1] != word[i]] + [word[
-            #                                                -1]]).lower()  # Здесь убираю символы которые повторяються "Приииииивет" -> "Привет"
+        Accounts for repetitions of letters, different substitutions
+        of letters, symbols and their combinations.
+        The dictionary of bad words is taken from banned_words.txt
+        Args:
+            message: filtered message
+
+        Returns:
+            True if Curse word are done,
+            False if word is normal
+        """
+        punctuation = r'!|"|#|$|%|&|,|-|;|>|@|_|~| '
+        print(re.split(punctuation, message.text))
+        for word in re.split(punctuation, message.text)[:-1]:
+            word = ''.join(
+                [word[i] for i in range(len(word) - 1)
+                 if word[i + 1] != word[i]] + [word[-1]]
+            ).lower()
             word = self.replace_letters(word)
             for word_bad in self.CurseWords:
-                b = fuzz.token_sort_ratio(
+                strictness = fuzz.token_sort_ratio(
                     word_bad, word
-                )  # Проверяю сходство слов из списка
-                if b >= 75:
-                    print(f'{word_bad} | {b}% Матерное слово {word_bad}')
-                    # print(CurseWords)
-                    return True
-            #    print('тест', word, word_bad)
-        return False
+                )
+                if strictness >= STRICTNESS_FILTER:
+                    print(f'{word_bad} | {strictness}% Матерное слово {word_bad}')
+                    await message.reply('А ну не матюкаться!')
+                    await message.delete()
+                    return False
+        return True

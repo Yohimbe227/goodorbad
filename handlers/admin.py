@@ -189,9 +189,9 @@ def register_handlers_admin(disp: Dispatcher) -> None:
     disp.register_message_handler(
         cancel_handler, Text(equals='отмена', ignore_case=True), state='*'
     )
-    disp.register_message_handler(load_city, state=FSMAdmin.city)
-    disp.register_message_handler(load_name, state=FSMAdmin.name)
-    disp.register_message_handler(load_description, state=FSMAdmin.description)
+    disp.register_message_handler(load_city, IsCurseMessage(), state=FSMAdmin.city)
+    disp.register_message_handler(load_name, IsCurseMessage(), state=FSMAdmin.name)
+    disp.register_message_handler(load_description, IsCurseMessage(), state=FSMAdmin.description)
     disp.register_callback_query_handler(
         del_callback_run,
         lambda command: command.data and command.data.startswith('del '),
