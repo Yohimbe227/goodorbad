@@ -4,12 +4,10 @@ from aiogram.dispatcher.filters.builtin import Text, IDFilter
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup
 
-from creation import ID, bot, dp
+from creation import ID, bot
 from database import sqllite_db
-from keyboards import admin_kb
 from keyboards.admin_kb import kb_admin
 from keyboards.city_kb import kb_city
-from keyboards.client_kb import kb_client
 from moderator import IsCurseMessage
 from utils import send_message
 
@@ -33,7 +31,6 @@ async def cm_start(message: types.Message) -> None:
     Raises:
         SendMessageError: If there is an error sending a message via Telegram
     """
-    # if message.from_user.id == ID:
     await send_message(
         bot, message, 'Приветствую босс!', reply_markup=kb_admin
     )
@@ -43,11 +40,7 @@ async def cm_start(message: types.Message) -> None:
         reply_markup=kb_city,
     )
 
-    # await message.reply('Введите название заведения')
 
-
-# @dp.message_handler(state='*', commands='Отмена')
-# @dp.register_message_handler(Text(equals='отмена', ignore_case=True), state='*')
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     """
     Exit from the state.
@@ -65,7 +58,7 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
 
 async def load_city(message: types.Message, state: FSMContext) -> None:
     """
-    Process the second answer and write it in the dictionary.
+    Process the first answer and write it in the dictionary.
 
     Args:
         message: message being sent
@@ -77,22 +70,6 @@ async def load_city(message: types.Message, state: FSMContext) -> None:
     await message.reply('Введите название заведения')
 
 
-# @dp.message_handler(state=FSMAdmin.name)
-# async def load_city(message: types.Message, state: FSMContext) -> None:
-#     """
-#     Process the first answer and write it in the dictionary.
-#
-#     Args:
-#         message: message being sent
-#         state: current state
-#     """
-#     async with state.proxy() as data:
-#         data['city'] = message.text
-#     await FSMAdmin.next()
-#     await message.reply('Введите Ваш город')
-
-
-# @dp.message_handler(state=FSMAdmin.name)
 async def load_name(message: types.Message, state: FSMContext) -> None:
     """
     Process the second answer and write it in the dictionary.
@@ -107,7 +84,6 @@ async def load_name(message: types.Message, state: FSMContext) -> None:
     await message.reply('Введите описание')
 
 
-# @dp.message_handler(state=FSMAdmin.description)
 async def load_description(message: types.Message, state: FSMContext) -> None:
     """
     Process the third answer and write it in the dictionary.
@@ -145,7 +121,7 @@ async def del_callback_run(callback_query: types.CallbackQuery) -> None:
 
 async def delete_item(message: types.Message) -> None:
     """
-    Issuing a database to delete a part of it
+    Issuing a database to delete a part of it.
 
     Args:
         message: message being sent
@@ -197,6 +173,3 @@ def register_handlers_admin(disp: Dispatcher) -> None:
         lambda command: command.data and command.data.startswith('del '),
     )
     disp.register_message_handler(delete_item, commands='Удалить')
-
-    # disp.register_message_handler(admin_panel, IDFilter(user_id=ADMIN_1),
-    #                         commands='admin', state='*')
