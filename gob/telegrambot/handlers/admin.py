@@ -33,7 +33,7 @@ async def cm_start(message: types.Message) -> None:
     """
     print(bot, message)
     await send_message(
-        bot, message, 'Приветствую босс!', reply_markup=kb_admin
+        bot, message, 'Приветствую босс!!!', reply_markup=kb_admin
     )
     await FSMAdmin.city.set()
     await message.reply(
