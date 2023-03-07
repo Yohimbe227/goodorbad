@@ -10,9 +10,9 @@ class BaseAdmin(admin.ModelAdmin):
 
 @admin.register(Place)
 class PlaceAdmin(BaseAdmin):
-    list_display = ('pk', 'name', 'city', 'place_type', 'created', 'sponsored',)
+    list_display = (
+    'pk', 'name', 'city', 'place_type', 'review', 'url', 'created',
+    'sponsored',
+    )
     list_editable = ('name', 'sponsored',)
-    # search_fields = ('created', 'name', 'city', 'place_type', 'sponsored',)
-    # list_filter = ('created', 'name', 'city', 'place_type', 'sponsored', )
-
     form = PlaceForm

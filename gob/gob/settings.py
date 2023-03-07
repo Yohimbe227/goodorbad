@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bot_admin.apps.TelebotConfig',
+    'administration.apps.AdministrationConfig',
 ]
 
 MIDDLEWARE = [
@@ -112,3 +112,7 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CHOICES = (('cf', 'Кафе'), ('br', 'Бар'), ('rs', 'Ресторан'),
+           ('ff', 'Фастфуд'), ('pz', 'Пиццерия'),)
+

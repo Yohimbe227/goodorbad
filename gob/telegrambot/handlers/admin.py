@@ -13,9 +13,7 @@ from telegrambot.utils import send_message
 
 
 class FSMAdmin(StatesGroup):
-    """
-    Class of states.
-    """
+    """Class of states."""
     city = State()
     name = State()
     description = State()
@@ -31,7 +29,6 @@ async def cm_start(message: types.Message) -> None:
     Raises:
         SendMessageError: If there is an error sending a message via Telegram
     """
-    print(bot, message)
     await send_message(
         bot, message, 'Приветствую босс!!!', reply_markup=kb_admin
     )
@@ -94,7 +91,7 @@ async def load_description(message: types.Message, state: FSMContext) -> None:
         state: current state
     """
     async with state.proxy() as data:
-        data['description'] = message.text
+        data['review'] = message.text
     await sqllite_db.sql_add_command(state)
     async with state.proxy() as data:
         await send_message(bot, message, str(data._data)[1:-1])

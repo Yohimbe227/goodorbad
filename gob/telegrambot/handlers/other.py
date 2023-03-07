@@ -10,7 +10,12 @@ async def filtered_send(message: types.Message):
     #     await message.delete()
     # else:
     # print('filtered_send', message.from_user.id, message.text, bot)
-    await bot.send_message(message.from_user.id, message.text)
+
+    print(message)
+    if user_location := message.location:
+        print(user_location)
+    else:
+        await bot.send_message(message.from_user.id, message.text)
 
 
 def register_handlers_other(disp: Dispatcher):

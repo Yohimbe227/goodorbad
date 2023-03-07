@@ -1,6 +1,8 @@
 from aiogram import types
 from aiogram.dispatcher import Dispatcher
+from haversine import haversine, Unit
 
+from administration.models import Place
 from telegrambot.creation import bot
 from telegrambot.database import sqllite_db
 from telegrambot.decorators import func_logger
@@ -19,6 +21,28 @@ async def command_start(message: types.Message):
         await message.reply(
             f'{err} Общение с ботом через ЛС.\nhttps://t.me/goodorbad_bot'
         )
+
+
+@func_logger('отправка местоположения', level='info')
+async def get_location(message: types.Message):
+    print(list(message.location.values.values()))
+    distance = []
+    async for place in Place.objects.all().select_related():
+        distance.append((place.name, haversine((place.latitude, place.longitude),
+                                       tuple(
+                                           message.location.values.values()))
+                             )
+                        )
+    nearest_place = sorted(distance, key=lambda place: place[1])
+
+    # print('haversine', nearest_place)
+    try:
+        await send_message(
+            bot, message, nearest_place[0:2],
+            reply_markup=kb_client
+        )
+    except Exception as err:
+        print('Непонятная ошибка')
 
 
 @func_logger('вывод всех заведений', level='info')
@@ -65,3 +89,6 @@ def register_handlers_client(disp: Dispatcher):
         ],
     )
     disp.register_message_handler(places_all, commands=['место'])
+    disp.register_message_handler(get_location,
+                                  commands=['отправить_мое_местоположение'])
+    disp.register_message_handler(get_location, content_types=['location'])

@@ -1,22 +1,30 @@
 from django import forms
 
-from bot_admin.models import Place
+from administration.models import Place
+from gob.settings import CHOICES
 
 
 class PlaceForm(forms.ModelForm):
 
+    place_type = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=CHOICES,
+     )
+
     class Meta:
-        model: Place
+        model = Place
+
         fields = (
             'name',
             'city',
             'place_type',
             'url',
-            'created',
+            'latitude',
+            'longitude',
             'sponsored',
         )
         widgets = {
             'name': forms.TextInput,
-            'created': forms.DateTimeInput,
             'city': forms.TextInput,
         }

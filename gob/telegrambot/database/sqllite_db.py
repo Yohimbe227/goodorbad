@@ -1,64 +1,47 @@
 import sqlite3 as sq
-from asyncio import get_event_loop
 
-from bot_admin.models import Place
+from aiogram.dispatcher import FSMContext
+
+from administration.models import Place
 from gob.settings import BASE_DIR
 from telegrambot.creation import bot
 from telegrambot.decorators import func_logger
-from asgiref.sync import sync_to_async
+from telegrambot.utils import send_message
 
 base = sq.connect(BASE_DIR / 'db.sqlite3')
-cur = base.cursor()
+# cur = base.cursor()
 
 
 def sql_start():
-
     if base:
         print('Data base connected OK')
-    # base.execute(
-    #     'CREATE TABLE IF NOT EXISTS places(img TEXT, name TEXT PRIMARY KEY, description TEXT)'
-    # )
-    # base.commit()
 
 
-# async def sql_add_command(state):
-#     async with state.proxy() as data:
-#         cur.execute(
-#             'INSERT INTO places VALUES (?, ?, ?)', tuple(data.values())
-#         )
-#         base.commit()
+async def sql_add_command(state: FSMContext):
+    async with state.proxy() as data:
+        print(data._data)
 
-# @sync_to_async
-# def get_users():
-#     return list(
-#         Place.objects.all()
-#     )
-@sync_to_async
-def get_all_places():
-    return list(Place.objects.all())
+        await Place.objects.acreate(
+            **data._data
+            # city=data['city'], name=data['name'], review=data['review'],
+        )
 
 
-# @func_logger('считывание из базы всех заведений', level='info')
+@func_logger('считывание из базы всех заведений', level='info')
 async def sql_data_base(message):
-
-    # get_place = sync_to_async(Place.objects.all)()
-    # print(get_place, type(get_place))
-    results = await get_all_places()
-    for value in results:
-        print(value.name)
-
-    loop = get_event_loop()
-    loop.run_until_complete(sql_data_base(message))
-        # bot.send_message(
-        #     message.from_user.id,
-        #     f'Город: {value.city}\nИмя заведения:{value.name}\nОписание:{value.place_type}',
-        # )
+    async for place in Place.objects.all():
+        await send_message(
+            bot,
+            message,
+            f'Город: {place.city}\nИмя заведения:{place.name}\nОписание:'
+            f'{place.place_type}\nСсылка: {place.url}',
+        )
 
 
-async def sql_read():
-    return cur.execute('SELECT * FROM places').fetchall()
-
-
-async def sql_delete_command(data):
-    cur.execute('DELETE FROM places WHERE name == ?', (data,))
-    base.commit()
+# async def sql_read():
+#     return cur.execute('SELECT * FROM places').fetchall()
+#
+#
+# async def sql_delete_command(data):
+#     cur.execute('DELETE FROM places WHERE name == ?', (data,))
+#     base.commit()
