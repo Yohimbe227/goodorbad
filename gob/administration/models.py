@@ -15,6 +15,16 @@ class Review(models.Model):
     )
 
 
+class PlaceType(models.Model):
+    name = models.CharField(
+        verbose_name='тип заведения',
+        max_length=30,
+    )
+
+    def __str__(self):
+        return self.name
+
+
 class Place(models.Model):
 
     name = models.CharField(
@@ -25,14 +35,35 @@ class Place(models.Model):
         verbose_name='город',
         max_length=20,
     )
-    place_type = models.CharField(
-        verbose_name='Вид заведения',
-        choices=CHOICES,
+    place_type = models.ManyToManyField(
+        PlaceType,
+        verbose_name='вид заведения',
         max_length=15,
+        through='PlaceTypePlace',
+    )
+    address_name = models.TextField(
+        verbose_name='описание',
+        blank=True,
+        null=True,
     )
     description = models.TextField(
         verbose_name='описание',
         blank=True,
+        null=True,
+    )
+    worktime_from = models.TimeField(
+        'Время работы, с',
+        db_index=True,
+        blank=True,
+        null=True,
+        default=None,
+    )
+    worktime_to = models.TimeField(
+        'Время работы, до',
+        db_index=True,
+        blank=True,
+        null=True,
+        default=None,
     )
     url = models.URLField(
         verbose_name='ссылка на сайт заведения',
@@ -62,3 +93,26 @@ class Place(models.Model):
     class Meta:
         verbose_name = 'заведение'
         verbose_name_plural = 'заведения'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'city', ],
+                name='%(app_label)s_%(class)s_unique_relationships',
+            ),
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class PlaceTypePlace(models.Model):
+    place = models.ForeignKey(
+        Place,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    place_type = models.ForeignKey(
+        PlaceType,
+        on_delete=models.CASCADE,
+    )
+    verbose_name = 'тип заведения'
