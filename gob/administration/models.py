@@ -17,9 +17,12 @@ class Review(models.Model):
 
 class PlaceType(models.Model):
     name = models.CharField(
-        verbose_name='тип заведения',
         max_length=30,
+        unique=True,
     )
+
+    class Meta:
+        verbose_name = 'тип заведения',
 
     def __str__(self):
         return self.name
@@ -95,7 +98,7 @@ class Place(models.Model):
         verbose_name_plural = 'заведения'
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'city', ],
+                fields=['name', 'address_name', 'city', ],
                 name='%(app_label)s_%(class)s_unique_relationships',
             ),
         ]
