@@ -1,9 +1,8 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.builtin import Text, IDFilter
+from aiogram.dispatcher.filters.builtin import IDFilter, Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup
-
 from telegrambot.creation import ID, bot
 from telegrambot.database import sqllite_db
 from telegrambot.keyboards.admin_kb import kb_admin
@@ -14,6 +13,7 @@ from telegrambot.utils import send_message
 
 class FSMAdmin(StatesGroup):
     """Class of states."""
+
     city = State()
     name = State()
     description = State()
@@ -40,8 +40,7 @@ async def cm_start(message: types.Message) -> None:
 
 
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
-    """
-    Exit from the state.
+    """Exit from the state.
 
     Args:
         message: message being sent
@@ -55,8 +54,7 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
 
 
 async def load_city(message: types.Message, state: FSMContext) -> None:
-    """
-    Process the first answer and write it in the dictionary.
+    """Process the first answer and write it in the dictionary.
 
     Args:
         message: message being sent
@@ -154,7 +152,8 @@ def register_handlers_admin(disp: Dispatcher) -> None:
         disp: Dispatcher object
     """
     disp.register_message_handler(
-        cm_start, IDFilter(user_id=ID),
+        cm_start,
+        IDFilter(user_id=ID),
         commands=[
             'загрузить',
         ],
@@ -164,9 +163,15 @@ def register_handlers_admin(disp: Dispatcher) -> None:
     disp.register_message_handler(
         cancel_handler, Text(equals='отмена', ignore_case=True), state='*'
     )
-    disp.register_message_handler(load_city, IsCurseMessage(), state=FSMAdmin.city)
-    disp.register_message_handler(load_name, IsCurseMessage(), state=FSMAdmin.name)
-    disp.register_message_handler(load_description, IsCurseMessage(), state=FSMAdmin.description)
+    disp.register_message_handler(
+        load_city, IsCurseMessage(), state=FSMAdmin.city
+    )
+    disp.register_message_handler(
+        load_name, IsCurseMessage(), state=FSMAdmin.name
+    )
+    disp.register_message_handler(
+        load_description, IsCurseMessage(), state=FSMAdmin.description
+    )
     disp.register_callback_query_handler(
         del_callback_run,
         lambda command: command.data and command.data.startswith('del '),

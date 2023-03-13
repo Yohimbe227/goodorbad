@@ -1,6 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
-from gob.settings import CHOICES
+User = get_user_model()
 
 
 class Review(models.Model):
@@ -22,7 +23,7 @@ class PlaceType(models.Model):
     )
 
     class Meta:
-        verbose_name = 'тип заведения',
+        verbose_name = ('тип заведения',)
 
     def __str__(self):
         return self.name
@@ -78,10 +79,7 @@ class Place(models.Model):
         db_index=True,
         blank=True,
     )
-    sponsored = models.BooleanField(
-        default=False,
-        verbose_name='проплачено'
-    )
+    sponsored = models.BooleanField(default=False, verbose_name='проплачено')
     latitude = models.FloatField('широта', blank=True, null=True)
     longitude = models.FloatField('долгота', blank=True, null=True)
     review = models.ForeignKey(
@@ -96,9 +94,14 @@ class Place(models.Model):
     class Meta:
         verbose_name = 'заведение'
         verbose_name_plural = 'заведения'
+        default_related_name = 'places'
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'address_name', 'city', ],
+                fields=[
+                    'name',
+                    'address_name',
+                    'city',
+                ],
                 name='%(app_label)s_%(class)s_unique_relationships',
             ),
         ]

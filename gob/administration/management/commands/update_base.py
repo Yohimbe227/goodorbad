@@ -5,10 +5,9 @@ from http import HTTPStatus
 from time import sleep
 
 import requests
+from administration.models import Place, PlaceType
 from django.core.management import BaseCommand
 from django.db import IntegrityError
-
-from administration.models import Place, PlaceType
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
 
@@ -37,9 +36,13 @@ def get_api_answer(number_of_pages: int, city: str) -> dict:
             response = requests.get(
                 ENDPOINT,
                 # headers=HEADERS,
-                params={'key': 'ruwnof3076', 'q': f'{city} {keyword}', 'type': 'branch',
-                        'page': number_of_pages,
-                        'fields': 'items.point,items.rubrics,items.schedule'},
+                params={
+                    'key': 'ruwnof3076',
+                    'q': f'{city} {keyword}',
+                    'type': 'branch',
+                    'page': number_of_pages,
+                    'fields': 'items.point,items.rubrics,items.schedule',
+                },
             )
     except requests.RequestException as err:
         logging.exception(MESSAGE_ERROR_REQUEST)
@@ -60,7 +63,6 @@ def convert_time(time_work: str) -> str:
 def parser(number_of_pages: int, city) -> None:
     place = {}
     for page in range(1, number_of_pages):
-        sleep(0.1)
         for place_source in get_api_answer(page, city):
             place_types = []
             for key in place_source.keys():
@@ -71,26 +73,36 @@ def parser(number_of_pages: int, city) -> None:
                     case 'rubrics':
                         for rubrics_keys in place_source['rubrics']:
                             try:
-                                place_types.append(PlaceType.objects.create(
-                                    name=rubrics_keys['name']))
+                                place_types.append(
+                                    PlaceType.objects.create(
+                                        name=rubrics_keys['name']
+                                    )
+                                )
                             except IntegrityError as error:
                                 logger.info('Такой тип заведения уже добавлен')
-                                place_types.append(PlaceType.objects.get(name=rubrics_keys['name']))
+                                place_types.append(
+                                    PlaceType.objects.get(
+                                        name=rubrics_keys['name']
+                                    )
+                                )
 
                     case 'schedule':
                         try:
                             place['worktime_from'] = convert_time(
-                                place_source['schedule']['Fri']['working_hours'][
-                                    0]['from'])
+                                place_source['schedule']['Fri'][
+                                    'working_hours'
+                                ][0]['from']
+                            )
                             place['worktime_to'] = convert_time(
-                                place_source['schedule']['Fri']['working_hours'][
-                                    0]['to'])
+                                place_source['schedule']['Fri'][
+                                    'working_hours'
+                                ][0]['to']
+                            )
                         except KeyError as error:
                             logger.info(f'Отсутствует ключ {error} в API')
                     case _:
                         place['name'] = place_source['name']
-                        place['address_name'] = place_source[
-                            'address_name']
+                        place['address_name'] = place_source['address_name']
 
             print(place)
             place['city'] = city
@@ -101,7 +113,6 @@ def parser(number_of_pages: int, city) -> None:
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         try:
             parser(9, 'Курск')

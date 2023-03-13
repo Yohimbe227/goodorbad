@@ -1,5 +1,4 @@
 from aiogram import Dispatcher, types
-
 from telegrambot.creation import bot
 from telegrambot.moderator import IsCurseMessage
 

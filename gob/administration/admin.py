@@ -3,7 +3,6 @@ from django.contrib import admin
 from .forms import PlaceForm
 from .models import Place
 
-
 # class BaseAdmin(admin.ModelAdmin):
 #     empty_value_display = '-пусто-'
 #

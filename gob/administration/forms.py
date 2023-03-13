@@ -1,6 +1,6 @@
+from administration.models import Place
 from django import forms
 
-from administration.models import Place
 from gob.settings import CHOICES
 
 
@@ -10,7 +10,7 @@ class PlaceForm(forms.ModelForm):
         required=False,
         widget=forms.CheckboxSelectMultiple,
         choices=CHOICES,
-     )
+    )
 
     class Meta:
         model = Place

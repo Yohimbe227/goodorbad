@@ -1,11 +1,10 @@
 from aiogram.utils import executor
 from django.core.management import BaseCommand
-
 from telegrambot.creation import dp
 from telegrambot.database import sqllite_db
-from telegrambot.handlers import other, admin, client
-from telegrambot.utils import logger
+from telegrambot.handlers import admin, client, other
 from telegrambot.moderator import IsCurseMessage
+from telegrambot.utils import logger
 
 
 def starts_bot() -> None:
@@ -27,5 +26,6 @@ def starts_bot() -> None:
 class Command(BaseCommand):
     def handle(self, *args, **options):
         starts_bot()
+
 
 # starts_bot()

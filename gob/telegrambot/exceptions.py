@@ -21,3 +21,8 @@ class StatusError(Error):
 class SendMessageError(Error):
     def __str__(self):
         return 'f{type(self).__name__}. Ошибка отправки сообщения'
+
+
+class UnknownError(Error):
+    def __str__(self):
+        return 'f{type(self).__name__}. Что-то не так с создание пользователя'

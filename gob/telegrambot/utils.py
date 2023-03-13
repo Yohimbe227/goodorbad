@@ -3,7 +3,6 @@ from typing import Any
 
 from aiogram import types
 from aiogram.bot import bot
-
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import SendMessageError, TokenError
 
@@ -48,3 +47,27 @@ async def send_message(
     except Exception as err:
         logging.exception('Сообщение не отправлено')
         raise SendMessageError from err
+
+
+def n_max(array: list, number_of_maximum: int) -> list:
+    """Find needed quantity of minimum elements in array.
+
+    Args:
+        array: The array in which we are looking for elements.
+        number_of_maximum: The number of minimum elements.
+
+    Returns:
+        The array of minimum elements in descending order.
+
+    """
+    quantity = len(array)
+    while quantity > quantity - number_of_maximum:
+        for index in range(quantity):
+            if index and array[index - 1] < array[index]:
+                array[index], array[index - 1] = (
+                    array[index - 1],
+                    array[index],
+                )
+        quantity -= 1
+
+    return array[quantity - number_of_maximum :]

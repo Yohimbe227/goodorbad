@@ -1,8 +1,8 @@
 import re
 
 from aiogram import types
-from fuzzywuzzy import fuzz
 from aiogram.dispatcher.filters import BoundFilter
+from fuzzywuzzy import fuzz
 
 from gob.settings import BASE_DIR
 
@@ -81,16 +81,20 @@ class IsCurseMessage(BoundFilter):
         print(re.split(punctuation, message.text))
         for word in re.split(punctuation, message.text)[:-1]:
             word = ''.join(
-                [word[i] for i in range(len(word) - 1)
-                 if word[i + 1] != word[i]] + [word[-1]]
+                [
+                    word[i]
+                    for i in range(len(word) - 1)
+                    if word[i + 1] != word[i]
+                ]
+                + [word[-1]]
             ).lower()
             word = self.replace_letters(word)
             for word_bad in self.CurseWords:
-                strictness = fuzz.token_sort_ratio(
-                    word_bad, word
-                )
+                strictness = fuzz.token_sort_ratio(word_bad, word)
                 if strictness >= STRICTNESS_FILTER:
-                    print(f'{word_bad} | {strictness}% Матерное слово {word_bad}')
+                    print(
+                        f'{word_bad} | {strictness}% Матерное слово {word_bad}'
+                    )
                     await message.reply('А ну не матюкаться!')
                     await message.delete()
                     return False
