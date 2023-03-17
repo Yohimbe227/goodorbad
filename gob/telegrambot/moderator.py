@@ -77,9 +77,9 @@ class IsCurseMessage(BoundFilter):
             True if Curse word are done,
             False if word is normal
         """
-        punctuation = r'!|"|#|$|%|&|,|-|;|>|@|_|~| '
-        print(re.split(punctuation, message.text))
+        punctuation = r'!|"|#|$|%|&|, |-|;|>|@|_|~| '
         for word in re.split(punctuation, message.text)[:-1]:
+            print(word)
             word = ''.join(
                 [
                     word[i]

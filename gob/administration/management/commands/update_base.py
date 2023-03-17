@@ -17,7 +17,6 @@ GIS_TOKEN = os.getenv('GIS_TOKEN')
 HEADERS = {'key': f'{GIS_TOKEN}'}
 MESSAGE_ERROR_REQUEST = 'Какая то лажа с endpoint'
 
-
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
@@ -62,10 +61,12 @@ def convert_time(time_work: str) -> str:
 
 def parser(number_of_pages: int, city) -> None:
     place = {}
-    for page in range(1, number_of_pages):
-        for place_source in get_api_answer(page, city):
+    for page in range(1, number_of_pages):  # iteration by pages
+        for place_source in get_api_answer(
+            page, city
+        ):  # iteration by object on page
             place_types = []
-            for key in place_source.keys():
+            for key in place_source.keys():  # by keys in object
                 match key:
                     case 'point':
                         place['latitude'] = place_source['point']['lat']
@@ -88,6 +89,7 @@ def parser(number_of_pages: int, city) -> None:
 
                     case 'schedule':
                         try:
+                            # Тут временный костыль. Время работы берется только по пятнице!
                             place['worktime_from'] = convert_time(
                                 place_source['schedule']['Fri'][
                                     'working_hours'

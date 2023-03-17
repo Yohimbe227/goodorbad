@@ -4,18 +4,6 @@ from django.db import models
 User = get_user_model()
 
 
-class Review(models.Model):
-    text = models.TextField(
-        verbose_name='отзывы',
-    )
-    date = models.DateTimeField(
-        'Дата добавления',
-        auto_now_add=True,
-        db_index=True,
-        blank=True,
-    )
-
-
 class PlaceType(models.Model):
     name = models.CharField(
         max_length=30,
@@ -33,16 +21,16 @@ class Place(models.Model):
 
     name = models.CharField(
         verbose_name='имя',
-        max_length=30,
+        max_length=60,
     )
     city = models.CharField(
         verbose_name='город',
-        max_length=20,
+        max_length=30,
     )
     place_type = models.ManyToManyField(
         PlaceType,
         verbose_name='вид заведения',
-        max_length=15,
+        max_length=30,
         through='PlaceTypePlace',
     )
     address_name = models.TextField(
@@ -82,14 +70,6 @@ class Place(models.Model):
     sponsored = models.BooleanField(default=False, verbose_name='проплачено')
     latitude = models.FloatField('широта', blank=True, null=True)
     longitude = models.FloatField('долгота', blank=True, null=True)
-    review = models.ForeignKey(
-        Review,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-        verbose_name='отзывы',
-        help_text='отзывы пользователей',
-    )
 
     class Meta:
         verbose_name = 'заведение'
@@ -108,6 +88,24 @@ class Place(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    place = models.ForeignKey(
+        Place, on_delete=models.CASCADE, related_name='reviews'
+    )
+    text = models.TextField(
+        verbose_name='отзывы',
+    )
+    date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.text.__str__()
 
 
 class PlaceTypePlace(models.Model):

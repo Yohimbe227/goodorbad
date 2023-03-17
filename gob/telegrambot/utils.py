@@ -49,7 +49,7 @@ async def send_message(
         raise SendMessageError from err
 
 
-def n_max(array: list, number_of_maximum: int) -> list:
+async def n_max(array: list, number_of_maximum: int) -> list:
     """Find needed quantity of minimum elements in array.
 
     Args:
@@ -61,13 +61,13 @@ def n_max(array: list, number_of_maximum: int) -> list:
 
     """
     quantity = len(array)
-    while quantity > quantity - number_of_maximum:
+    while quantity > len(array) - number_of_maximum:
         for index in range(quantity):
-            if index and array[index - 1] < array[index]:
+            if index and array[index - 1][1] < array[index][1]:
                 array[index], array[index - 1] = (
                     array[index - 1],
                     array[index],
                 )
         quantity -= 1
 
-    return array[quantity - number_of_maximum :]
+    return array[len(array) - number_of_maximum :]

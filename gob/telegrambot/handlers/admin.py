@@ -7,6 +7,7 @@ from telegrambot.creation import ID, bot
 from telegrambot.database import sqllite_db
 from telegrambot.keyboards.admin_kb import kb_admin
 from telegrambot.keyboards.city_kb import kb_city
+from telegrambot.keyboards.client_kb import kb_client
 from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import send_message
 
@@ -50,7 +51,7 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     if current_state is None:
         return
     await state.finish()
-    await message.reply('OK')
+    await message.reply('OK', reply_markup=kb_client)
 
 
 async def load_city(message: types.Message, state: FSMContext) -> None:

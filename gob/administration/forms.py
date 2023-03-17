@@ -1,15 +1,12 @@
 from administration.models import Place
 from django import forms
 
-from gob.settings import CHOICES
-
 
 class PlaceForm(forms.ModelForm):
 
     place_type = forms.MultipleChoiceField(
         required=False,
         widget=forms.CheckboxSelectMultiple,
-        choices=CHOICES,
     )
 
     class Meta:
