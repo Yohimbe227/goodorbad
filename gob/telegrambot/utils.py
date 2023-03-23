@@ -36,11 +36,12 @@ async def send_message(
     Включает логирование и обработку ошибок.
 
     Args:
-        mybot: объект телеграм бота
-        message: передаваемое сообщение или ошибка
-        message_text: текст отправляемого сообщения
+        mybot: объект телеграм бота.
+        message: передаваемое сообщение или ошибка.
+        message_text: текст отправляемого сообщения.
     Raises:
-        SendMessageError: Если ошибка отправки сообщения через телеграм
+        SendMessageError: Если ошибка отправки сообщения через телеграм.
+
     """
     try:
         await mybot.send_message(message.from_user.id, message_text, **kwargs)
@@ -70,4 +71,4 @@ async def n_max(array: list, number_of_maximum: int) -> list:
                 )
         quantity -= 1
 
-    return array[len(array) - number_of_maximum :]
+    return array[len(array) - number_of_maximum:]

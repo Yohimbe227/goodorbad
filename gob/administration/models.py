@@ -97,6 +97,12 @@ class Review(models.Model):
     text = models.TextField(
         verbose_name='отзывы',
     )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="автор",
+        null=True,
+    )
     date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,

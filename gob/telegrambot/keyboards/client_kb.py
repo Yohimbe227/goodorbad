@@ -1,3 +1,4 @@
+from aiogram import types
 from aiogram.types import (KeyboardButton, ReplyKeyboardMarkup,
                            ReplyKeyboardRemove)
 
@@ -31,10 +32,11 @@ kb_client_with_places = ReplyKeyboardMarkup(
 )
 
 
-def get_keyboard(buttons: list[KeyboardButton], ):
+def get_keyboard(
+    buttons: list[KeyboardButton],
+):
     keyboard = ReplyKeyboardMarkup(
-        resize_keyboard=True,
-        one_time_keyboard=True
+        resize_keyboard=True, one_time_keyboard=True
     )
     keyboard.add(*buttons)
     return keyboard
