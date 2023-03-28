@@ -11,7 +11,8 @@ class PlaceType(models.Model):
     )
 
     class Meta:
-        verbose_name = ('тип заведения',)
+        verbose_name = 'тип заведения'
+        verbose_name_plural = 'типы заведений'
 
     def __str__(self):
         return self.name
@@ -34,7 +35,7 @@ class Place(models.Model):
         through='PlaceTypePlace',
     )
     address_name = models.TextField(
-        verbose_name='описание',
+        verbose_name='Адрес',
         blank=True,
         null=True,
     )
@@ -60,6 +61,7 @@ class Place(models.Model):
     url = models.URLField(
         verbose_name='ссылка на сайт заведения',
         null=True,
+        blank=True,
     )
     created = models.DateTimeField(
         'Дата добавления',
@@ -111,7 +113,11 @@ class Review(models.Model):
     )
 
     def __str__(self):
-        return self.text.__str__()
+        return self.text
+
+    class Meta:
+        verbose_name = 'отзыв'
+        verbose_name_plural = 'отзывы'
 
 
 class PlaceTypePlace(models.Model):
@@ -125,4 +131,7 @@ class PlaceTypePlace(models.Model):
         PlaceType,
         on_delete=models.CASCADE,
     )
-    verbose_name = 'тип заведения'
+
+    class Meta:
+        verbose_name = 'тип заведения'
+        verbose_name_plural = 'типы заведений'

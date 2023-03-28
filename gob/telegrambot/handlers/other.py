@@ -1,4 +1,5 @@
 from aiogram import Dispatcher, types
+
 from telegrambot.creation import bot
 from telegrambot.moderator import IsCurseMessage
 
@@ -10,7 +11,6 @@ async def filtered_send(message: types.Message):
     # else:
     # print('filtered_send', message.from_user.id, message.text, bot)
 
-    print(message)
     if user_location := message.location:
         print(user_location)
     else:

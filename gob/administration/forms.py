@@ -1,13 +1,14 @@
-from administration.models import Place
 from django import forms
+
+from administration.models import Place
 
 
 class PlaceForm(forms.ModelForm):
 
-    place_type = forms.MultipleChoiceField(
-        required=False,
-        widget=forms.CheckboxSelectMultiple,
-    )
+    # place_type = forms.MultipleChoiceField(
+    #     required=False,
+    #     widget=forms.CheckboxSelectMultiple,
+    # )
 
     class Meta:
         model = Place
@@ -16,12 +17,12 @@ class PlaceForm(forms.ModelForm):
             'name',
             'city',
             'place_type',
+            'description',
             'url',
             'latitude',
             'longitude',
             'sponsored',
         )
         widgets = {
-            'name': forms.TextInput,
             'city': forms.TextInput,
         }

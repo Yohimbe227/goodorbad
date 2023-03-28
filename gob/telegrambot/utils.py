@@ -3,8 +3,11 @@ from typing import Any
 
 from aiogram import types
 from aiogram.bot import bot
+
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import SendMessageError, TokenError
+
+# from telegrambot.handlers.clients.basic import NUMBER_OF_PLACES_TO_SHOW
 
 logging.basicConfig(
     level=logging.INFO,
@@ -44,7 +47,9 @@ async def send_message(
 
     """
     try:
-        await mybot.send_message(message.from_user.id, message_text, **kwargs)
+        await mybot.send_message(
+            message.from_user.id, message_text, parse_mode='HTML', **kwargs
+        )
     except Exception as err:
         logging.exception('Сообщение не отправлено')
         raise SendMessageError from err
@@ -71,4 +76,16 @@ async def n_max(array: list, number_of_maximum: int) -> list:
                 )
         quantity -= 1
 
-    return array[len(array) - number_of_maximum:]
+    return array[len(array) - number_of_maximum :]
+
+
+# def place_send_message(message: types.Message, places: list[str], distance: list[float]):
+#
+#     f'Вот {NUMBER_OF_PLACES_TO_SHOW} заведения и первое из них на карте: \n-' + '\n-'.join(
+#         places),
+
+
+def convert_time(time_work: str) -> str:
+    if time_work == '24:00':
+        return '00:00'
+    return time_work

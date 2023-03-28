@@ -2,6 +2,7 @@ import re
 
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
+
 from fuzzywuzzy import fuzz
 
 from gob.settings import BASE_DIR
@@ -79,7 +80,6 @@ class IsCurseMessage(BoundFilter):
         """
         punctuation = r'!|"|#|$|%|&|, |-|;|>|@|_|~| '
         for word in re.split(punctuation, message.text)[:-1]:
-            print(word)
             word = ''.join(
                 [
                     word[i]
@@ -87,6 +87,8 @@ class IsCurseMessage(BoundFilter):
                     if word[i + 1] != word[i]
                 ]
                 + [word[-1]]
+                if word
+                else ''
             ).lower()
             word = self.replace_letters(word)
             for word_bad in self.CurseWords:

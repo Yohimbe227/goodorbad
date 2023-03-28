@@ -2,20 +2,22 @@ import logging
 import os
 from copy import copy
 from http import HTTPStatus
-from time import sleep
+
+from django.core.management import BaseCommand
+from django.db import IntegrityError
 
 import requests
 from administration.models import Place, PlaceType
-from django.core.management import BaseCommand
-from django.db import IntegrityError
+from telegrambot.costants import CITY_ID, KEYWORDS, RUBRIC_ID
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
+from telegrambot.utils import convert_time
 
 ENDPOINT = 'https://catalog.api.2gis.com/3.0/items'
 RETRY_PERIOD = 100
 GIS_TOKEN = os.getenv('GIS_TOKEN')
 HEADERS = {'key': f'{GIS_TOKEN}'}
-MESSAGE_ERROR_REQUEST = 'Какая то лажа с endpoint'
+MESSAGE_ERROR_REQUEST = 'Какие то проблемы с endpoint'
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -23,29 +25,29 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-KEYWORDS = ('бар', 'ресторан', 'кафе', 'пицца')
-
 
 @func_logger('Получение ответа API')
-def get_api_answer(number_of_pages: int, city: str) -> dict:
+def get_api_answer(
+    number_of_page: int,
+    city: str,
+) -> dict:
     """Получаем ответ от эндпоинта."""
 
     try:
-        for keyword in KEYWORDS:
-            response = requests.get(
-                ENDPOINT,
-                # headers=HEADERS,
-                params={
-                    'key': 'ruwnof3076',
-                    'q': f'{city} {keyword}',
-                    'type': 'branch',
-                    'page': number_of_pages,
-                    'fields': 'items.point,items.rubrics,items.schedule',
-                },
-            )
-    except requests.RequestException as err:
+        response = requests.get(
+            ENDPOINT,
+            params={
+                'city_id': f'{CITY_ID[city]}',
+                'page': number_of_page,
+                'page_size': 10,
+                'fields': 'items.point,items.rubrics',
+                'rubric_id': RUBRIC_ID,
+                'key': 'ruwnof3076',
+            },
+        )
+    except requests.RequestException as error:
         logging.exception(MESSAGE_ERROR_REQUEST)
-        raise HTTPError from err
+        raise HTTPError from error
 
     if response.status_code != HTTPStatus.OK:
         logger.error(MESSAGE_ERROR_REQUEST)
@@ -53,13 +55,7 @@ def get_api_answer(number_of_pages: int, city: str) -> dict:
     return response.json().get('result').get('items')
 
 
-def convert_time(time_work: str) -> str:
-    if time_work == '24:00':
-        return '00:00'
-    return time_work
-
-
-def parser(number_of_pages: int, city) -> None:
+def parser(number_of_pages: int, city: str) -> None:
     place = {}
     for page in range(1, number_of_pages):  # iteration by pages
         for place_source in get_api_answer(
@@ -104,7 +100,12 @@ def parser(number_of_pages: int, city) -> None:
                             logger.info(f'Отсутствует ключ {error} в API')
                     case _:
                         place['name'] = place_source['name']
-                        place['address_name'] = place_source['address_name']
+                        try:
+                            place['address_name'] = place_source[
+                                'address_name'
+                            ]
+                        except KeyError as error:
+                            logger.error(f'Нет такого ключа {error}')
 
             print(place)
             place['city'] = city
@@ -117,6 +118,6 @@ def parser(number_of_pages: int, city) -> None:
 class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
-            parser(9, 'Курск')
+            parser(9, 'Суджа')
         except AttributeError as error:
             logger.info('The Places was ended, or this is demo restrictions')

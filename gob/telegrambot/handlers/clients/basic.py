@@ -1,4 +1,3 @@
-from administration.models import Place, Review, User
 from aiogram import types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
@@ -6,12 +5,16 @@ from aiogram.dispatcher import Dispatcher, FSMContext
 from aiogram.dispatcher.filters import IDFilter, Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import KeyboardButton
+
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import IntegrityError
+
+from administration.models import Place, Review, User
 from haversine import haversine
 from telegrambot.creation import ID, bot
 from telegrambot.database import sqllite_db
 from telegrambot.database.sqllite_db import (add_review_in_database,
+                                             read_places_coordinates,
                                              read_review_from_database,
                                              search_place_name_in_database)
 from telegrambot.decorators import func_logger
@@ -56,28 +59,15 @@ async def command_start(message: types.Message):
         )
 
 
-@func_logger('отправка местоположения', level='info')
-async def get_nearest_place(message: types.Message):
-    distance = []
-    async for place in Place.objects.values_list(
-        'name', 'latitude', 'longitude'
-    ):
-        distance.append(
-            (
-                place[0],
-                haversine(
-                    (place[1], place[2]),
-                    tuple(message.location.values.values()),
-                ),
-            )
-        )
-    nearest_place = await n_max(distance, NUMBER_OF_PLACES_TO_SHOW)
-    sended_places = [place[0] for place in nearest_place]
-    place_to_send = await Place.objects.aget(name=sended_places[0])
-    await send_message(bot, message, 'типа сообщение', reply_markup=kb_client)
-    await bot.send_location(
-        message.from_user.id, place_to_send.latitude, place_to_send.longitude
-    )
+# @func_logger('отправка местоположения', level='info')
+# async def get_nearest_place(message: types.Message):
+#     nearest_place = await n_max(await read_places_coordinates(message), NUMBER_OF_PLACES_TO_SHOW)
+#     sended_places = [place[0] for place in nearest_place]
+#     place_to_send = await Place.objects.aget(name=sended_places[0])
+#     await send_message(bot, message, 'типа сообщение', reply_markup=kb_client)
+#     await bot.send_location(
+#         message.from_user.id, place_to_send.latitude, place_to_send.longitude
+#     )
 
 
 @func_logger('вывод всех заведений', level='info')
@@ -105,9 +95,9 @@ def register_handlers_client(disp: Dispatcher):
         ],
     )
     disp.register_message_handler(places_all, commands=['место'])
-    disp.register_message_handler(
-        get_nearest_place, commands=['Отправить_мое_местоположение']
-    )
-    disp.register_message_handler(
-        get_nearest_place, content_types=['location']
-    )
+    # disp.register_message_handler(
+    #     get_nearest_place, commands=['Отправить_мое_местоположение']
+    # )
+    # disp.register_message_handler(
+    #     get_nearest_place, content_types=['location']
+    # )
