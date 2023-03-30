@@ -4,10 +4,11 @@ from typing import Any
 from aiogram import types
 from aiogram.bot import bot
 
+from administration.models import Place
+from telegrambot.costants import M_IN_KM
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import SendMessageError, TokenError
-
-# from telegrambot.handlers.clients.basic import NUMBER_OF_PLACES_TO_SHOW
+from telegrambot.keyboards.client_kb import kb_place_client_next
 
 logging.basicConfig(
     level=logging.INFO,
@@ -55,7 +56,9 @@ async def send_message(
         raise SendMessageError from err
 
 
-async def n_max(array: list, number_of_maximum: int) -> list:
+async def n_max(
+    array: list[str, float], number_of_maximum: int
+) -> list[str, float]:
     """Find needed quantity of minimum elements in array.
 
     Args:
@@ -69,23 +72,62 @@ async def n_max(array: list, number_of_maximum: int) -> list:
     quantity = len(array)
     while quantity > len(array) - number_of_maximum:
         for index in range(quantity):
-            if index and array[index - 1][1] < array[index][1]:
+            if index and array[index - 1][2] < array[index][2]:
                 array[index], array[index - 1] = (
                     array[index - 1],
                     array[index],
                 )
         quantity -= 1
-
-    return array[len(array) - number_of_maximum :]
-
-
-# def place_send_message(message: types.Message, places: list[str], distance: list[float]):
-#
-#     f'Вот {NUMBER_OF_PLACES_TO_SHOW} заведения и первое из них на карте: \n-' + '\n-'.join(
-#         places),
+    result = array[len(array) - number_of_maximum :]
+    return list(reversed(result))
 
 
 def convert_time(time_work: str) -> str:
     if time_work == '24:00':
         return '00:00'
     return time_work
+
+
+async def send_message_with_list_of_places(
+    message: types.Message,
+    mybot,
+    number_of_places_to_show,
+    nearest_place,
+    place_to_send_,
+):
+    await send_message(
+        mybot,
+        message,
+        f'Вот еще {number_of_places_to_show} заведения и первое из них на <b>карте</b>: \n-> '
+        + '\n-> '.join(
+            [
+                str(round(distance_ * M_IN_KM)) + ' м.: <b>' + place + '</b>'
+                for _, place, distance_ in nearest_place
+            ]
+        ),
+        reply_markup=kb_place_client_next,
+    )
+    await mybot.send_location(
+        message.from_user.id,
+        place_to_send_[0].latitude,
+        place_to_send_[0].longitude,
+    )
+
+
+async def send_message_with_place_name(
+    mybot: bot,
+    message: types.Message,
+    place_name_: str,
+    place_to_send: list[Place],
+):
+    await send_message(
+        mybot,
+        message,
+        place_name_,
+        reply_markup=kb_place_client_next,
+    )
+    await mybot.send_location(
+        message.from_user.id,
+        place_to_send[0].latitude,
+        place_to_send[0].longitude,
+    )

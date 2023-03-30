@@ -1,45 +1,46 @@
-from aiogram import types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
-from aiogram.dispatcher import Dispatcher, FSMContext
-from aiogram.dispatcher.filters import IDFilter, Text
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import KeyboardButton
+from datetime import datetime
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import IntegrityError
 
-from administration.models import Place, Review, User
-from haversine import haversine
-from telegrambot.creation import ID, bot
+from aiogram import types
+from aiogram.dispatcher import Dispatcher
+from asgiref.sync import sync_to_async
+
+from administration.models import User
+from telegrambot.costants import START_MESSAGE
+from telegrambot.creation import bot
 from telegrambot.database import sqllite_db
-from telegrambot.database.sqllite_db import (add_review_in_database,
-                                             read_places_coordinates,
-                                             read_review_from_database,
-                                             search_place_name_in_database)
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import UnknownError
-from telegrambot.handlers.admin import cancel_handler
-from telegrambot.keyboards.city_kb import kb_city
-from telegrambot.keyboards.client_kb import (NUMBER_OF_COLUMNS_KB,
-                                             get_keyboard, kb_client,
-                                             kb_client_with_places, kb_start)
-from telegrambot.moderator import IsCurseMessage
-from telegrambot.utils import n_max, send_message
-
-START_MESSAGE = (
-    'Добро пожаловать {username}. Для удобства нажмите кнопочку'
-    '`Отправить мое местоположение`. Тогда мы сможем подсказать, что интересного'
-    'есть поблизости!'
-)
-NUMBER_OF_PLACES_TO_SHOW = 3
+from telegrambot.keyboards.client_kb import kb_client
+from telegrambot.utils import send_message
 
 
-async def command_start(message: types.Message):
+async def command_start(message: types.Message) -> None:
+    """Initial Login to the System.
+
+    Creates or updates the user using the data from `message`.
+    A welcome message is issued.
+
+    Args:
+        message: `message` object from user.
+
+    Raises:
+        UnknownError: if any problem with get or creation of user.
+
+    """
+    _params_user = {
+        'username': message.from_user.username,
+        'last_name': message.from_user.last_name,
+        'first_name': message.from_user.first_name,
+    }
+    params_user = {key: value for key, value in _params_user.items() if value}
+
     try:
-        author, created = await User.objects.aget_or_create(
-            username=message.from_user.id
-        )
+        author, created = await User.objects.aget_or_create(**params_user)
+        author.last_login = datetime.now()
+        await sync_to_async(author.save)()
     except (MultipleObjectsReturned, IntegrityError) as error:
         raise UnknownError(error)
     if created:
@@ -59,34 +60,37 @@ async def command_start(message: types.Message):
         )
 
 
-# @func_logger('отправка местоположения', level='info')
-# async def get_nearest_place(message: types.Message):
-#     nearest_place = await n_max(await read_places_coordinates(message), NUMBER_OF_PLACES_TO_SHOW)
-#     sended_places = [place[0] for place in nearest_place]
-#     place_to_send = await Place.objects.aget(name=sended_places[0])
-#     await send_message(bot, message, 'типа сообщение', reply_markup=kb_client)
-#     await bot.send_location(
-#         message.from_user.id, place_to_send.latitude, place_to_send.longitude
-#     )
-
-
 @func_logger('вывод всех заведений', level='info')
-async def places_all(message: types.Message):
+async def _places_all(message: types.Message):
+    """Only for tests!!! Telegram can ban you for spam."""
+
     await sqllite_db.sql_data_base(message)
 
 
 @func_logger('вывод сообщения о боте', level='info')
-async def about_bot(message: types.Message):
-    await bot.send_message(
-        message.from_user.id,
-        'Бот для обмена опыта о посещении различных заведений',
+async def about_bot(message: types.Message) -> None:
+    """Отсылает сообщение с описанием основного функционала бота.
+
+    Args:
+        message: `message` object from user.
+
+    """
+    await send_message(
+        bot,
+        message,
+        'Этот бот подскажет тебе где поблизости находятся интересные заведения: '
+        '<b>бары, кафе, рестораны</b> и т.п. \nТакже вы можете посмотреть/добавить'
+        ' отзывы об выбранном заведении!',
+        reply_markup=kb_client,
     )
 
 
 def register_handlers_client(disp: Dispatcher):
+    """Handlers registration."""
+
     disp.register_message_handler(
         command_start,
-        commands=['start', 'help', 'старт'],
+        commands=['start', 'старт'],
     )
     disp.register_message_handler(
         about_bot,
@@ -94,10 +98,4 @@ def register_handlers_client(disp: Dispatcher):
             'о_боте',
         ],
     )
-    disp.register_message_handler(places_all, commands=['место'])
-    # disp.register_message_handler(
-    #     get_nearest_place, commands=['Отправить_мое_местоположение']
-    # )
-    # disp.register_message_handler(
-    #     get_nearest_place, content_types=['location']
-    # )
+    disp.register_message_handler(_places_all, commands=['место'])

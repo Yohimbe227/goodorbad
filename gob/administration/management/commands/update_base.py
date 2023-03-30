@@ -7,6 +7,7 @@ from django.core.management import BaseCommand
 from django.db import IntegrityError
 
 import requests
+
 from administration.models import Place, PlaceType
 from telegrambot.costants import CITY_ID, KEYWORDS, RUBRIC_ID
 from telegrambot.decorators import func_logger

@@ -2,7 +2,6 @@ import re
 
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
-
 from fuzzywuzzy import fuzz
 
 from gob.settings import BASE_DIR

@@ -1,6 +1,6 @@
-from aiogram.utils import executor
-
 from django.core.management import BaseCommand
+
+from aiogram.utils import executor
 
 from telegrambot.creation import dp
 from telegrambot.database import sqllite_db

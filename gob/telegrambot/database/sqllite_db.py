@@ -1,16 +1,15 @@
 import sqlite3 as sq
 
 from aiogram import types
-
-from administration.models import Place, Review, User
 from asgiref.sync import sync_to_async
 from haversine import haversine
+
+from administration.models import Place, Review, User
+from gob.settings import BASE_DIR
 from telegrambot.costants import PLACE_TYPES
 from telegrambot.creation import bot
 from telegrambot.decorators import func_logger
 from telegrambot.utils import send_message
-
-from gob.settings import BASE_DIR
 
 base = sq.connect(BASE_DIR / 'db.sqlite3')
 
@@ -21,7 +20,9 @@ def sql_start():
 
 
 @func_logger('ищем заведение по названию в БД', level='info')
-async def search_place_name_in_database(place_name: str, city: str):
+async def search_place_name_in_database(
+    place_name: str, city: str
+) -> list[Place]:
     @sync_to_async
     def get_place_value(name: str) -> list[Place]:
         return list(
@@ -94,7 +95,7 @@ async def sql_data_base(message: types.Message):
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
 async def read_places_coordinates(
     message: types.Message, place_type_basic: list[str]
-):
+) -> list[str, float]:
     distance = []
     async for place in Place.objects.filter(
         place_type__name__in=PLACE_TYPES[place_type_basic]
@@ -102,9 +103,11 @@ async def read_places_coordinates(
         'name',
         'latitude',
         'longitude',
+        'city',
     ):
         distance.append(
             (
+                place[3],
                 place[0],
                 haversine(
                     (place[1], place[2]),
@@ -112,4 +115,5 @@ async def read_places_coordinates(
                 ),
             )
         )
+    print(type(distance[0][0]))
     return distance

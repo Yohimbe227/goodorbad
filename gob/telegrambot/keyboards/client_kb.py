@@ -3,11 +3,10 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 NUMBER_OF_COLUMNS_KB = 4
 
 b1 = KeyboardButton('/start')
-b2 = KeyboardButton('/help')
+b2 = KeyboardButton('/о_боте')
 b5 = KeyboardButton('/ближайшее_место_для...')
 b6 = KeyboardButton('/узнать_отзывы')
 b7 = KeyboardButton('/добавить_отзыв')
-
 
 kb_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 kb_start.add(b1)
@@ -22,9 +21,7 @@ kb_client_with_places = ReplyKeyboardMarkup(
 
 
 def get_keyboard(
-    buttons: tuple[
-        str,
-    ],
+    buttons: tuple[str, ...],
 ):
     keyboard = ReplyKeyboardMarkup(
         resize_keyboard=True, one_time_keyboard=True
@@ -39,4 +36,11 @@ kb_client_location = ReplyKeyboardMarkup(
     KeyboardButton('отправить локацию', request_location=True),
 )
 
-kb_place_client_next = get_keyboard(('/Второй', '/Третий', '/Следующая тройка',))
+kb_place_client_next = get_keyboard(
+    (
+        'Второе',
+        'Третье',
+        'Больше заведений!',
+        'отмена',
+    )
+)

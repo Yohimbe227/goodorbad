@@ -46,7 +46,9 @@ async def add_city(message: types.Message, state: FSMContext):
 async def add_place_name(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['name'] = message.text
-        places = await search_place_name_in_database(data['name'], data['city'])
+        places = await search_place_name_in_database(
+            data['name'], data['city']
+        )
         match len(places):
             case 0:
                 await send_message(
@@ -76,7 +78,8 @@ async def add_place_name(message: types.Message, state: FSMContext):
 
             case _:
                 buttons = [
-                    place.name for place in places[:MAX_QUANTITY_OF_PLACES_ON_KB]
+                    place.name
+                    for place in places[:MAX_QUANTITY_OF_PLACES_ON_KB]
                 ]
                 await send_message(
                     bot,
@@ -114,7 +117,9 @@ def register_handlers_fsm(disp: Dispatcher):
         start_read_review,
         IsCurseMessage(),
         state=None,
-        commands=['узнать_отзывы',],
+        commands=[
+            'узнать_отзывы',
+        ],
     )
     disp.register_message_handler(
         start_add_review,
