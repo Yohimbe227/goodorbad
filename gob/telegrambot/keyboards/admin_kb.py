@@ -1,7 +1,6 @@
 """Кнопки клавиатуры администратора."""
 
-from aiogram.types import (KeyboardButton, ReplyKeyboardMarkup,
-                           ReplyKeyboardRemove)
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 button_load = KeyboardButton('/Загрузить')
 button_delete = KeyboardButton('/Удалить')

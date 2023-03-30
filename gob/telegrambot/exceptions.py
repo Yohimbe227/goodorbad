@@ -13,16 +13,19 @@ class HTTPError(Error):
         return f'{type(self).__name__}. Эндпоинт не доступен'
 
 
-class StatusError(Error):
-    def __str__(self):
-        return f'{type(self).__name__}. Неожиданный статус домашней работы'
-
-
 class SendMessageError(Error):
     def __str__(self):
-        return 'f{type(self).__name__}. Ошибка отправки сообщения'
+        return f'{type(self).__name__}. Ошибка отправки сообщения'
 
 
 class UnknownError(Error):
     def __str__(self):
         return f'{type(self).__name__}. Что-то не так с созданием пользователя'
+
+
+class ReviewBecomeError(Error):
+    def __str__(self):
+        return (
+            f'{type(self).__name__}. Что-то не так с получением отзыва '
+            f'из базы'
+        )

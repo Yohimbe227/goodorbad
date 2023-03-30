@@ -1,3 +1,8 @@
+"""
+Dialog for addind and reading reviews.
+The FSM work on `write` and `read` mode. It's controls by `mode` key
+in `data` dictionary
+"""
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
@@ -16,8 +21,6 @@ from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import send_message
 
 
-# The FSM work on `write` and `read` mode. It's controls by `mode` key
-# in `data` dictionary
 class FSMClientReview(StatesGroup):
     city = State()
     name = State()
@@ -25,17 +28,22 @@ class FSMClientReview(StatesGroup):
 
 
 @func_logger('старт добавления отзыва', level='info')
-async def start_add_review(message: types.Message, state: FSMContext):
+async def start_add_review(message: types.Message, state: FSMContext) -> None:
+    """Dialog start."""
     async with state.proxy() as data:
         data['mode'] = 'write'
     await FSMClientReview.city.set()
     await send_message(
-        bot, message, 'Введите Ваш город!', reply_markup=kb_city
+        bot,
+        message,
+        'Введите Ваш город!',
+        reply_markup=kb_city,
     )
 
 
 @func_logger('добавляется город...', level='info')
-async def add_city(message: types.Message, state: FSMContext):
+async def add_city(message: types.Message, state: FSMContext) -> None:
+    """Получаем название города пользователя."""
     async with state.proxy() as data:
         data['city'] = message.text
     await FSMClientReview.name.set()
@@ -43,11 +51,14 @@ async def add_city(message: types.Message, state: FSMContext):
 
 
 @func_logger('Вводится название заведения', level='info')
-async def add_place_name(message: types.Message, state: FSMContext):
+async def add_place_name(message: types.Message, state: FSMContext) -> None:
+    """Получаем название заведения."""
+
     async with state.proxy() as data:
         data['name'] = message.text
         places = await search_place_name_in_database(
-            data['name'], data['city']
+            data['name'],
+            data['city'],
         )
         match len(places):
             case 0:
@@ -85,13 +96,16 @@ async def add_place_name(message: types.Message, state: FSMContext):
                     bot,
                     message,
                     f'Слишком общий запрос "{data["name"]}". Уточните!'
-                    f'\nна клавиатуре самые похожие названия, но Вы можете ввести свое!',
+                    f'\nна клавиатуре самые похожие названия, но Вы можете '
+                    f'ввести свое!',
                     reply_markup=get_keyboard(buttons),
                 )
 
 
 @func_logger('добавляется текст отзыва', level='info')
 async def add_place_review(message: types.Message, state: FSMContext):
+    """Получаем отзыв и сохраняем его в базу данных."""
+
     async with state.proxy() as data:
         data['review'] = message.text
     await add_review_in_database(data['places'], data['review'], message)
@@ -106,6 +120,7 @@ async def add_place_review(message: types.Message, state: FSMContext):
 
 @func_logger('старт просмотра отзывов', level='info')
 async def start_read_review(message: types.Message, state: FSMContext):
+    """Dialog read reviews start."""
     async with state.proxy() as data:
         data['mode'] = 'read'
     await FSMClientReview.city.set()
@@ -113,6 +128,8 @@ async def start_read_review(message: types.Message, state: FSMContext):
 
 
 def register_handlers_fsm(disp: Dispatcher):
+    """Hadlers register."""
+
     disp.register_message_handler(
         start_read_review,
         IsCurseMessage(),
@@ -130,10 +147,14 @@ def register_handlers_fsm(disp: Dispatcher):
         ],
     )
     disp.register_message_handler(
-        cancel_handler, Text(equals='отмена', ignore_case=True), state='*'
+        cancel_handler,
+        Text(equals='отмена', ignore_case=True),
+        state='*',
     )
     disp.register_message_handler(
-        add_city, IsCurseMessage(), state=FSMClientReview.city
+        add_city,
+        IsCurseMessage(),
+        state=FSMClientReview.city,
     )
     disp.register_message_handler(
         add_place_name,
@@ -141,7 +162,9 @@ def register_handlers_fsm(disp: Dispatcher):
         state=FSMClientReview.name,
     )
     disp.register_message_handler(
-        add_place_review, IsCurseMessage(), state=FSMClientReview.review
+        add_place_review,
+        IsCurseMessage(),
+        state=FSMClientReview.review,
     )
 
     disp.register_message_handler(

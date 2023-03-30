@@ -94,7 +94,9 @@ class Place(models.Model):
 
 class Review(models.Model):
     place = models.ForeignKey(
-        Place, on_delete=models.CASCADE, related_name='reviews'
+        Place,
+        on_delete=models.CASCADE,
+        related_name='reviews',
     )
     text = models.TextField(
         verbose_name='отзывы',

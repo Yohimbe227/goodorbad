@@ -31,7 +31,7 @@ async def command_start(message: types.Message) -> None:
 
     """
     _params_user = {
-        'username': message.from_user.username,
+        'username': message.from_user.id,
         'last_name': message.from_user.last_name,
         'first_name': message.from_user.first_name,
     }
@@ -62,9 +62,9 @@ async def command_start(message: types.Message) -> None:
 
 @func_logger('вывод всех заведений', level='info')
 async def _places_all(message: types.Message):
-    """Only for tests!!! Telegram can ban you for spam."""
+    """Only for tests on small bases!!! Telegram can ban you for spam."""
 
-    await sqllite_db.sql_data_base(message)
+    await sqllite_db.read_all_data_from_base(message)
 
 
 @func_logger('вывод сообщения о боте', level='info')
@@ -78,9 +78,9 @@ async def about_bot(message: types.Message) -> None:
     await send_message(
         bot,
         message,
-        'Этот бот подскажет тебе где поблизости находятся интересные заведения: '
-        '<b>бары, кафе, рестораны</b> и т.п. \nТакже вы можете посмотреть/добавить'
-        ' отзывы об выбранном заведении!',
+        'Этот бот подскажет тебе где поблизости находятся интересные '
+        'заведения: <b>бары, кафе, рестораны</b> и т.п. \nТакже вы можете '
+        'посмотреть/добавить отзывы об выбранном заведении!',
         reply_markup=kb_client,
     )
 

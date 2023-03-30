@@ -1,8 +1,11 @@
 import logging
 from functools import wraps
 
+from aiogram import types
+
 logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s, %(levelname)s, %(message)s'
+    level=logging.INFO,
+    format='%(asctime)s, %(levelname)s, %(message)s',
 )
 logger = logging.getLogger(__name__)
 
@@ -20,10 +23,11 @@ def only_one(func):
     return wrapper
 
 
-def func_logger(message, level: str = 'debug'):
+def func_logger(message: types.Message, level: str = 'debug'):
     """Декоратор для логирования функции.
 
-        Args:
+    Args:
+        message: `message` object from user.
         level: допустимые значения: 'info', 'debug', 'error', 'critical'.
 
     Returns:
@@ -31,6 +35,7 @@ def func_logger(message, level: str = 'debug'):
 
     Raises:
         NameError: при недокументированном уровне логирования.
+
     """
 
     def _func_logger(function):

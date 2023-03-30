@@ -1,10 +1,14 @@
+"""
+Unused module in this version app.
+"""
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import IDFilter, Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup
 
-from telegrambot.creation import ID, bot
+from telegrambot.costants import ID
+from telegrambot.creation import bot
 from telegrambot.database import sqllite_db
 from telegrambot.keyboards.admin_kb import kb_admin
 from telegrambot.keyboards.city_kb import kb_city
@@ -32,7 +36,10 @@ async def cm_start(message: types.Message) -> None:
         SendMessageError: If there is an error sending a message via Telegram
     """
     await send_message(
-        bot, message, 'Приветствую босс!!!', reply_markup=kb_admin
+        bot,
+        message,
+        'Приветствую босс!!!',
+        reply_markup=kb_admin,
     )
     await FSMAdmin.city.set()
     await message.reply(
@@ -96,7 +103,9 @@ async def load_description(message: types.Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         await send_message(bot, message, str(data._data)[1:-1])
         await send_message(
-            bot, message, 'Добавление нового заведения закончено'
+            bot,
+            message,
+            'Добавление нового заведения закончено',
         )
     await state.finish()
 
@@ -109,7 +118,10 @@ async def del_callback_run(callback_query: types.CallbackQuery) -> None:
         callback_query: callback query
     """
     await sqllite_db.sql_delete_command(
-        callback_query.data.replace('del ', '')
+        callback_query.data.replace(
+            'del ',
+            '',
+        ),
     )
     await callback_query.answer(
         text=f'{callback_query.data.replace("del ", "")} удалена.',
@@ -141,7 +153,7 @@ async def delete_item(message: types.Message) -> None:
                     InlineKeyboardMarkup(
                         text=f'Удалить {value[1]}',
                         callback_data=f'del {value[1]}',
-                    )
+                    ),
                 ),
             )
 
@@ -163,16 +175,24 @@ def register_handlers_admin(disp: Dispatcher) -> None:
     )
     disp.register_message_handler(cancel_handler, state='*', commands='Отмена')
     disp.register_message_handler(
-        cancel_handler, Text(equals='отмена', ignore_case=True), state='*'
+        cancel_handler,
+        Text(equals='отмена', ignore_case=True),
+        state='*',
     )
     disp.register_message_handler(
-        load_city, IsCurseMessage(), state=FSMAdmin.city
+        load_city,
+        IsCurseMessage(),
+        state=FSMAdmin.city,
     )
     disp.register_message_handler(
-        load_name, IsCurseMessage(), state=FSMAdmin.name
+        load_name,
+        IsCurseMessage(),
+        state=FSMAdmin.name,
     )
     disp.register_message_handler(
-        load_description, IsCurseMessage(), state=FSMAdmin.description
+        load_description,
+        IsCurseMessage(),
+        state=FSMAdmin.description,
     )
     disp.register_callback_query_handler(
         del_callback_run,

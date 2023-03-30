@@ -1,6 +1,9 @@
+"""
+Fills out or updates the database of institutions.
+It uses the 2gis API. Thank them very much for providing access.
+"""
 import logging
 import os
-from copy import copy
 from http import HTTPStatus
 
 from django.core.management import BaseCommand
@@ -9,7 +12,7 @@ from django.db import IntegrityError
 import requests
 
 from administration.models import Place, PlaceType
-from telegrambot.costants import CITY_ID, KEYWORDS, RUBRIC_ID
+from telegrambot.costants import CITY_ID, RUBRIC_ID
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
 from telegrambot.utils import convert_time
@@ -57,10 +60,20 @@ def get_api_answer(
 
 
 def parser(number_of_pages: int, city: str) -> None:
+    """Обрабатывает запрос к API.
+
+    Вытаскиваем нужные данные и кладем их базу данных.
+
+    Args:
+        number_of_pages: number of pages API responce.
+        city: city to request.
+
+    """
     place = {}
     for page in range(1, number_of_pages):  # iteration by pages
         for place_source in get_api_answer(
-            page, city
+            page,
+            city,
         ):  # iteration by object on page
             place_types = []
             for key in place_source.keys():  # by keys in object
@@ -73,29 +86,30 @@ def parser(number_of_pages: int, city: str) -> None:
                             try:
                                 place_types.append(
                                     PlaceType.objects.create(
-                                        name=rubrics_keys['name']
-                                    )
+                                        name=rubrics_keys['name'],
+                                    ),
                                 )
-                            except IntegrityError as error:
+                            except IntegrityError:
                                 logger.info('Такой тип заведения уже добавлен')
                                 place_types.append(
                                     PlaceType.objects.get(
-                                        name=rubrics_keys['name']
-                                    )
+                                        name=rubrics_keys['name'],
+                                    ),
                                 )
 
                     case 'schedule':
                         try:
-                            # Тут временный костыль. Время работы берется только по пятнице!
+                            # Тут временный костыль. Время работы берется
+                            # только по пятнице!
                             place['worktime_from'] = convert_time(
                                 place_source['schedule']['Fri'][
                                     'working_hours'
-                                ][0]['from']
+                                ][0]['from'],
                             )
                             place['worktime_to'] = convert_time(
                                 place_source['schedule']['Fri'][
                                     'working_hours'
-                                ][0]['to']
+                                ][0]['to'],
                             )
                         except KeyError as error:
                             logger.info(f'Отсутствует ключ {error} в API')
@@ -108,17 +122,17 @@ def parser(number_of_pages: int, city: str) -> None:
                         except KeyError as error:
                             logger.error(f'Нет такого ключа {error}')
 
-            print(place)
             place['city'] = city
             try:
                 Place.objects.create(**place).place_type.add(*place_types)
-            except IntegrityError as error:
+            except IntegrityError:
                 logger.info('Place was added previously')
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
+            # Change here `city` and `number of pages` to adding to base.
             parser(9, 'Суджа')
-        except AttributeError as error:
+        except AttributeError:
             logger.info('The Places was ended, or this is demo restrictions')

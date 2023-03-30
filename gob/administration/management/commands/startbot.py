@@ -11,11 +11,10 @@ from telegrambot.utils import logger
 
 
 def starts_bot() -> None:
-    """Точка входа."""
+    """Entry point."""
 
     async def on_startup(_):
         sqllite_db.sql_start()
-
         logger.info('Бот запущен!')
 
     dp.filters_factory.bind(IsCurseMessage)

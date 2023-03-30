@@ -21,8 +21,12 @@ logger = logging.getLogger(__name__)
 def check_tokens(token) -> None:
     """Доступность токенов в переменных окружения.
 
+    Args:
+        token: Токен телеграм бота.
+
     Raises:
-        TokenError: отстутствует какой либо из необходимых токенов.
+        TokenError: Отстутствует какой либо из необходимых токенов.
+
     """
     notoken = 'TELEGRAM_TOKEN' if token is None else None
     if notoken:
@@ -32,10 +36,12 @@ def check_tokens(token) -> None:
 
 @func_logger('Отправка сообщения в телеграм', level='info')
 async def send_message(
-    mybot: bot, message: types.Message, message_text, **kwargs: Any
+    mybot: bot,
+    message: types.Message,
+    message_text,
+    **kwargs: Any,
 ) -> None:
-    """
-    Отправляет сообщения в телеграм.
+    """Отправляет сообщения в телеграм.
 
     Включает логирование и обработку ошибок.
 
@@ -43,13 +49,17 @@ async def send_message(
         mybot: объект телеграм бота.
         message: передаваемое сообщение или ошибка.
         message_text: текст отправляемого сообщения.
+
     Raises:
         SendMessageError: Если ошибка отправки сообщения через телеграм.
 
     """
     try:
         await mybot.send_message(
-            message.from_user.id, message_text, parse_mode='HTML', **kwargs
+            message.from_user.id,
+            message_text,
+            parse_mode='HTML',
+            **kwargs,
         )
     except Exception as err:
         logging.exception('Сообщение не отправлено')
@@ -57,7 +67,8 @@ async def send_message(
 
 
 async def n_max(
-    array: list[str, float], number_of_maximum: int
+    array: list[str, float],
+    number_of_maximum: int,
 ) -> list[str, float]:
     """Find needed quantity of minimum elements in array.
 
@@ -83,6 +94,17 @@ async def n_max(
 
 
 def convert_time(time_work: str) -> str:
+    """Convert time format of API 2gis to standart time format.
+
+    This is only changes '24:00' to '00:00'.
+
+    Args:
+        time_work: Time to convert.
+
+    Returns:
+        Converted time.
+
+    """
     if time_work == '24:00':
         return '00:00'
     return time_work
@@ -90,20 +112,33 @@ def convert_time(time_work: str) -> str:
 
 async def send_message_with_list_of_places(
     message: types.Message,
-    mybot,
-    number_of_places_to_show,
-    nearest_place,
+    mybot: bot,
+    number_of_places_to_show: int,
+    nearest_place: list[str, float],
     place_to_send_,
-):
+) -> None:
+    """Send formatted message and message with location to user.
+
+    Args:
+        message: `message` object from user.
+        mybot: `bot` object.
+        number_of_places_to_show: Number of places to show in message to user.
+        nearest_place: objects `Place`, nearest by distance to the user's
+            location.
+        place_to_send_: `Place` objects for become location and sending
+            to user.
+
+    """
     await send_message(
         mybot,
         message,
-        f'Вот еще {number_of_places_to_show} заведения и первое из них на <b>карте</b>: \n-> '
+        f'Вот еще {number_of_places_to_show} заведения и первое из них на '
+        f'<b>карте</b>: \n-> '
         + '\n-> '.join(
             [
                 str(round(distance_ * M_IN_KM)) + ' м.: <b>' + place + '</b>'
                 for _, place, distance_ in nearest_place
-            ]
+            ],
         ),
         reply_markup=kb_place_client_next,
     )
@@ -119,7 +154,17 @@ async def send_message_with_place_name(
     message: types.Message,
     place_name_: str,
     place_to_send: list[Place],
-):
+) -> None:
+    """Send message with place name and message with location to user.
+
+    Args:
+        mybot: `bot` object.
+        message: `message` object from user.
+        place_name_: `Place` name.
+        place_to_send: `Place` objects for become location and sending
+            to user.
+
+    """
     await send_message(
         mybot,
         message,
