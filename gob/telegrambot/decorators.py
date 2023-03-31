@@ -23,11 +23,11 @@ def only_one(func):
     return wrapper
 
 
-def func_logger(message: types.Message, level: str = 'debug'):
+def func_logger(message: str, level: str = 'debug'):
     """Декоратор для логирования функции.
 
     Args:
-        message: `message` object from user.
+        message: message on function execute.
         level: допустимые значения: 'info', 'debug', 'error', 'critical'.
 
     Returns:

@@ -27,7 +27,7 @@ class FSMClientReview(StatesGroup):
     review = State()
 
 
-@func_logger('старт добавления отзыва', level='info')
+@func_logger('Старт добавления отзыва', level='info')
 async def start_add_review(message: types.Message, state: FSMContext) -> None:
     """Dialog start."""
     async with state.proxy() as data:
@@ -41,7 +41,7 @@ async def start_add_review(message: types.Message, state: FSMContext) -> None:
     )
 
 
-@func_logger('добавляется город...', level='info')
+@func_logger('Добавляется город...', level='info')
 async def add_city(message: types.Message, state: FSMContext) -> None:
     """Получаем название города пользователя."""
     async with state.proxy() as data:
@@ -102,7 +102,7 @@ async def add_place_name(message: types.Message, state: FSMContext) -> None:
                 )
 
 
-@func_logger('добавляется текст отзыва', level='info')
+@func_logger('дДобавляется текст отзыва', level='info')
 async def add_place_review(message: types.Message, state: FSMContext):
     """Получаем отзыв и сохраняем его в базу данных."""
 
@@ -118,7 +118,7 @@ async def add_place_review(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-@func_logger('старт просмотра отзывов', level='info')
+@func_logger('Старт просмотра отзывов', level='info')
 async def start_read_review(message: types.Message, state: FSMContext):
     """Dialog read reviews start."""
     async with state.proxy() as data:

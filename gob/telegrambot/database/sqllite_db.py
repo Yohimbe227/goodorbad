@@ -24,7 +24,7 @@ def sql_start():
         print('Data base connected OK')
 
 
-@func_logger('ищем заведение по названию в БД', level='info')
+@func_logger('Ищем заведение по названию в БД', level='info')
 async def search_place_name_in_database(
     place_name: str,
     city: str,

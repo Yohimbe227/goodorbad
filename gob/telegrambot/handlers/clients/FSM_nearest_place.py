@@ -26,7 +26,7 @@ class FSMClientSearchPlace(StatesGroup):
     additional = State()
 
 
-@func_logger('старт поиска ближайших мест', level='info')
+@func_logger('Старт поиска ближайших мест', level='info')
 async def start_search_place(message: types.Message) -> None:
     """Dialog start."""
     await FSMClientSearchPlace.first.set()
@@ -38,7 +38,7 @@ async def start_search_place(message: types.Message) -> None:
     )
 
 
-@func_logger('выбираем тип заведения', level='info')
+@func_logger('Выбираем тип заведения', level='info')
 async def search_place_request_location(
     message: types.Message,
     state: FSMContext,
@@ -56,7 +56,7 @@ async def search_place_request_location(
     await FSMClientSearchPlace.second.set()
 
 
-@func_logger('получаем данные локации', level='info')
+@func_logger('Получаем данные локации', level='info')
 async def search_place_done(message: types.Message, state: FSMContext):
     """Получаем данные геолокации пользователя."""
 
