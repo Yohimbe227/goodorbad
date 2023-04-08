@@ -34,6 +34,7 @@ async def cm_start(message: types.Message) -> None:
 
     Raises:
         SendMessageError: If there is an error sending a message via Telegram
+
     """
     await send_message(
         bot,
@@ -54,6 +55,7 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     Args:
         message: message being sent
         state: current state
+
     """
     current_state = await state.get_state()
     if current_state is None:
@@ -68,6 +70,7 @@ async def load_city(message: types.Message, state: FSMContext) -> None:
     Args:
         message: message being sent
         state: current state
+
     """
     async with state.proxy() as data:
         data['city'] = message.text

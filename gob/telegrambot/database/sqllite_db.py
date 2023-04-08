@@ -92,7 +92,7 @@ async def read_review_from_database(place: Place, message: types.Message):
     place = await search_place_name_in_database(place.name, place.city)
 
     @sync_to_async
-    def get_review_list(place: list[Place]):
+    def get_review_list(place: list[Place]) -> str:
         """
         This is an auxiliary function for performing synchronous actions
         with the database in an asynchronous function.
