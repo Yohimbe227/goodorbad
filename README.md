@@ -1,5 +1,15 @@
 # Телеграм бот поиска ближайших кафе, баров, ресторанов и т.д.  
-Telegram bot search for the nearest cafes, bars, restaurants, etc.
+_Telegram bot search for the nearest cafes, bars, restaurants, etc._  
+_**Основной стэк**_:  
+![Python](https://img.shields.io/badge/python-3.11-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Django](https://img.shields.io/badge/django-4.1-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white)
+![Aiogram](https://img.shields.io/badge/Aiogram-2-ff1709?style=for-the-badge&logo=aiogram&logoColor=white&color=ff1709&labelColor=gray)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+
+**В ситуации, когда срочно необходимо найти уютное местечко с добротным
+напитком ничего лучше вам не поможет.  
+Это был хороший повод, чтобы
+попрактиковаться в работе с библиотеками Django и Aiogram.**
 ### Возможности/Features:
 * Этот телеграм бот умеет находить ближайшие заведения по выбранному пользователем типу (кафе, бар, ресторан и т.п.) и отсылать их локацию пользователю (пользователю, нужно только жмякнуть, чтобы открыть карту с нужным заведением).
 * Возможен листинг заведений с дальнейшим удалением от местоположения пользователя.
