@@ -38,14 +38,12 @@ mypy-extensions==0.4.3
 pathspec==0.10.3
 pep8==1.7.1
 platformdirs==2.6.2
-psycopg2==2.9.6
 psycopg2-binary==2.9.6
 pyaes==1.6.1
 pycodestyle==2.10.0
 pyflakes==3.0.1
 PySocks==1.7.1
 python-dotenv==0.21.0
-python-telegram-bot==13.15
 pytz==2022.6
 pytz-deprecation-shim==0.1.0.post0
 rapidfuzz==2.13.7
