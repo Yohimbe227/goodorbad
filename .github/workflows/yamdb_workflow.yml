@@ -73,9 +73,9 @@ jobs:
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
           
           sudo docker-compose up -d
-          sudo docker-compose exec -T telega python manage.py collectstatic --no-input
-          sudo docker-compose exec -T telega python manage.py migrate
-          sudo docker-compose exec -T telega python manage.py startbot
+          # sudo docker-compose exec -T telega python manage.py collectstatic --no-input
+          # sudo docker-compose exec -T telega python manage.py migrate
+          # sudo docker-compose exec -T telega python manage.py startbot
 
   send_message:
     runs-on: ubuntu-latest
