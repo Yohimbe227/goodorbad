@@ -59,9 +59,9 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          sudo docker-compose stop web
-          sudo docker-compose rm -f web
-          sudo docker-compose pull web
+          sudo docker-compose stop telega
+          sudo docker-compose rm -f telega
+          sudo docker-compose pull telega
           rm .env
           touch .env
           

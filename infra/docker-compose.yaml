@@ -13,7 +13,7 @@ services:
     env_file:
       - .env
 
-  web:
+  telega:
     image: yohimbe/goodorbad:v1
     restart: always
     volumes:
@@ -33,4 +33,4 @@ services:
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
-      - web
+      - telega
