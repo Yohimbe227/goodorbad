@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-ID = int(os.getenv('ID'))
+ID = int(os.getenv('TELEGRAM_TO'))
 
 # Size of city keyboard
 NUMBER_OF_ROWS = 2

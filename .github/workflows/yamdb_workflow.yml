@@ -53,7 +53,8 @@ jobs:
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-          
+          echo DB_PORT=${{ secrets.TELEGRAM_TOKEN }} >> .env
+          echo DB_PORT=${{ secrets.TELEGRAM_TO }} >> .env
           sudo docker-compose up -d
           sudo docker-compose exec -T telega python manage.py collectstatic --no-input
           sudo docker-compose exec -T telega python manage.py migrate
