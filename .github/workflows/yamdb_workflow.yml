@@ -43,7 +43,7 @@ jobs:
         script: |
           sudo docker-compose stop telega
           sudo docker-compose rm -f telega
-          sudo docker-compose pull telega
+          # sudo docker-compose pull telega
           rm .env
           touch .env
           
@@ -53,12 +53,12 @@ jobs:
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-          echo DB_PORT=${{ secrets.TELEGRAM_TOKEN }} >> .env
-          echo DB_PORT=${{ secrets.TELEGRAM_TO }} >> .env
+          echo TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }} >> .env
+          echo TELEGRAM_TO=${{ secrets.TELEGRAM_TO }} >> .env
           sudo docker-compose up -d
           sudo docker-compose exec -T telega python manage.py collectstatic --no-input
           sudo docker-compose exec -T telega python manage.py migrate
-          # sudo docker-compose exec -T telega python manage.py startbot
+          sudo docker-compose exec -T telega python manage.py startbot
 
   send_message:
     runs-on: ubuntu-latest
