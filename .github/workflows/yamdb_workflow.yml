@@ -3,23 +3,6 @@ name: Django-app workflow
 on: [push]
 
 jobs:
-  tests:
-    name: testing
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: checkout repository
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: 3.11
-
-    - name: Install dependencies
-      run: | 
-        python -m pip install --upgrade pip 
-        pip install -r gob/requirements.txt
 
   build_and_push_to_docker_hub:
     name: Push Docker image to Docker Hub
