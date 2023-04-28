@@ -15,7 +15,7 @@ class IsCurseMessage(BoundFilter):
     """Filter for curse words."""
 
     with open(
-        BASE_DIR / 'static/banned_words.txt',
+        BASE_DIR / 'data/banned_words.txt',
         'r',
         encoding='utf-8',
     ) as reader:
