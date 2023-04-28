@@ -6,7 +6,7 @@ User = get_user_model()
 
 class PlaceType(models.Model):
     name = models.CharField(
-        max_length=30,
+        max_length=50,
         unique=True,
     )
 

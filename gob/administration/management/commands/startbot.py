@@ -3,7 +3,6 @@ from django.core.management import BaseCommand
 from aiogram.utils import executor
 
 from telegrambot.creation import dp
-from telegrambot.database import sqllite_db
 from telegrambot.handlers import admin, other
 from telegrambot.handlers.clients import FSM_nearest_place, FSM_review, basic
 from telegrambot.moderator import IsCurseMessage
@@ -14,7 +13,6 @@ def starts_bot() -> None:
     """Entry point."""
 
     async def on_startup(_):
-        sqllite_db.sql_start()
         logger.info('Бот запущен!')
 
     dp.filters_factory.bind(IsCurseMessage)

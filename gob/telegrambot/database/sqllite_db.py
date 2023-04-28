@@ -2,26 +2,16 @@
 The module in which most database calls are made.
 """
 
-import sqlite3 as sq
-
 from aiogram import types
 from asgiref.sync import sync_to_async
 from haversine import haversine
 
 from administration.models import Place, Review, User
-from gob.settings import BASE_DIR
 from telegrambot.costants import PLACE_TYPES
 from telegrambot.creation import bot
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import ReviewBecomeError
 from telegrambot.utils import logger, send_message
-
-base = sq.connect(BASE_DIR / 'db.sqlite3')
-
-
-def sql_start():
-    if base:
-        print('Data base connected OK')
 
 
 @func_logger('Ищем заведение по названию в БД', level='info')
@@ -38,9 +28,6 @@ async def search_place_name_in_database(
     Returns:
         Place objects filtered by name.
 
-    Notes: Из-за sqlite не работает поиск без регистра, поэтому костыль
-        (name[1:])
-
     """
 
     @sync_to_async
@@ -49,7 +36,7 @@ async def search_place_name_in_database(
         This is an auxiliary function for performing synchronous actions
         with the database in an asynchronous function.
         """
-        return list(Place.objects.filter(name__icontains=name[1:], city=city))
+        return list(Place.objects.filter(name__icontains=name, city=city))
 
     return await get_place_value(place_name)
 

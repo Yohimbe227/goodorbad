@@ -1,4 +1,5 @@
 # Телеграм бот поиска ближайших кафе, баров, ресторанов и т.д.  
+
 _Telegram bot search for the nearest cafes, bars, restaurants, etc._  
 _**Основной стэк**_:  
 ![Python](https://img.shields.io/badge/python-3.11-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
@@ -6,7 +7,7 @@ _**Основной стэк**_:
 ![Aiogram](https://img.shields.io/badge/Aiogram-2-ff1709?style=for-the-badge&logo=aiogram&logoColor=white&color=ff1709&labelColor=gray)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 
-**В ситуации, когда срочно необходимо найти уютное местечко с добротным
+**В ситуации, когда срочно необходимо найти уютное местечко с любимым
 напитком ничего лучше вам не поможет.  
 Это был хороший повод, чтобы
 попрактиковаться в работе с библиотеками Django и Aiogram.**
