@@ -14,7 +14,7 @@ services:
       - .env
 
   telega:
-    image: yohimbe/goodorbad:v1
+    image: yohimbe/goodorbad:latest
     restart: always
     volumes:
       - static_value:/app/static/

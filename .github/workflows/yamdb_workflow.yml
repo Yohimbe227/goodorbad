@@ -43,7 +43,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/goodorbad:v1
+          tags: ${{ secrets.DOCKER_USERNAME }}/goodorbad:latest
           context: gob
           file: gob/Dockerfile
   deploy:
@@ -61,7 +61,7 @@ jobs:
         script: |
           sudo docker-compose stop telega
           sudo docker-compose rm -f telega
-          sudo docker-compose pull telega
+          sudo docker-compose pull telega --no cached
           rm .env
           touch .env
           
