@@ -12,7 +12,7 @@ SECRET_KEY = (
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['telega',]
 
 DJANGO_ALLOW_ASYNC_UNSAFE = "True"
 
