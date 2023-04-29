@@ -12,9 +12,11 @@ SECRET_KEY = (
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['telega',]
+ALLOWED_HOSTS = ['telega', '158.160.34.141', ]
 
 DJANGO_ALLOW_ASYNC_UNSAFE = "True"
+
+CSRF_TRUSTED_ORIGINS = ['telega', '158.160.34.141', ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
