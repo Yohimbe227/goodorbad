@@ -133,6 +133,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             # Change here `city` and `number of pages` to adding to base.
-            parser(9, 'Карачев')
+            parser(9, 'Орел')
         except AttributeError:
             logger.info('The Places was ended, or this is demo restrictions')
