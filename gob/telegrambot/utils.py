@@ -132,7 +132,7 @@ async def send_message_with_list_of_places(
     await send_message(
         mybot,
         message,
-        f'Вот еще {number_of_places_to_show} заведения и первое из них на '
+        f'Вот {number_of_places_to_show} заведения и первое из них на '
         f'<b>карте</b>: \n-> '
         + '\n-> '.join(
             [
