@@ -16,7 +16,7 @@ ALLOWED_HOSTS = ['158.160.34.141', ]
 
 DJANGO_ALLOW_ASYNC_UNSAFE = "True"
 
-CSRF_TRUSTED_ORIGINS = ['telega', 'http://158.160.34.141', ]
+CSRF_TRUSTED_ORIGINS = ['http://158.160.34.141', ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
