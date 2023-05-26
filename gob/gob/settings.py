@@ -15,13 +15,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'telega',
-    '158.160.34.141',
+    '212.237.35.59',
 ]
 
 DJANGO_ALLOW_ASYNC_UNSAFE = "True"
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://158.160.34.141',
+    'http://212.237.35.59',
 ]
 
 INSTALLED_APPS = [
@@ -65,12 +65,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gob.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     },
-# }
 DATABASES = {
     'default': {
         'ENGINE': os.getenv(
