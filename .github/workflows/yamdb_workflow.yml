@@ -42,7 +42,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            whoami
             sudo docker-compose stop telega
             sudo docker-compose rm -f telega
             sudo docker-compose pull telega
