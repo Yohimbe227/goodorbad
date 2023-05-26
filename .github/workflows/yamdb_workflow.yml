@@ -40,6 +40,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
         script: |
           sudo docker-compose stop telega
           sudo docker-compose rm -f telega
