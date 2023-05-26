@@ -43,8 +43,6 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             whoami
-            echo "$HOST"
-            ls -a
             sudo docker-compose stop telega
             sudo docker-compose rm -f telega
             sudo docker-compose pull telega
