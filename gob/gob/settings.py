@@ -11,7 +11,7 @@ SECRET_KEY = (
     'django-insecure-g7m)3n1g$ft_3chw=xp56+weq(zm=)krh9bo!m%2v&em#*9@)c'
 )
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'telega',
