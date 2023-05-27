@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models import Count
 
 from .forms import PlaceForm
-from .models import Place, PlaceType, PlaceTypePlace, Review
+from .models import Place, Category, CategoryPlace, Review
 
 
 class BaseAdmin(admin.ModelAdmin):
@@ -27,14 +27,14 @@ class BaseAdmin(admin.ModelAdmin):
 # form = PlaceForm
 
 
-class PlaceTypePlaceInline(admin.TabularInline):
-    model = PlaceTypePlace
+class CategoryPlaceInline(admin.TabularInline):
+    model = CategoryPlace
     extra = 1
 
 
 @admin.register(Place)
 class PlaceAdmin(BaseAdmin):
-    inlines = (PlaceTypePlaceInline,)
+    inlines = (CategoryPlaceInline,)
     list_display = (
         'pk',
         'name',
@@ -42,7 +42,7 @@ class PlaceAdmin(BaseAdmin):
         # 'created',
         # 'sponsored',
         'city',
-        'address_name',
+        'address',
         # 'place_type',
         'sponsored',
     )
@@ -62,9 +62,9 @@ class PlaceAdmin(BaseAdmin):
     form = PlaceForm
 
 
-@admin.register(PlaceType)
+@admin.register(Category)
 class PlaceTypeAdmin(BaseAdmin):
-    inlines = (PlaceTypePlaceInline,)
+    inlines = (CategoryPlaceInline,)
 
 
 @admin.register(Review)

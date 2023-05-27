@@ -4,7 +4,7 @@ from django.db import models
 User = get_user_model()
 
 
-class PlaceType(models.Model):
+class Category(models.Model):
     name = models.CharField(
         max_length=50,
         unique=True,
@@ -28,14 +28,19 @@ class Place(models.Model):
         verbose_name='город',
         max_length=30,
     )
-    place_type = models.ManyToManyField(
-        PlaceType,
+    category = models.ManyToManyField(
+        Category,
         verbose_name='вид заведения',
         max_length=30,
-        through='PlaceTypePlace',
+        through='CategoryPlace',
     )
-    address_name = models.TextField(
+    address = models.TextField(
         verbose_name='Адрес',
+        blank=True,
+        null=True,
+    )
+    phone = models.TextField(
+        verbose_name='телефонный номер',
         blank=True,
         null=True,
     )
@@ -81,7 +86,7 @@ class Place(models.Model):
             models.UniqueConstraint(
                 fields=[
                     'name',
-                    'address_name',
+                    'address',
                     'city',
                 ],
                 name='%(app_label)s_%(class)s_unique_relationships',
@@ -122,18 +127,14 @@ class Review(models.Model):
         verbose_name_plural = 'отзывы'
 
 
-class PlaceTypePlace(models.Model):
+class CategoryPlace(models.Model):
     place = models.ForeignKey(
         Place,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
     )
-    place_type = models.ForeignKey(
-        PlaceType,
+    category = models.ForeignKey(
+        Category,
         on_delete=models.CASCADE,
     )
-
-    class Meta:
-        verbose_name = 'тип заведения'
-        verbose_name_plural = 'типы заведений'

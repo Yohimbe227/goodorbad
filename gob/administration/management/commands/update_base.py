@@ -11,7 +11,7 @@ from django.db import IntegrityError
 
 import requests
 
-from administration.models import Place, PlaceType
+from administration.models import Place, Category
 from telegrambot.costants import CITY_ID, RUBRIC_ID
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
@@ -85,14 +85,14 @@ def parser(number_of_pages: int, city: str) -> None:
                         for rubrics_keys in place_source['rubrics']:
                             try:
                                 place_types.append(
-                                    PlaceType.objects.create(
+                                    Category.objects.create(
                                         name=rubrics_keys['name'],
                                     ),
                                 )
                             except IntegrityError:
                                 logger.info('Такой тип заведения уже добавлен')
                                 place_types.append(
-                                    PlaceType.objects.get(
+                                    Category.objects.get(
                                         name=rubrics_keys['name'],
                                     ),
                                 )
@@ -124,7 +124,7 @@ def parser(number_of_pages: int, city: str) -> None:
 
             place['city'] = city
             try:
-                Place.objects.create(**place).place_type.add(*place_types)
+                Place.objects.create(**place).category.add(*place_types)
             except IntegrityError:
                 logger.info('Place was added previously')
 

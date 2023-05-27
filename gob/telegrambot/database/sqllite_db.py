@@ -137,7 +137,7 @@ async def read_all_data_from_base(message: types.Message) -> None:
             bot,
             message,
             f'Город: {place.city}\nИмя заведения:{place.name}\nОписание:'
-            f'{place.place_type}\nСсылка: {place.url}',
+            f'{place.category}\nСсылка: {place.url}',
         )
 
 
@@ -162,7 +162,7 @@ async def read_places_coordinates(
     distance_to_place = []
     async for place in Place.objects.filter(
         place_type__name__in=PLACE_TYPES[place_type_basic],
-    ).prefetch_related('place_type').values_list(
+    ).prefetch_related('category').values_list(
         'name',
         'latitude',
         'longitude',

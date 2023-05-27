@@ -110,6 +110,15 @@ def convert_time(time_work: str) -> str:
     return time_work
 
 
+def extract_city(city_string: str) -> str:
+
+    return city_string.split(', ')[-2]
+
+
+def extract_address(address_string):
+    return address_string.split(', ')[-2]
+
+
 async def send_message_with_list_of_places(
     message: types.Message,
     mybot: bot,

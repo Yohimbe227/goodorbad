@@ -16,7 +16,7 @@ class PlaceForm(forms.ModelForm):
         fields = (
             'name',
             'city',
-            'place_type',
+            'category',
             'description',
             'url',
             'latitude',
