@@ -25,7 +25,6 @@ services:
       - .env
 
   nginx:
-
     image: nginx:1.18.0-alpine
     ports:
       - "80:80"
