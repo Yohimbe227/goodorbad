@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import CheckConstraint, Q
 
 User = get_user_model()
 
@@ -18,6 +19,10 @@ class City(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self) -> None:
+        self.name = self.name[:30]
+        super().clean()
 
 
 class Category(models.Model):
@@ -82,6 +87,7 @@ class Place(models.Model):
         default=None,
     )
     url = models.URLField(
+        max_length=400,
         verbose_name='ссылка на сайт заведения',
         null=True,
         blank=True,
@@ -113,6 +119,12 @@ class Place(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self) -> None:
+        if len(self.url) > 198:
+            self.url = ''
+        print('Я работаю!')
+        super().clean()
 
 
 class Review(models.Model):

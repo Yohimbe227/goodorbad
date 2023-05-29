@@ -12,6 +12,8 @@ from django.core.management import BaseCommand
 from django.db import IntegrityError
 
 import requests
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from administration.models import Category, City, Place
 from telegrambot.costants import CITY_ID, RUBRIC_ID
@@ -22,14 +24,15 @@ from telegrambot.utils import convert_time, extract_address, extract_city
 ENDPOINT = 'https://search-maps.yandex.ru/v1/'
 RETRY_PERIOD = 100
 YA_TOKEN = os.getenv('YA_TOKEN')
+
 HEADERS = {'apikey': f'{YA_TOKEN}'}
 MESSAGE_ERROR_REQUEST = 'Какие то проблемы с endpoint'
 PLACES = ('Кафе', 'Бар', 'Паб', 'Ресторан', 'Пиццерия', 'Суши')
 CITIES = (
-    'Орел',
-    'Курск',
-    'Москва',
-    'Суджа',
+    # 'Орел',
+    # 'Курск',
+    # 'Москва',
+    # 'Суджа',
     'Белгород',
     'Болхов',
     'Мценск',
@@ -49,7 +52,7 @@ def get_city(city: str) -> str:
             params={
                 'text': f"{city}",
                 'results': 1,
-                'apikey': '0ad0e0b7-de24-4f85-a612-bf45865c8f00',
+                'apikey': YA_TOKEN,
                 'lang': 'ru',
                 'type': 'geo',
             },
@@ -57,10 +60,10 @@ def get_city(city: str) -> str:
     except requests.RequestException as error:
         logging.exception(MESSAGE_ERROR_REQUEST)
         raise HTTPError from error
-
     if response.status_code != HTTPStatus.OK:
         logger.error(MESSAGE_ERROR_REQUEST)
         raise HTTPError
+
     coordinates = response.json()['features'][0]['geometry']['coordinates']
     bounded = response.json()['properties']['ResponseMetaData'][
         'SearchResponse'
@@ -90,7 +93,7 @@ def get_api_answer(
             params={
                 'text': category,
                 'results': number_of_results,
-                'apikey': '0ad0e0b7-de24-4f85-a612-bf45865c8f00',
+                'apikey': YA_TOKEN,
                 'lang': 'ru',
                 'type': 'biz',
                 'bbox': get_city(city),
@@ -128,10 +131,9 @@ def parser(city: str, category: str) -> None:
         try:
             _category_list = obj['properties']['CompanyMetaData']['Categories']
             category_names = [key.get('name') for key in _category_list]
+            _categoryies = [Category(name=name) for name in category_names]
         except KeyError:
             _categoryies = Category(name='Неизвестно')
-        try:
-            _categoryies = [Category(name=name) for name in category_names]
         except IntegrityError:
             logger.info('Такой тип заведения уже добавлен')
         try:
@@ -166,21 +168,19 @@ def parser(city: str, category: str) -> None:
                 'Hours'
             ]['Availabilities'][0]['Intervals'][0]['to']
         except KeyError:
-            place['worktime_from'] = '00:00:00'
-            place['worktime_to'] = '00:00:01'
+            place['worktime_from'] = parse_datetime('00:00:01')
+            place['worktime_to'] = parse_datetime('23:59:59')
         places.append(Place(**place))
     Place.objects.bulk_create(places, ignore_conflicts=True)
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        # try:
             # Change here `city` and `number of pages` to adding to base.
         for city in CITIES:
             time.sleep(0.4)
             for place in PLACES:
-                time.sleep(0.1)
+                time.sleep(0.2)
                 parser(city, place)
+    print('Импорт завершен успешно!')
 
-        # except AttributeError:
-        #     logger.info('The Places was ended, or this is demo restrictions')
