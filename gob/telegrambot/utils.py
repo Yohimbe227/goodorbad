@@ -116,7 +116,8 @@ def extract_city(city_string: str) -> str:
 
 
 def extract_address(address_string):
-    return address_string.split(', ')[-2]
+    _address = ', '.join(address_string.split(', ')[:-1])
+    return _address
 
 
 async def send_message_with_list_of_places(

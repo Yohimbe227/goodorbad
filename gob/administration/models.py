@@ -4,6 +4,22 @@ from django.db import models
 User = get_user_model()
 
 
+class City(models.Model):
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+    )
+    latitude = models.FloatField('широта', blank=True, null=True)
+    longitude = models.FloatField('долгота', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'город'
+        verbose_name_plural = 'города'
+
+    def __str__(self):
+        return self.name
+
+
 class Category(models.Model):
     name = models.CharField(
         max_length=50,
@@ -24,9 +40,11 @@ class Place(models.Model):
         verbose_name='имя',
         max_length=60,
     )
-    city = models.CharField(
+    city = models.ForeignKey(
+        City,
         verbose_name='город',
-        max_length=30,
+        related_name='places',
+        on_delete=models.CASCADE,
     )
     category = models.ManyToManyField(
         Category,

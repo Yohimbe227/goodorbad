@@ -11,7 +11,7 @@ from django.db import IntegrityError
 
 import requests
 
-from administration.models import Place, Category
+from administration.models import Category, Place
 from telegrambot.costants import CITY_ID, RUBRIC_ID
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError

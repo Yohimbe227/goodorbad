@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models import Count
 
 from .forms import PlaceForm
-from .models import Place, Category, CategoryPlace, Review
+from .models import Category, CategoryPlace, Place, Review
 
 
 class BaseAdmin(admin.ModelAdmin):
