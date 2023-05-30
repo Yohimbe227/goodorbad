@@ -10,16 +10,14 @@ from itertools import chain
 
 from django.core.management import BaseCommand
 from django.db import IntegrityError
-
-import requests
-from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+import requests
+
 from administration.models import Category, City, Place
-from telegrambot.costants import CITY_ID, RUBRIC_ID
 from telegrambot.decorators import func_logger
-from telegrambot.exceptions import HTTPError
-from telegrambot.utils import convert_time, extract_address, extract_city
+from telegrambot.exceptions import HTTPError, TokenError
+from telegrambot.utils import extract_address
 
 ENDPOINT = 'https://search-maps.yandex.ru/v1/'
 RETRY_PERIOD = 100
@@ -29,10 +27,10 @@ HEADERS = {'apikey': f'{YA_TOKEN}'}
 MESSAGE_ERROR_REQUEST = 'Какие то проблемы с endpoint'
 PLACES = ('Кафе', 'Бар', 'Паб', 'Ресторан', 'Пиццерия', 'Суши')
 CITIES = (
-    # 'Орел',
-    # 'Курск',
-    # 'Москва',
-    # 'Суджа',
+    'Орел',
+    'Курск',
+    'Москва',
+    'Суджа',
     'Белгород',
     'Болхов',
     'Мценск',
@@ -43,6 +41,17 @@ logging.basicConfig(
     format='%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
 )
 logger = logging.getLogger(__name__)
+
+
+def check_tokens() -> None:
+    """Доступность токенов в переменных окружения.
+
+    Raises:
+        TokenError: отстутствует какой либо из необходимых токенов.
+    """
+    if not YA_TOKEN:
+        logger.critical('Необходимый токен: %s не обнаружен', YA_TOKEN)
+        raise TokenError(YA_TOKEN)
 
 
 def get_city(city: str) -> str:
@@ -81,9 +90,9 @@ def get_city(city: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-        number_of_results: int,
-        city: str,
-        category: str,
+    number_of_results: int,
+    city: str,
+    category: str,
 ) -> dict:
     """Получаем ответ от эндпоинта."""
 
@@ -122,9 +131,9 @@ def parser(city: str, category: str) -> None:
     place = dict()
     places = []
     for obj in get_api_answer(
-            200,
-            city,
-            category,
+        200,
+        city,
+        category,
     ):
         place['latitude'] = obj['geometry']['coordinates'][0]
         place['longitude'] = obj['geometry']['coordinates'][1]
@@ -150,9 +159,9 @@ def parser(city: str, category: str) -> None:
         except KeyError as error:
             logger.info(f'Отсутствует ключ {error} в API')
         try:
-            place['phone'] = obj['properties']['CompanyMetaData'][
-                'Phones'
-            ][0]['formatted']
+            place['phone'] = obj['properties']['CompanyMetaData']['Phones'][0][
+                'formatted'
+            ]
         except KeyError as error:
             logger.info(f'Отсутствует ключ {error} в API')
             place['phone'] = 'Номер отсутствует'
@@ -175,12 +184,13 @@ def parser(city: str, category: str) -> None:
 
 
 class Command(BaseCommand):
+
     def handle(self, *args, **options):
-            # Change here `city` and `number of pages` to adding to base.
+        # Change here `city` and `number of pages` to adding to base.
+        check_tokens()
         for city in CITIES:
             time.sleep(0.4)
             for place in PLACES:
                 time.sleep(0.2)
                 parser(city, place)
-    print('Импорт завершен успешно!')
-
+        print('Импорт завершен успешно!')

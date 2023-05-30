@@ -16,9 +16,10 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'telega',
     '212.237.35.59',
+    '127.0.0.1',
 ]
 
-DJANGO_ALLOW_ASYNC_UNSAFE = "True"
+DJANGO_ALLOW_ASYNC_UNSAFE = 'True'
 
 CSRF_TRUSTED_ORIGINS = [
     'http://212.237.35.59',
