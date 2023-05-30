@@ -50,8 +50,8 @@ def check_tokens() -> None:
         TokenError: отстутствует какой либо из необходимых токенов.
     """
     if not YA_TOKEN:
-        logger.critical('Необходимый токен: %s не обнаружен', YA_TOKEN)
-        raise TokenError(YA_TOKEN)
+        logger.critical('Необходимый токен: %s не обнаружен', 'YA_TOKEN')
+        raise TokenError('YA_TOKEN')
 
 
 def get_city(city: str) -> str:
