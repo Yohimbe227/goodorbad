@@ -2,9 +2,10 @@
 The module in which most database calls are made.
 """
 
+from django.db.models import Q
+
 from aiogram import types
 from asgiref.sync import sync_to_async
-from django.db.models import Q
 from haversine import haversine
 
 from administration.models import Place, Review, User
@@ -37,7 +38,9 @@ async def search_place_name_in_database(
         This is an auxiliary function for performing synchronous actions
         with the database in an asynchronous function.
         """
-        return list(Place.objects.filter(Q(name__icontains=name) & Q(city__name=city)))
+        return list(
+            Place.objects.filter(Q(name__icontains=name) & Q(city__name=city))
+        )
 
     return await get_place_value(place_name)
 
@@ -77,6 +80,7 @@ async def read_review_from_database(place: Place, message: types.Message):
         Строка с подготовленным сообщением для пользователя.
 
     """
+
     @sync_to_async
     def city_name():
         return place.city.name

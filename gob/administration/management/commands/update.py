@@ -14,7 +14,7 @@ from django.utils.dateparse import parse_datetime, parse_time
 
 import requests
 
-from administration.models import Category, City, Place, CategoryPlace
+from administration.models import Category, CategoryPlace, City, Place
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError, TokenError
 from telegrambot.utils import extract_address
@@ -99,9 +99,9 @@ def get_city(city: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-        number_of_results: int,
-        city: str,
-        category: str,
+    number_of_results: int,
+    city: str,
+    category: str,
 ) -> dict:
     """Получаем ответ от эндпоинта."""
 
@@ -141,18 +141,26 @@ def parser(city: str, category: str) -> None:
     places = []
     category_places = []
     for obj in get_api_answer(
-            200,
-            city,
-            category,
+        200,
+        city,
+        category,
     ):
         place['longitude'] = obj['geometry']['coordinates'][0]
         place['latitude'] = obj['geometry']['coordinates'][1]
         try:
-            category_names = [key.get('name') for key in obj['properties']['CompanyMetaData']['Categories']]
-            categories = [Category.objects.get_or_create(name=name)[0] for name in category_names]
+            category_names = [
+                key.get('name')
+                for key in obj['properties']['CompanyMetaData']['Categories']
+            ]
+            categories = [
+                Category.objects.get_or_create(name=name)[0]
+                for name in category_names
+            ]
         except KeyError:
             _category, _ = Category.objects.get_or_create(name='Неизвестно')
-            categories = [_category, ]
+            categories = [
+                _category,
+            ]
         except IntegrityError:
             logger.info('Такой тип заведения уже добавлен')
 
@@ -201,13 +209,14 @@ def parser(city: str, category: str) -> None:
             logger.info('Заведение было создано ранее')
         try:
             for category in categories:
-                CategoryPlace.objects.get_or_create(place=place_obj, category=category)
+                CategoryPlace.objects.get_or_create(
+                    place=place_obj, category=category
+                )
         except IntegrityError:
             logger.info('Отношение уже было создано')
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         # Change here `city` and `number of pages` to adding to base.
         check_tokens()
