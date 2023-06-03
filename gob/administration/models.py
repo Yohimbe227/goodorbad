@@ -20,10 +20,6 @@ class City(models.Model):
     def __str__(self):
         return self.name
 
-    def clean(self) -> None:
-        self.name = self.name[:30]
-        super().clean()
-
 
 class Category(models.Model):
     name = models.CharField(
@@ -123,7 +119,6 @@ class Place(models.Model):
     def clean(self) -> None:
         if len(self.url) > 198:
             self.url = ''
-        print('Я работаю!')
         super().clean()
 
 

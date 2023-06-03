@@ -46,7 +46,7 @@ async def search_place_request_location(
     """Получаем тип заведения."""
 
     async with state.proxy() as data:
-        data['place_type'] = message.text
+        data['category'] = message.text
     await send_message(
         bot,
         message,
@@ -63,7 +63,7 @@ async def search_place_done(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         places_distance = await read_places_coordinates(
             message,
-            data['place_type'],
+            data['category'],
         )
         data['places_distance'] = places_distance
         data['city'] = places_distance[0][0]

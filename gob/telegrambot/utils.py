@@ -124,8 +124,8 @@ async def send_message_with_list_of_places(
     message: types.Message,
     mybot: bot,
     number_of_places_to_show: int,
-    nearest_place: list[str, float],
-    place_to_send_,
+    _nearest_place: list[str, float],
+    _place_to_send: list[Place],
 ) -> None:
     """Send formatted message and message with location to user.
 
@@ -133,9 +133,9 @@ async def send_message_with_list_of_places(
         message: `message` object from user.
         mybot: `bot` object.
         number_of_places_to_show: Number of places to show in message to user.
-        nearest_place: objects `Place`, nearest by distance to the user's
+        _nearest_place: objects `Place`, nearest by distance to the user's
             location.
-        place_to_send_: `Place` objects for become location and sending
+        _place_to_send: `Place` objects for become location and sending
             to user.
 
     """
@@ -147,15 +147,15 @@ async def send_message_with_list_of_places(
         + '\n-> '.join(
             [
                 str(round(distance_ * M_IN_KM)) + ' м.: <b>' + place + '</b>'
-                for _, place, distance_ in nearest_place
+                for _, place, distance_ in _nearest_place
             ],
         ),
         reply_markup=kb_place_client_next,
     )
     await mybot.send_location(
         message.from_user.id,
-        place_to_send_[0].latitude,
-        place_to_send_[0].longitude,
+        _place_to_send[0].latitude,
+        _place_to_send[0].longitude,
     )
 
 

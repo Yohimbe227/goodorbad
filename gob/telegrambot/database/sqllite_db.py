@@ -4,6 +4,7 @@ The module in which most database calls are made.
 
 from aiogram import types
 from asgiref.sync import sync_to_async
+from django.db.models import Q
 from haversine import haversine
 
 from administration.models import Place, Review, User
@@ -19,7 +20,7 @@ async def search_place_name_in_database(
     place_name: str,
     city: str,
 ) -> list[Place]:
-    """Search `Place` object by name in database.
+    """Search `Place` object by name and city in database.
 
     Args:
         place_name: name of place.
@@ -36,7 +37,7 @@ async def search_place_name_in_database(
         This is an auxiliary function for performing synchronous actions
         with the database in an asynchronous function.
         """
-        return list(Place.objects.filter(name__icontains=name, city=city))
+        return list(Place.objects.filter(Q(name__icontains=name) & Q(city__name=city)))
 
     return await get_place_value(place_name)
 
@@ -69,14 +70,18 @@ async def read_review_from_database(place: Place, message: types.Message):
     сообщением пользователю.
 
     Args:
-        place: Список объектов заведений `Place`.
+        place: объект заведения `Place`.
         message: `message` object from user.
 
     Returns:
         Строка с подготовленным сообщением для пользователя.
 
     """
-    place = await search_place_name_in_database(place.name, place.city)
+    @sync_to_async
+    def city_name():
+        return place.city.name
+
+    place = await search_place_name_in_database(place.name, await city_name())
 
     @sync_to_async
     def get_review_list(place: list[Place]) -> str:
@@ -144,7 +149,7 @@ async def read_all_data_from_base(message: types.Message) -> None:
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
 async def read_places_coordinates(
     message: types.Message,
-    place_type_basic: list[str],
+    category_basic: list[str],
 ) -> list[tuple[str, str, float]]:
     """
     Считаем расстояния между местоположением пользователя и всеми
@@ -152,7 +157,7 @@ async def read_places_coordinates(
 
     Args:
         message: `message` object from user.
-        place_type_basic: тип заведения (кафе, бар, ресторан и т.п.).
+        category_basic: тип заведения (кафе, бар, ресторан и т.п.).
 
     Returns:
         Список кортежей с названием города, названием заведения и расстоянием
@@ -161,12 +166,12 @@ async def read_places_coordinates(
     """
     distance_to_place = []
     async for place in Place.objects.filter(
-        place_type__name__in=PLACE_TYPES[place_type_basic],
+        category__name__in=PLACE_TYPES[category_basic],
     ).prefetch_related('category').values_list(
         'name',
         'latitude',
         'longitude',
-        'city',
+        'city__name',
     ):
         distance_to_place.append(
             (

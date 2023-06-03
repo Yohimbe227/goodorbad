@@ -5,11 +5,6 @@ from telegrambot.moderator import IsCurseMessage
 
 
 async def filtered_send(message: types.Message):
-    # if filter_word(message.text):
-    #     await message.reply('А ну не матюкаться!')
-    #     await message.delete()
-    # else:
-    # print('filtered_send', message.from_user.id, message.text, bot)
 
     if user_location := message.location:
         print(user_location)

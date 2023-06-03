@@ -10,11 +10,11 @@ from itertools import chain
 
 from django.core.management import BaseCommand
 from django.db import IntegrityError
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_datetime, parse_time
 
 import requests
 
-from administration.models import Category, City, Place
+from administration.models import Category, City, Place, CategoryPlace
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError, TokenError
 from telegrambot.utils import extract_address
@@ -25,7 +25,16 @@ YA_TOKEN = os.getenv('YA_TOKEN')
 
 HEADERS = {'apikey': f'{YA_TOKEN}'}
 MESSAGE_ERROR_REQUEST = 'Какие то проблемы с endpoint'
-PLACES = ('Кафе', 'Бар', 'Паб', 'Ресторан', 'Пиццерия', 'Суши')
+PLACES = (
+    'Кафе',
+    'Бар',
+    'Паб',
+    'Ресторан',
+    'Пиццерия',
+    'Суши',
+    'Баня',
+    'Сауна',
+)
 CITIES = (
     'Орел',
     'Курск',
@@ -90,9 +99,9 @@ def get_city(city: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-    number_of_results: int,
-    city: str,
-    category: str,
+        number_of_results: int,
+        city: str,
+        category: str,
 ) -> dict:
     """Получаем ответ от эндпоинта."""
 
@@ -130,21 +139,23 @@ def parser(city: str, category: str) -> None:
     """
     place = dict()
     places = []
+    category_places = []
     for obj in get_api_answer(
-        200,
-        city,
-        category,
+            200,
+            city,
+            category,
     ):
-        place['latitude'] = obj['geometry']['coordinates'][0]
-        place['longitude'] = obj['geometry']['coordinates'][1]
+        place['longitude'] = obj['geometry']['coordinates'][0]
+        place['latitude'] = obj['geometry']['coordinates'][1]
         try:
-            _category_list = obj['properties']['CompanyMetaData']['Categories']
-            category_names = [key.get('name') for key in _category_list]
-            _categoryies = [Category(name=name) for name in category_names]
+            category_names = [key.get('name') for key in obj['properties']['CompanyMetaData']['Categories']]
+            categories = [Category.objects.get_or_create(name=name)[0] for name in category_names]
         except KeyError:
-            _categoryies = Category(name='Неизвестно')
+            _category, _ = Category.objects.get_or_create(name='Неизвестно')
+            categories = [_category, ]
         except IntegrityError:
             logger.info('Такой тип заведения уже добавлен')
+
         try:
             place['name'] = obj['properties']['CompanyMetaData']['name']
             place['address'] = extract_address(
@@ -152,12 +163,14 @@ def parser(city: str, category: str) -> None:
             )
         except KeyError as error:
             logger.info(f'Отсутствует ключ {error} в API')
+
         try:
             place['city_id'] = City.objects.get(name=city).pk
         except IntegrityError:
             place['city_id'] = 9999
         except KeyError as error:
             logger.info(f'Отсутствует ключ {error} в API')
+
         try:
             place['phone'] = obj['properties']['CompanyMetaData']['Phones'][0][
                 'formatted'
@@ -165,10 +178,12 @@ def parser(city: str, category: str) -> None:
         except KeyError as error:
             logger.info(f'Отсутствует ключ {error} в API')
             place['phone'] = 'Номер отсутствует'
+
         try:
             place['url'] = obj['properties']['CompanyMetaData']['url']
         except KeyError:
             place['url'] = 'ссылка отсутствует'
+
         try:
             place['worktime_from'] = obj['properties']['CompanyMetaData'][
                 'Hours'
@@ -177,10 +192,18 @@ def parser(city: str, category: str) -> None:
                 'Hours'
             ]['Availabilities'][0]['Intervals'][0]['to']
         except KeyError:
-            place['worktime_from'] = parse_datetime('00:00:01')
-            place['worktime_to'] = parse_datetime('23:59:59')
-        places.append(Place(**place))
-    Place.objects.bulk_create(places, ignore_conflicts=True)
+            place['worktime_from'] = parse_time('00:00:01')
+            place['worktime_to'] = parse_time('23:59:59')
+
+        try:
+            place_obj, _ = Place.objects.get_or_create(**place)
+        except IntegrityError:
+            logger.info('Заведение было создано ранее')
+        try:
+            for category in categories:
+                CategoryPlace.objects.get_or_create(place=place_obj, category=category)
+        except IntegrityError:
+            logger.info('Отношение уже было создано')
 
 
 class Command(BaseCommand):
