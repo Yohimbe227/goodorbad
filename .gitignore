@@ -149,3 +149,4 @@ dmypy.json
 # папки со статикой и медиа
 gob/media/
 yatube_api/posts/static/
+/gob/static/

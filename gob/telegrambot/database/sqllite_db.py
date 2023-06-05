@@ -18,8 +18,8 @@ from telegrambot.utils import logger, send_message
 
 @func_logger('Ищем заведение по названию в БД', level='info')
 async def search_place_name_in_database(
-    place_name: str,
-    city: str,
+        place_name: str,
+        city: str,
 ) -> list[Place]:
     """Search `Place` object by name and city in database.
 
@@ -47,9 +47,9 @@ async def search_place_name_in_database(
 
 @func_logger('создаем объект отзыва', level='info')
 async def add_review_in_database(
-    place: Place,
-    review_text: str,
-    message: types.Message,
+        place: Place,
+        review_text: str,
+        message: types.Message,
 ) -> None:
     """Add `review` object in database.
 
@@ -152,8 +152,8 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
 async def read_places_coordinates(
-    message: types.Message,
-    category_basic: list[str],
+        location,
+        category_basic: list[str],
 ) -> list[tuple[str, str, float]]:
     """
     Считаем расстояния между местоположением пользователя и всеми
@@ -170,7 +170,7 @@ async def read_places_coordinates(
     """
     distance_to_place = []
     async for place in Place.objects.filter(
-        category__name__in=PLACE_TYPES[category_basic],
+            category__name__in=PLACE_TYPES[category_basic],
     ).prefetch_related('category').values_list(
         'name',
         'latitude',
@@ -183,7 +183,7 @@ async def read_places_coordinates(
                 place[0],
                 haversine(
                     (place[1], place[2]),
-                    tuple(message.location.values.values()),
+                    list(map(float, location)),
                 ),
             ),
         )

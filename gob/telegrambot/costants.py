@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 ID = int(os.getenv('TELEGRAM_TO'))
+GEO_ENDPOINT = 'https://geocode-maps.yandex.ru/1.x'
+YA_GEO_TOKEN = os.getenv('YA_GEO_TOKEN')
 
 # Size of city keyboard
 NUMBER_OF_ROWS = 2
@@ -52,7 +54,7 @@ KEYWORDS = (
     'кафе',
 )
 
-# id типов заведений по 2 gis (кафе, ресторан, бар и т.п.)
+# id городов по 2gis.
 CITY_ID = {
     'Орел': 9992984443486357,
     'Болхов': 70030076127877656,
@@ -70,7 +72,7 @@ MAX_QUANTITY_OF_PLACES_ON_KB = 12
 M_IN_KM = 1000  # 1000 to become the distance in meter
 
 NUMBER_OF_PLACES_TO_SHOW = 3
-
+MAX_RANGE_SEARCH = 15
 START_MESSAGE = (
     'Добро пожаловать {username}. \nИщи кафе, бары, рестораны и'
     ' прочие заведения, находящиеся поблизости. \nЧитай и оставляй '
@@ -122,3 +124,10 @@ ALPHABET = {
     'я': '[я|r]',
     ' ': '[.|,|!|?|&|)|(|\\|\/|*|-|_|"|\'|;|®]',
 }
+
+KEYBOARD_ADDITIONAL = [
+        'Второе',
+        'Третье',
+        'Больше заведений!',
+        'отмена',
+    ]
