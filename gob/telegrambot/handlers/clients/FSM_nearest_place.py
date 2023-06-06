@@ -51,7 +51,7 @@ async def search_place_request_location(
 
     async with state.proxy() as data:
         if message.text in PLACE_TYPES:
-            data['category'] = message.text
+            data['category'] = message.text.capitalize()
             await send_message(
                 bot,
                 message,
@@ -80,12 +80,14 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     'format': 'json',
                 },
             )
+            print(response.text)
         except requests.RequestException as error:
             raise HTTPError(f"Эндпоинт {GEO_ENDPOINT}' не доступен") from error
         try:
             location = response.json()['response']['GeoObjectCollection'][
                 'featureMember'][0]['GeoObject']['Point']['pos'].split(' ')
             location = location[::-1]
+            print(location)
         except (KeyError, IndexError):
             await send_message(bot, message,
                                f'Проверьте введенный адресс {message.text}, '
