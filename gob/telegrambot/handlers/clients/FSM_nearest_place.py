@@ -80,6 +80,7 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     'format': 'json',
                 },
             )
+            response.encoding = "utf-8"
             print(response.text)
         except requests.RequestException as error:
             raise HTTPError(f"Эндпоинт {GEO_ENDPOINT}' не доступен") from error
