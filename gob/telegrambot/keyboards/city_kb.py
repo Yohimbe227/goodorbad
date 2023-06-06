@@ -3,18 +3,9 @@ Buttons with cities for quick dialing.
 """
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from telegrambot.costants import NUMBER_OF_COLUMNS
+from telegrambot.costants import NUMBER_OF_COLUMNS, CITIES_KEYBOARD
 
-cities = (
-    '/Орел',
-    '/Москва',
-    '/Курск',
-    '/Суджа',
-    '/Белгород',
-    '/Мценск',
-    '/Болхов',
-)
-buttons = {city[1:]: KeyboardButton(city) for city in cities}
+buttons = {city: KeyboardButton(city) for city in CITIES_KEYBOARD}
 
 kb_city = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 

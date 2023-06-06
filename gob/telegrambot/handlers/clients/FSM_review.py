@@ -12,7 +12,8 @@ from telegrambot.costants import MAX_QUANTITY_OF_PLACES_ON_KB
 from telegrambot.creation import bot
 from telegrambot.database.sqllite_db import (add_review_in_database,
                                              read_review_from_database,
-                                             search_place_name_in_database)
+                                             search_place_name_in_database,
+                                             get_cities)
 from telegrambot.decorators import func_logger
 from telegrambot.handlers.admin import cancel_handler
 from telegrambot.keyboards.city_kb import kb_city
@@ -44,10 +45,15 @@ async def start_add_review(message: types.Message, state: FSMContext) -> None:
 @func_logger('Добавляется город...', level='info')
 async def add_city(message: types.Message, state: FSMContext) -> None:
     """Получаем название города пользователя."""
-    async with state.proxy() as data:
-        data['city'] = message.text
-    await FSMClientReview.name.set()
-    await message.reply('Введите название заведения')
+
+    if message.text in await get_cities():
+        print(await get_cities())
+        async with state.proxy() as data:
+            data['city'] = message.text
+        await FSMClientReview.name.set()
+        await message.reply('Введите название заведения')
+    else:
+        await send_message(bot, message, f'Город <b>{message.text}</b> пока не поддерживается')
 
 
 @func_logger('Вводится название заведения', level='info')
@@ -73,7 +79,7 @@ async def add_place_name(message: types.Message, state: FSMContext) -> None:
                     await send_message(
                         bot,
                         message,
-                        'Введите Ваш отзыв',
+                        f'Введите Ваш отзыв на <b>"{places[0]}"</b>',
                         reply_markup=kb_client,
                     )
                     data['places'] = places[0]
@@ -143,7 +149,7 @@ def register_handlers_fsm(disp: Dispatcher):
         IsCurseMessage(),
         state=None,
         commands=[
-            'добавить_отзыв',
+            'добавить_отзыв', 'add_reviews'
         ],
     )
     disp.register_message_handler(
@@ -171,5 +177,5 @@ def register_handlers_fsm(disp: Dispatcher):
         start_read_review,
         IsCurseMessage(),
         state=None,
-        commands=['узнать_отзывы'],
+        commands=['узнать_отзывы', 'reviews'],
     )

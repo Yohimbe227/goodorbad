@@ -97,7 +97,7 @@ async def search_place_done(message: types.Message, state: FSMContext):
             await send_message(
                 bot,
                 message,
-                f'Проверьте введенный адресс {message.text}, '
+                f'Проверьте введенный адресс <b>{message.text}</b>, '
                 f'а то не находится ничего!',
             )
             location = None
@@ -140,6 +140,7 @@ async def search_place_done(message: types.Message, state: FSMContext):
             'Сюда стоит слать только адресс или свои '
             'координаты по кнопочке с клавиатуры',
         )
+        await message.delete()
 
 
 @func_logger('Получаем следующее заведение', level='info')
@@ -243,7 +244,7 @@ def register_handlers_nearest_place(disp: Dispatcher):
         start_search_place,
         IsCurseMessage(),
         state=None,
-        commands=['ближайшее_место_для...'],
+        commands=['ближайшее_место_для...', 'NextPlace',],
     )
     disp.register_message_handler(
         search_place_request_location,

@@ -80,7 +80,9 @@ async def about_bot(message: types.Message) -> None:
         message,
         'Этот бот подскажет тебе где поблизости находятся интересные '
         'заведения: <b>бары, кафе, рестораны</b> и т.п. \nТакже вы можете '
-        'посмотреть/добавить отзывы об выбранном заведении!',
+        'посмотреть/добавить отзывы об выбранном заведении! \n Если вдруг'
+        'что-то непонятно, то набери "отмена" или просто жми на клавиатуре и '
+        'начнем сначала!',
         reply_markup=kb_client,
     )
 
@@ -96,6 +98,7 @@ def register_handlers_client(disp: Dispatcher):
         about_bot,
         commands=[
             'о_боте',
+            'about',
         ],
     )
     disp.register_message_handler(_places_all, commands=['место'])

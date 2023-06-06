@@ -8,7 +8,7 @@ from aiogram import types
 from asgiref.sync import sync_to_async
 from haversine import haversine
 
-from administration.models import Place, Review, User
+from administration.models import Place, Review, User, City
 from telegrambot.costants import PLACE_TYPES
 from telegrambot.creation import bot
 from telegrambot.decorators import func_logger
@@ -188,3 +188,13 @@ async def read_places_coordinates(
             ),
         )
     return distance_to_place
+
+
+async def get_cities():
+
+    @sync_to_async()
+    def _get_cities():
+        cities = City.objects.all().select_related().order_by('name')
+        return [city.name for city in cities]
+
+    return await _get_cities()
