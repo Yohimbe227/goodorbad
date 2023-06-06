@@ -8,8 +8,9 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from telegrambot.costants import NUMBER_OF_PLACES_TO_SHOW, PLACE_TYPES, \
-    GEO_ENDPOINT, YA_GEO_TOKEN, MAX_RANGE_SEARCH, KEYBOARD_ADDITIONAL
+from telegrambot.costants import (GEO_ENDPOINT, KEYBOARD_ADDITIONAL,
+                                  MAX_RANGE_SEARCH, NUMBER_OF_PLACES_TO_SHOW,
+                                  PLACE_TYPES, YA_GEO_TOKEN)
 from telegrambot.creation import bot
 from telegrambot.database.sqllite_db import (read_places_coordinates,
                                              search_place_name_in_database)
@@ -44,8 +45,8 @@ async def start_search_place(message: types.Message) -> None:
 
 @func_logger('Выбираем тип заведения', level='info')
 async def search_place_request_location(
-        message: types.Message,
-        state: FSMContext,
+    message: types.Message,
+    state: FSMContext,
 ) -> None:
     """Получаем тип заведения."""
 
@@ -61,10 +62,13 @@ async def search_place_request_location(
             )
             await FSMClientSearchPlace.second.set()
         else:
-            await send_message(bot, message,
-                               'Такого типа заведения в нашей базе нет,'
-                               ' воспользуйтесь вариантами с клавиатуры!',
-                               reply_markup=get_keyboard(PLACE_TYPES.keys()))
+            await send_message(
+                bot,
+                message,
+                'Такого типа заведения в нашей базе нет,'
+                ' воспользуйтесь вариантами с клавиатуры!',
+                reply_markup=get_keyboard(PLACE_TYPES.keys()),
+            )
 
 
 @func_logger('Получаем данные локации', level='info')
@@ -80,19 +84,22 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     'format': 'json',
                 },
             )
-            response.encoding = "utf-8"
             print(response.text)
         except requests.RequestException as error:
             raise HTTPError(f"Эндпоинт {GEO_ENDPOINT}' не доступен") from error
         try:
             location = response.json()['response']['GeoObjectCollection'][
-                'featureMember'][0]['GeoObject']['Point']['pos'].split(' ')
+                'featureMember'
+            ][0]['GeoObject']['Point']['pos'].split(' ')
             location = location[::-1]
             print(location)
         except (KeyError, IndexError):
-            await send_message(bot, message,
-                               f'Проверьте введенный адресс {message.text}, '
-                               f'а то не находится ничего!')
+            await send_message(
+                bot,
+                message,
+                f'Проверьте введенный адресс {message.text}, '
+                f'а то не находится ничего!',
+            )
             location = None
 
     if message.location:
@@ -128,8 +135,10 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     await FSMClientSearchPlace.additional.set()
     else:
         await send_message(
-            bot, message, 'Сюда стоит слать только адресс или свои '
-                          'координаты по кнопочке с клавиатуры',
+            bot,
+            message,
+            'Сюда стоит слать только адресс или свои '
+            'координаты по кнопочке с клавиатуры',
         )
 
 
@@ -140,8 +149,12 @@ async def search_place_additional(message: types.Message, state: FSMContext):
     дополнительного списка заведений
     """
     if message.text not in KEYBOARD_ADDITIONAL:
-        await send_message(bot, message, 'Не нужно сюда ничего печатать, жмите'
-                                         ' кнопочки на клавиатуре!', reply_markup=kb_place_client_next)
+        await send_message(
+            bot,
+            message,
+            'Не нужно сюда ничего печатать, жмите' ' кнопочки на клавиатуре!',
+            reply_markup=kb_place_client_next,
+        )
     async with state.proxy() as data:
         match message.text:
             case 'Второе':
@@ -188,8 +201,8 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                 )
                 len_place_to_send = len(sended_places)
                 if (
-                        place_to_send
-                        and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
+                    place_to_send
+                    and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
                 ):
                     await send_message(
                         bot,

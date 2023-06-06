@@ -58,7 +58,7 @@ jobs:
             echo TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }} >> .env
             echo TELEGRAM_TO=${{ secrets.TELEGRAM_TO }} >> .env
             echo YA_TOKEN=${{ secrets.YA_TOKEN }} >> .env
-            echo YA_TOKEN=${{ secrets.YA_GEO_TOKEN }} >> .env
+            echo YA_GEO_TOKEN=${{ secrets.YA_GEO_TOKEN }} >> .env
             sudo docker-compose up -d
             sudo docker-compose exec -T telega python manage.py collectstatic --no-input
             sudo docker-compose exec -T telega python manage.py migrate 
