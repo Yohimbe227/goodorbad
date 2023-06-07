@@ -39,7 +39,7 @@ def get_keyboard(
         resize_keyboard=True,
         one_time_keyboard=True,
     )
-    keyboard.add(*[KeyboardButton(button) for button in buttons])
+    keyboard.add(*[KeyboardButton(button.capitalize()) for button in buttons])
     return keyboard
 
 

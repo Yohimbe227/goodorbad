@@ -11,9 +11,9 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from telegrambot.costants import MAX_QUANTITY_OF_PLACES_ON_KB
 from telegrambot.creation import bot
 from telegrambot.database.sqllite_db import (add_review_in_database,
+                                             get_cities,
                                              read_review_from_database,
-                                             search_place_name_in_database,
-                                             get_cities)
+                                             search_place_name_in_database)
 from telegrambot.decorators import func_logger
 from telegrambot.handlers.admin import cancel_handler
 from telegrambot.keyboards.city_kb import kb_city
@@ -53,7 +53,9 @@ async def add_city(message: types.Message, state: FSMContext) -> None:
         await FSMClientReview.name.set()
         await message.reply('Введите название заведения')
     else:
-        await send_message(bot, message, f'Город <b>{message.text}</b> пока не поддерживается')
+        await send_message(
+            bot, message, f'Город <b>{message.text}</b> пока не поддерживается'
+        )
 
 
 @func_logger('Вводится название заведения', level='info')
@@ -148,9 +150,7 @@ def register_handlers_fsm(disp: Dispatcher):
         start_add_review,
         IsCurseMessage(),
         state=None,
-        commands=[
-            'добавить_отзыв', 'add_reviews'
-        ],
+        commands=['добавить_отзыв', 'add_reviews'],
     )
     disp.register_message_handler(
         cancel_handler,

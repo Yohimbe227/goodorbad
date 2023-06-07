@@ -126,6 +126,7 @@ async def send_message_with_list_of_places(
     number_of_places_to_show: int,
     _nearest_place: list[str, float],
     _place_to_send: list[Place],
+    reply_markup=kb_place_client_next,
 ) -> None:
     """Send formatted message and message with location to user.
 
@@ -147,7 +148,7 @@ async def send_message_with_list_of_places(
             ' ввод адресса и сделали это не '
             'очень круто, проще и надежней использовать кнопочку'
             ' "Отправить локацию"',
-            reply_markup=kb_client_location,
+            reply_markup=reply_markup,
         )
     else:
         await send_message(
@@ -165,7 +166,7 @@ async def send_message_with_list_of_places(
                     if _distance
                 ],
             ),
-            reply_markup=kb_place_client_next,
+            reply_markup=reply_markup,
         )
         await mybot.send_location(
             message.from_user.id,

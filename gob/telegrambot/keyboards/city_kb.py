@@ -3,7 +3,7 @@ Buttons with cities for quick dialing.
 """
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from telegrambot.costants import NUMBER_OF_COLUMNS, CITIES_KEYBOARD
+from telegrambot.costants import CITIES_KEYBOARD, NUMBER_OF_COLUMNS
 
 buttons = {city: KeyboardButton(city) for city in CITIES_KEYBOARD}
 

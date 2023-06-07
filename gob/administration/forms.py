@@ -30,7 +30,6 @@ class PlaceForm(forms.ModelForm):
 
 
 class CustomUserCreationForm(UserCreationForm):
-
     class Meta:
         model = UserCreationForm.Meta.model
         fields = '__all__'

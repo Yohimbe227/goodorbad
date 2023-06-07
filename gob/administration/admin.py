@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.db.models import Count
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db.models import Count
 
-from .forms import PlaceForm, CustomUserCreationForm
-from .models import Category, CategoryPlace, Place, Review, City
+from .forms import CustomUserCreationForm, PlaceForm
+from .models import Category, CategoryPlace, City, Place, Review
 
 User = get_user_model()
 admin.site.unregister(User)
@@ -91,7 +91,9 @@ class UserAdmin(BaseUserAdmin):
     )
 
     def show_count(self, obj):
-        result = Place.objects.filter(reviews__author=obj).aggregate(Count('reviews'))
+        result = Place.objects.filter(reviews__author=obj).aggregate(
+            Count('reviews')
+        )
         return result['reviews__count']
 
 
@@ -112,7 +114,9 @@ class CityAdmin(BaseAdmin):
         return result['city__count']
 
     def show_count_reviews(self, obj):
-        result = Review.objects.filter(place__city=obj).aggregate(Count('place__city'))
+        result = Review.objects.filter(place__city=obj).aggregate(
+            Count('place__city')
+        )
         return result['place__city__count']
 
     show_count_places.short_description = 'количество заведений'
