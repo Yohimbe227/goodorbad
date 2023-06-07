@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import CheckConstraint, Q
 
 User = get_user_model()
 
@@ -135,13 +134,11 @@ class Review(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name="автор",
-        null=True,
     )
     date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True,
-        blank=True,
     )
 
     def __str__(self):

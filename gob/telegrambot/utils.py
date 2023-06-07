@@ -190,6 +190,7 @@ async def send_message_with_place_name(
             to user.
 
     """
+
     await send_message(
         mybot,
         message,

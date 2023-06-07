@@ -9,7 +9,7 @@ from asgiref.sync import sync_to_async
 from haversine import haversine
 
 from administration.models import Place, Review, User, City
-from telegrambot.costants import PLACE_TYPES
+from telegrambot.costants import PLACE_TYPES, MAX_RANGE_SEARCH, M_IN_KM
 from telegrambot.creation import bot
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import ReviewBecomeError
@@ -18,8 +18,8 @@ from telegrambot.utils import logger, send_message
 
 @func_logger('Ищем заведение по названию в БД', level='info')
 async def search_place_name_in_database(
-    place_name: str,
-    city: str,
+        place_name: str,
+        city: str,
 ) -> list[Place]:
     """Search `Place` object by name and city in database.
 
@@ -47,9 +47,9 @@ async def search_place_name_in_database(
 
 @func_logger('создаем объект отзыва', level='info')
 async def add_review_in_database(
-    place: Place,
-    review_text: str,
-    message: types.Message,
+        place: Place,
+        review_text: str,
+        message: types.Message,
 ) -> None:
     """Add `review` object in database.
 
@@ -152,12 +152,12 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
 async def read_places_coordinates(
-    location,
-    category_basic: list[str],
+        location,
+        category_basic: str,
 ) -> list[tuple[str, str, float]]:
     """
     Считаем расстояния между местоположением пользователя и всеми
-    заведениями нужного типа в томже городе, что и пользователь.
+    заведениями нужного типа в том же городе, что и пользователь.
 
     Args:
         message: `message` object from user.
@@ -170,28 +170,30 @@ async def read_places_coordinates(
     """
     distance_to_place = []
     async for place in Place.objects.filter(
-        category__name__in=PLACE_TYPES[category_basic],
+            category__name__in=PLACE_TYPES[category_basic],
     ).prefetch_related('category').values_list(
         'name',
         'latitude',
         'longitude',
         'city__name',
     ):
-        distance_to_place.append(
-            (
-                place[3],
-                place[0],
-                haversine(
-                    (place[1], place[2]),
-                    list(map(float, location)),
-                ),
-            ),
+        _distance = haversine(
+            (place[1], place[2]),
+            list(map(float, location)),
         )
+        print(_distance)
+        if _distance < MAX_RANGE_SEARCH / M_IN_KM:
+            distance_to_place.append(
+                (
+                    place[3],
+                    place[0],
+                    _distance,
+                ),
+            )
     return distance_to_place
 
 
 async def get_cities():
-
     @sync_to_async()
     def _get_cities():
         cities = City.objects.all().select_related().order_by('name')

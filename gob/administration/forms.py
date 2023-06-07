@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 
 from administration.models import Place
 
@@ -26,3 +27,11 @@ class PlaceForm(forms.ModelForm):
         widgets = {
             'city': forms.TextInput,
         }
+
+
+class CustomUserCreationForm(UserCreationForm):
+
+    class Meta:
+        model = UserCreationForm.Meta.model
+        fields = '__all__'
+        field_classes = UserCreationForm.Meta.field_classes
