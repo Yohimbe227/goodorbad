@@ -97,6 +97,7 @@ async def search_place_done(message: types.Message, state: FSMContext):
                 message,
                 f'Проверьте введенный адресс <b>{message.text}</b>, '
                 f'а то не находится ничего!',
+                reply_markup=kb_client_location,
             )
             location = None
 
@@ -129,8 +130,8 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     place_to_send,
                 )
                 await FSMClientSearchPlace.additional.set()
-            if data['city'] == 'Петрозаводск':
-                await send_message(bot, message, 'Пасхалка для лучшего ревьюера Анюты Агаренко :)')
+                if data['city'] == 'Петрозаводск':
+                    await send_message(bot, message, 'Пасхалка для лучшего ревьюера Анюты Агаренко :)')
 
             else:
                 await send_message(
@@ -139,7 +140,7 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     'Тут ничего нет, совсем.',
                     reply_markup=kb_client_location,
                 )
-    else:
+    if message.content_type not in ('text', 'location'):
         await send_message(
             bot,
             message,
