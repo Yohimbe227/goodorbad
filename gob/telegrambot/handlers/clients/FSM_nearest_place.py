@@ -110,14 +110,12 @@ async def search_place_done(message: types.Message, state: FSMContext):
                 data['category'],
             ):
                 data['places_distance'] = places_distance
-
                 nearest_place = await n_max(
                     data['places_distance'],
                     NUMBER_OF_PLACES_TO_SHOW,
                 )
                 data['city'] = nearest_place[0][0]
                 sended_places = [place[1] for place in nearest_place]
-
                 data['places'] = sended_places
                 place_to_send = await search_place_name_in_database(
                     sended_places[0],
@@ -141,7 +139,6 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     'Тут ничего нет, совсем.',
                     reply_markup=kb_client_location,
                 )
-
     else:
         await send_message(
             bot,
