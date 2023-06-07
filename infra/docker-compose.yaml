@@ -15,6 +15,10 @@ services:
 
   telega:
     image: yohimbe/goodorbad:latest
+    command:
+      sh -c "python manage.py migrate
+      && python manage.py collectstatic --noinput
+      && python manage.py startbot
     restart: always
     volumes:
       - static_value:/app/static/
