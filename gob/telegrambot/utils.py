@@ -8,8 +8,7 @@ from administration.models import Place
 from telegrambot.costants import M_IN_KM, MAX_RANGE_SEARCH
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import SendMessageError, TokenError
-from telegrambot.keyboards.client_kb import (kb_client_location,
-                                             kb_place_client_next)
+from telegrambot.keyboards.client_kb import kb_place_client_next
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,17 +41,18 @@ async def send_message(
     message_text,
     **kwargs: Any,
 ) -> None:
-    """Отправляет сообщения в телеграм.
+    """Sends messages to Telegram.
 
-    Включает логирование и обработку ошибок.
+    Includes logging and error handling.
 
     Args:
-        mybot: объект телеграм бота.
-        message: передаваемое сообщение или ошибка.
-        message_text: текст отправляемого сообщения.
+        mybot: Telegram bot object.
+        message: Transmitted message or error.
+        message_text: The text of the message to be sent.
+        kwargs: Another known parameters.
 
     Raises:
-        SendMessageError: Если ошибка отправки сообщения через телеграм.
+        SendMessageError: If there is an error sending a message via Telegram.
 
     """
     try:
@@ -134,19 +134,19 @@ async def send_message_with_list_of_places(
         message: `message` object from user.
         mybot: `bot` object.
         number_of_places_to_show: Number of places to show in message to user.
-        _nearest_place: objects `Place`, nearest by distance to the user's
+        _nearest_place: Objects `Place`, nearest by distance to the user's
             location.
         _place_to_send: `Place` objects for become location and sending
             to user.
+        reply_markup: Keyboard type.
 
     """
     if _nearest_place[0][2] > MAX_RANGE_SEARCH:
         await send_message(
             mybot,
             message,
-            'Скорей всего Вы использовали ручной'
-            ' ввод адресса и сделали это не '
-            'очень круто, проще и надежней использовать кнопочку'
+            'Скорей всего Вы использовали ручной ввод адресса и сделали это '
+            'не очень круто, проще и надежней использовать кнопочку'
             ' "Отправить локацию"',
             reply_markup=reply_markup,
         )

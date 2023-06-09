@@ -62,7 +62,11 @@ async def command_start(message: types.Message) -> None:
 
 @func_logger('вывод всех заведений', level='info')
 async def _places_all(message: types.Message):
-    """Only for tests on small bases!!! Telegram can ban you for spam."""
+    """Only for tests on small bases!!! Telegram can ban you for spam.
+    Args:
+        message: Aiogram message object.
+
+    """
 
     await sqllite_db.read_all_data_from_base(message)
 

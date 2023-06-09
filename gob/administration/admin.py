@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.db.models import Count
 
-from .forms import CustomUserCreationForm, PlaceForm
+from .forms import PlaceForm
 from .models import Category, CategoryPlace, City, Place, Review
 
 User = get_user_model()
@@ -92,7 +92,7 @@ class UserAdmin(BaseUserAdmin):
 
     def show_count(self, obj):
         result = Place.objects.filter(reviews__author=obj).aggregate(
-            Count('reviews')
+            Count('reviews'),
         )
         return result['reviews__count']
 
@@ -115,7 +115,7 @@ class CityAdmin(BaseAdmin):
 
     def show_count_reviews(self, obj):
         result = Review.objects.filter(place__city=obj).aggregate(
-            Count('place__city')
+            Count('place__city'),
         )
         return result['place__city__count']
 

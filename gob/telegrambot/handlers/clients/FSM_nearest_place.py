@@ -8,21 +8,33 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from telegrambot.costants import (GEO_ENDPOINT, KEYBOARD_ADDITIONAL,
-                                  NUMBER_OF_PLACES_TO_SHOW, PLACE_TYPES,
-                                  YA_GEO_TOKEN)
+from telegrambot.costants import (
+    GEO_ENDPOINT,
+    KEYBOARD_ADDITIONAL,
+    NUMBER_OF_PLACES_TO_SHOW,
+    PLACE_TYPES,
+    YA_GEO_TOKEN,
+)
 from telegrambot.creation import bot
-from telegrambot.database.sqllite_db import (read_places_coordinates,
-                                             search_place_name_in_database)
+from telegrambot.database.sqllite_db import (
+    read_places_coordinates,
+    search_place_name_in_database,
+)
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
-from telegrambot.keyboards.client_kb import (get_keyboard, kb_client,
-                                             kb_client_location,
-                                             kb_place_client_next)
+from telegrambot.keyboards.client_kb import (
+    get_keyboard,
+    kb_client,
+    kb_client_location,
+    kb_place_client_next,
+)
 from telegrambot.moderator import IsCurseMessage
-from telegrambot.utils import (n_max, send_message,
-                               send_message_with_list_of_places,
-                               send_message_with_place_name)
+from telegrambot.utils import (
+    n_max,
+    send_message,
+    send_message_with_list_of_places,
+    send_message_with_place_name,
+)
 
 
 class FSMClientSearchPlace(StatesGroup):
@@ -131,7 +143,11 @@ async def search_place_done(message: types.Message, state: FSMContext):
                 )
                 await FSMClientSearchPlace.additional.set()
                 if data['city'] == 'Петрозаводск':
-                    await send_message(bot, message, 'Пасхалка для лучшего ревьюера Анюты Агаренко :)')
+                    await send_message(
+                        bot,
+                        message,
+                        'Пасхалка для лучшего ревьюера Анюты Агаренко :)',
+                    )
 
             else:
                 await send_message(

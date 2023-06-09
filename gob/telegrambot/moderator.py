@@ -22,14 +22,15 @@ class IsCurseMessage(BoundFilter):
         CurseWords = ''.join(reader.readlines()).split('\n')[:-1]
 
     def replace_letters(self, word: str = None) -> str:
-        """
-        Taking into account the replacement of letters, symbols
+        """Taking into account the replacement of letters, symbols
         and their combinations when checking words.
 
         Args:
             word: checking word
 
         Returns:
+            Word with substituted letters of the English alphabet in Russian words
+
         """
         word = word.lower()
         for key, value in ALPHABET.items():
