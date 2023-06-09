@@ -25,14 +25,14 @@ def func_logger(message: str, level: str = 'debug'):
     """Декоратор для логирования функции.
 
     Args:
-        message: message on function execute.
-        level: допустимые значения: 'info', 'debug', 'error', 'critical'.
+        message: Message on function execute.
+        level: Допустимые значения: 'info', 'debug', 'error', 'critical'.
 
     Returns:
-        Объект функции _func_logger
+        Объект функции `_func_logger`
 
     Raises:
-        NameError: при недокументированном уровне логирования.
+        NameError: При недокументированном уровне логирования.
 
     """
 
@@ -49,7 +49,7 @@ def func_logger(message: str, level: str = 'debug'):
             if level in log_level:
                 log_level.get(level)(message)
             else:
-                raise NameError(f'Unknown parametr {level}')
+                raise NameError(f'Unknown parameter {level}')
             return ret
 
         return wrapper

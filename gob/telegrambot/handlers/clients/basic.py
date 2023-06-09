@@ -10,7 +10,7 @@ from asgiref.sync import sync_to_async
 from administration.models import User
 from telegrambot.costants import START_MESSAGE
 from telegrambot.creation import bot
-from telegrambot.database import sqllite_db
+from telegrambot.database import database_functions
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import UnknownError
 from telegrambot.keyboards.client_kb import kb_client
@@ -61,14 +61,16 @@ async def command_start(message: types.Message) -> None:
 
 
 @func_logger('вывод всех заведений', level='info')
-async def _places_all(message: types.Message):
-    """Only for tests on small bases!!! Telegram can ban you for spam.
+async def _places_all(message: types.Message) -> None:
+    """Output of all places.
+
     Args:
         message: Aiogram message object.
 
+    Notes: Only for tests on small bases!!! Telegram can ban you for spam!!!
     """
 
-    await sqllite_db.read_all_data_from_base(message)
+    await database_functions.read_all_data_from_base(message)
 
 
 @func_logger('вывод сообщения о боте', level='info')

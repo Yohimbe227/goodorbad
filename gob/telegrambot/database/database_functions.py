@@ -151,7 +151,7 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
-async def _read_places_coordinates(
+async def read_places_coordinates(
     location,
     _category: str,
 ) -> list[tuple[str, str, float]]:

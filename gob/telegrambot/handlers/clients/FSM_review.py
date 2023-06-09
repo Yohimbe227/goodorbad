@@ -10,7 +10,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from telegrambot.costants import MAX_QUANTITY_OF_PLACES_ON_KB
 from telegrambot.creation import bot
-from telegrambot.database.sqllite_db import (
+from telegrambot.database.database_functions import (
     add_review_in_database,
     get_cities,
     read_review_from_database,
@@ -33,6 +33,7 @@ class FSMClientReview(StatesGroup):
 @func_logger('Старт добавления отзыва', level='info')
 async def start_add_review(message: types.Message, state: FSMContext) -> None:
     """Dialog start."""
+
     async with state.proxy() as data:
         data['mode'] = 'write'
     await FSMClientReview.city.set()
@@ -46,10 +47,9 @@ async def start_add_review(message: types.Message, state: FSMContext) -> None:
 
 @func_logger('Добавляется город...', level='info')
 async def add_city(message: types.Message, state: FSMContext) -> None:
-    """Получаем название города пользователя."""
+    """Get the name of the user's city."""
 
     if message.text in await get_cities():
-        print(await get_cities())
         async with state.proxy() as data:
             data['city'] = message.text
         await FSMClientReview.name.set()
@@ -64,7 +64,7 @@ async def add_city(message: types.Message, state: FSMContext) -> None:
 
 @func_logger('Вводится название заведения', level='info')
 async def add_place_name(message: types.Message, state: FSMContext) -> None:
-    """Получаем название заведения."""
+    """Get the name of the place."""
 
     async with state.proxy() as data:
         data['name'] = message.text

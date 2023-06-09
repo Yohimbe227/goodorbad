@@ -52,7 +52,11 @@ class IsCurseMessage(BoundFilter):
         Returns:
             True if Curse word are done,
             False if word is normal.
+
         """
+        if not message.text:
+            return True
+
         punctuation = r'!|"|#|$|%|&|, |-|;|>|@|_|~| '
         for word in re.split(punctuation, message.text)[:-1]:
             word = ''.join(

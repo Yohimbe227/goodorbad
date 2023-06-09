@@ -16,7 +16,7 @@ from telegrambot.costants import (
     YA_GEO_TOKEN,
 )
 from telegrambot.creation import bot
-from telegrambot.database.sqllite_db import (
+from telegrambot.database.database_functions import (
     read_places_coordinates,
     search_place_name_in_database,
 )
@@ -46,6 +46,7 @@ class FSMClientSearchPlace(StatesGroup):
 @func_logger('Старт поиска ближайших мест', level='info')
 async def start_search_place(message: types.Message) -> None:
     """Dialog start."""
+
     await FSMClientSearchPlace.first.set()
     await send_message(
         bot,
@@ -82,6 +83,7 @@ async def search_place_request_location(
                 ' воспользуйтесь вариантами с клавиатуры!',
                 reply_markup=get_keyboard(PLACE_TYPES.keys()),
             )
+
 
 @func_logger('Получаем данные локации', level='info')
 async def search_place_done(message: types.Message, state: FSMContext):
@@ -168,8 +170,9 @@ async def search_place_done(message: types.Message, state: FSMContext):
 @func_logger('Получаем следующее заведение', level='info')
 async def search_place_additional(message: types.Message, state: FSMContext):
     """
-    Отправка локаций для дополнительных заведений или получение
-    дополнительного списка заведений
+    Sending locations for additional establishments and receiving
+    additional list of locations.
+
     """
     if message.text not in KEYBOARD_ADDITIONAL:
         await send_message(

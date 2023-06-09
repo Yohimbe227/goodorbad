@@ -9,7 +9,7 @@ from aiogram.types import InlineKeyboardMarkup
 
 from telegrambot.costants import ID
 from telegrambot.creation import bot
-from telegrambot.database import sqllite_db
+from telegrambot.database import database_functions
 from telegrambot.keyboards.admin_kb import kb_admin
 from telegrambot.keyboards.city_kb import kb_city
 from telegrambot.keyboards.client_kb import kb_client
@@ -99,7 +99,7 @@ async def load_description(message: types.Message, state: FSMContext) -> None:
     """
     async with state.proxy() as data:
         data['review'] = message.text
-    await sqllite_db.sql_add_command(state)
+    await database_functions.sql_add_command(state)
     async with state.proxy() as data:
         await send_message(bot, message, str(data._data)[1:-1])
         await send_message(
@@ -117,7 +117,7 @@ async def del_callback_run(callback_query: types.CallbackQuery) -> None:
     Args:
         callback_query: callback query
     """
-    await sqllite_db.sql_delete_command(
+    await database_functions.sql_delete_command(
         callback_query.data.replace(
             'del ',
             '',
@@ -137,7 +137,7 @@ async def delete_item(message: types.Message) -> None:
         message: message being sent
     """
     if message.from_user.id == ID:
-        read = await sqllite_db.sql_read()
+        read = await database_functions.sql_read()
         for value in read:
             await send_message(
                 bot,
