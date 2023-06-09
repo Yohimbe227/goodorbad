@@ -68,8 +68,9 @@ async def search_place_request_location(
             await send_message(
                 bot,
                 message,
-                'Отправьте свою локацию, чтобы мы могли подобрать ближайшие заведения'
-                ' или напишите свой приблизительный адресс',
+                'Отправьте свою локацию, чтобы мы могли подобрать ближайшие '
+                'заведения или напишите свой приблизительный адресс, '
+                'содержащий город, улицу и номер дома, формат не важен.',
                 reply_markup=kb_client_location,
             )
             await FSMClientSearchPlace.second.set()
@@ -81,7 +82,6 @@ async def search_place_request_location(
                 ' воспользуйтесь вариантами с клавиатуры!',
                 reply_markup=get_keyboard(PLACE_TYPES.keys()),
             )
-
 
 @func_logger('Получаем данные локации', level='info')
 async def search_place_done(message: types.Message, state: FSMContext):
@@ -148,7 +148,6 @@ async def search_place_done(message: types.Message, state: FSMContext):
                         message,
                         'Пасхалка для лучшего ревьюера Анюты Агаренко :)',
                     )
-
             else:
                 await send_message(
                     bot,

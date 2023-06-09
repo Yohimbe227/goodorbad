@@ -255,6 +255,7 @@ def parser(city: str, category: str) -> None:
             place_obj, _ = Place.objects.get_or_create(**place)
         except IntegrityError:
             logger.debug('Заведение было создано ранее')
+
         try:
             [
                 CategoryPlace.objects.get_or_create(

@@ -56,7 +56,9 @@ async def add_city(message: types.Message, state: FSMContext) -> None:
         await message.reply('Введите название заведения')
     else:
         await send_message(
-            bot, message, f'Город <b>{message.text}</b> пока не поддерживается'
+            bot,
+            message,
+            f'Город <b>{message.text}</b> пока не поддерживается',
         )
 
 

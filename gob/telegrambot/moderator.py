@@ -29,7 +29,8 @@ class IsCurseMessage(BoundFilter):
             word: checking word
 
         Returns:
-            Word with substituted letters of the English alphabet in Russian words
+            Word with substituted letters of the English alphabet in Russian
+            words
 
         """
         word = word.lower()

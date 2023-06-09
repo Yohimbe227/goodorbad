@@ -59,7 +59,7 @@ jobs:
             echo TELEGRAM_TO=${{ secrets.TELEGRAM_TO }} >> .env
             echo YA_TOKEN=${{ secrets.YA_TOKEN }} >> .env
             echo YA_GEO_TOKEN=${{ secrets.YA_GEO_TOKEN }} >> .env
-            echo TELEGRAM_TOKEN_MESSAGE=${{ secrets.TELEGRAM_TOKEN_MESSAGE }} >> .env
+            echo TELEGRAM_TOKEN_FOR_MESSAGE=${{ secrets.TELEGRAM_TOKEN_FOR_MESSAGE }} >> .env
             sudo docker-compose up -d
 
   send_message:
@@ -70,5 +70,5 @@ jobs:
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN_MESSAGE }}
+          token: ${{ secrets.TELEGRAM_TOKEN_FOR_MESSAGE }}
           message: ${{ github.workflow }} успешно выполнен!!!

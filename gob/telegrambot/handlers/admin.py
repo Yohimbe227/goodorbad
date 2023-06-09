@@ -32,9 +32,6 @@ async def cm_start(message: types.Message) -> None:
     Args:
         message: message being sent
 
-    Raises:
-        SendMessageError: If there is an error sending a message via Telegram
-
     """
     await send_message(
         bot,

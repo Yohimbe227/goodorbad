@@ -39,7 +39,7 @@ async def search_place_name_in_database(
         with the database in an asynchronous function.
         """
         return list(
-            Place.objects.filter(Q(name__icontains=name) & Q(city__name=city))
+            Place.objects.filter(Q(name__icontains=name) & Q(city__name=city)),
         )
 
     return await get_place_value(place_name)
@@ -151,17 +151,18 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
-async def read_places_coordinates(
+async def _read_places_coordinates(
     location,
-    category_basic: str,
+    _category: str,
 ) -> list[tuple[str, str, float]]:
     """
-    Считаем расстояния между местоположением пользователя и всеми
-    заведениями нужного типа в том же городе, что и пользователь.
+    Calculate the distances between the user's location and all
+    establishments of the desired type.
+
 
     Args:
-        message: `message` object from user.
-        category_basic: тип заведения (кафе, бар, ресторан и т.п.).
+        location: coordinates of place.
+        _category: тип заведения (кафе, бар, ресторан и т.п.).
 
     Returns:
         Список кортежей с названием города, названием заведения и расстоянием
@@ -170,7 +171,7 @@ async def read_places_coordinates(
     """
     distance_to_place = []
     async for place in Place.objects.filter(
-        category__name__in=PLACE_TYPES[category_basic.lower()],
+        category__name__in=PLACE_TYPES[_category.lower()],
     ).prefetch_related('category').values_list(
         'name',
         'latitude',
