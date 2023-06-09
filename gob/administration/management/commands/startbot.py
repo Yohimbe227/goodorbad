@@ -16,7 +16,6 @@ def starts_bot() -> None:
         logger.info('Бот запущен!')
 
     dp.filters_factory.bind(IsCurseMessage)
-
     basic.register_handlers_client(dp)
     FSM_review.register_handlers_fsm(dp)
     FSM_nearest_place.register_handlers_nearest_place(dp)

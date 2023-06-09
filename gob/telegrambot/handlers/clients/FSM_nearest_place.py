@@ -192,9 +192,6 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                     )
                 case 'Больше заведений!':
                     places_distance = copy(data['places_distance'])
-                    print(
-                        places_distance,
-                    )
                     [
                         places_distance.remove(element)
                         for element in data['places_distance']
@@ -269,6 +266,7 @@ def register_handlers_nearest_place(disp: Dispatcher):
     )
     disp.register_message_handler(
         search_place_done,
+        IsCurseMessage(),
         state=FSMClientSearchPlace.second,
         content_types=[
             'any',

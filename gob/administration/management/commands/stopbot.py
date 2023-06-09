@@ -12,9 +12,9 @@ from telegrambot.utils import logger
 async def shutdown() -> None:
     """Entry point."""
 
-    bot.stop_polling()
+    await bot.stop_polling()
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        shutdown()
+        await shutdown()
