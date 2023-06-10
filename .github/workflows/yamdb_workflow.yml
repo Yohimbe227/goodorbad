@@ -61,7 +61,8 @@ jobs:
             echo YA_GEO_TOKEN=${{ secrets.YA_GEO_TOKEN }} >> .env
             echo TELEGRAM_TOKEN_FOR_MESSAGE=${{ secrets.TELEGRAM_TOKEN_FOR_MESSAGE }} >> .env
             sudo docker-compose up -d
-
+            python manage.py migrate
+            python manage.py collectstatic --noinput
   send_message:
     runs-on: ubuntu-latest
     needs: deploy

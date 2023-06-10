@@ -21,7 +21,8 @@ class IsCurseMessage(BoundFilter):
     ) as reader:
         CurseWords = ''.join(reader.readlines()).split('\n')[:-1]
 
-    def replace_letters(self, word: str = None) -> str:
+    @staticmethod
+    def replace_letters(word: str = None) -> str:
         """Taking into account the replacement of letters, symbols
         and their combinations when checking words.
 
