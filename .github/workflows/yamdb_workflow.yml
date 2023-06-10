@@ -62,7 +62,8 @@ jobs:
             echo TELEGRAM_TOKEN_FOR_MESSAGE=${{ secrets.TELEGRAM_TOKEN_FOR_MESSAGE }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker-compose up -d
-
+            sudo docker-compose exec -T telega python manage.py collectstatic --no-input
+            sudo docker-compose exec -T telega python manage.py migrate
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
