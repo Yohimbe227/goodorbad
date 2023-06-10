@@ -16,10 +16,10 @@ services:
   telega:
     image: yohimbe/goodorbad:latest
     command:
-      sh -c "
-      python manage.py migrate
+      sh -c "gunicorn --bind 0.0.0.0:8000 gob.wsgi
+      && python manage.py migrate
       && python manage.py startbot
-      && gunicorn --bind 0.0.0.0:8000 gob.wsgi"
+      "
     restart: always
     volumes:
       - static_value:/app/static/
