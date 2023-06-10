@@ -12,6 +12,6 @@ RUN pip3 install -r ./requirements.txt --no-cache-dir
 
 COPY . .
 
-CMD ["gunicorn", "gob.wsgi:application", "--bind", "0:8000" ]
+#CMD ["gunicorn", "gob.wsgi:application", "--bind", "0:8000" ]
 
 LABEL author='Kamanin Y.N.' version=1.0

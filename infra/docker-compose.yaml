@@ -15,9 +15,8 @@ services:
 
   telega:
     image: yohimbe/goodorbad:latest
+    entrypoint: ["/bin/sh","-c"]
     command:
-      - /bin/sh
-      - -c
       - |
         gunicorn --bind 0.0.0.0:8000 gob.wsgi
         python manage.py startbot
