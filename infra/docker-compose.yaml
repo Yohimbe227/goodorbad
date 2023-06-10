@@ -16,9 +16,10 @@ services:
   telega:
     image: yohimbe/goodorbad:latest
     command:
-      sh -c "python manage.py startbot
+      bash -c "gunicorn --bind 0.0.0.0:8000 gob.wsgi
       && python manage.py collectstatic --no-input
-      && python manage.py migrate"
+      && python manage.py migrate
+      && python manage.py startbot"
     restart: always
     volumes:
       - static_value:/app/static/
@@ -27,8 +28,9 @@ services:
       - db
     env_file:
       - .env
+
   nginx:
-    image: nginx:1.18.0-alpine
+    image: nginx:1.17.1-alpine
     ports:
       - "80:80"
     volumes:
