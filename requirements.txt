@@ -38,9 +38,9 @@ mypy-extensions==0.4.3
 pathspec==0.10.3
 pep8==1.7.1
 platformdirs==2.6.2
-psycopg2==2.9.6
 pyaes==1.6.1
 pycodestyle==2.10.0
+psycopg2==2.9.6
 pyflakes==3.0.1
 PySocks==1.7.1
 python-dotenv==0.21.0
