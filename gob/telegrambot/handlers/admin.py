@@ -164,6 +164,7 @@ def register_handlers_admin(disp: Dispatcher) -> None:
 
     Args:
         disp: Dispatcher object
+
     """
     disp.register_message_handler(
         cm_start,
