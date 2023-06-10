@@ -19,10 +19,8 @@ services:
       - /bin/sh
       - -c
       - |
-        echo "baeldung"
-        echo "docker"
-        python manage.py startbot
         gunicorn --bind 0.0.0.0:8000 gob.wsgi
+        python manage.py startbot
     restart: always
     volumes:
       - static_value:/app/static/
