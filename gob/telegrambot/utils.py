@@ -68,9 +68,9 @@ async def send_message(
 
 
 async def n_max(
-    array: list[str, float],
+    array: list[tuple[Place, float]],
     number_of_maximum: int,
-) -> list[str, float]:
+) -> list[tuple[Place, float]]:
     """Find needed quantity of minimum elements in array.
 
     Args:
@@ -84,13 +84,13 @@ async def n_max(
     quantity = len(array)
     while quantity > len(array) - number_of_maximum:
         for index in range(quantity):
-            if index and array[index - 1][2] < array[index][2]:
+            if index and array[index - 1][1] < array[index][1]:
                 array[index], array[index - 1] = (
                     array[index - 1],
                     array[index],
                 )
         quantity -= 1
-    result = array[len(array) - number_of_maximum :]
+    result = array[len(array) - number_of_maximum:]
     return list(reversed(result))
 
 
@@ -124,8 +124,7 @@ async def send_message_with_list_of_places(
     message: types.Message,
     mybot: bot,
     number_of_places_to_show: int,
-    _nearest_place: list[str, float],
-    _place_to_send: list[Place],
+    _nearest_places: list[tuple[Place, float]],
     reply_markup=kb_place_client_next,
 ) -> None:
     """Send formatted message and message with location to user.
@@ -134,14 +133,14 @@ async def send_message_with_list_of_places(
         message: `message` object from user.
         mybot: `bot` object.
         number_of_places_to_show: Number of places to show in message to user.
-        _nearest_place: Objects `Place`, nearest by distance to the user's
+        _nearest_places: Objects `Place`, nearest by distance to the user's
             location.
         _place_to_send: `Place` objects for become location and sending
             to user.
         reply_markup: Keyboard type.
 
     """
-    if _nearest_place[0][2] > MAX_RANGE_SEARCH:
+    if _nearest_places[0][1] > MAX_RANGE_SEARCH:
         await send_message(
             mybot,
             message,
@@ -160,9 +159,9 @@ async def send_message_with_list_of_places(
                 [
                     str(round(_distance * M_IN_KM))
                     + ' м.: <b>'
-                    + place
+                    + place.name
                     + '</b>'
-                    for _, place, _distance in _nearest_place
+                    for place, _distance in _nearest_places
                     if _distance
                 ],
             ),
@@ -170,36 +169,36 @@ async def send_message_with_list_of_places(
         )
         await mybot.send_location(
             message.from_user.id,
-            _place_to_send[0].latitude,
-            _place_to_send[0].longitude,
+            _nearest_places[0][0].latitude,
+            _nearest_places[0][0].longitude,
         )
 
 
-async def send_message_with_place_name(
-    mybot: bot,
-    message: types.Message,
-    place_name_: str,
-    place_to_send: list[Place],
-) -> None:
-    """Send message with place name and message with location to user.
-
-    Args:
-        mybot: `bot` object.
-        message: `message` object from user.
-        place_name_: `Place` name.
-        place_to_send: `Place` objects for become location and sending
-            to user.
-
-    """
-
-    await send_message(
-        mybot,
-        message,
-        place_name_,
-        reply_markup=kb_place_client_next,
-    )
-    await mybot.send_location(
-        message.from_user.id,
-        place_to_send[0].latitude,
-        place_to_send[0].longitude,
-    )
+# async def send_message_with_place_name(
+#     mybot: bot,
+#     message: types.Message,
+#     place_name_: str,
+#     place_to_send: list[Place],
+# ) -> None:
+#     """Send message with place name and message with location to user.
+#
+#     Args:
+#         mybot: `bot` object.
+#         message: `message` object from user.
+#         place_name_: `Place` name.
+#         place_to_send: `Place` objects for become location and sending
+#             to user.
+#
+#     """
+#
+#     await send_message(
+#         mybot,
+#         message,
+#         place_name_,
+#         reply_markup=kb_place_client_next,
+#     )
+#     await mybot.send_location(
+#         message.from_user.id,
+#         place_to_send[0].latitude,
+#         place_to_send[0].longitude,
+#     )

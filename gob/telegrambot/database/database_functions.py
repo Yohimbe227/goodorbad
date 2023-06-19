@@ -67,6 +67,11 @@ async def add_review_in_database(
     )
 
 
+@sync_to_async
+def city_name(place_obj):
+    return place_obj.city.name
+
+
 async def read_review_from_database(place: Place, message: types.Message):
     """
     Считываем отзывы из базды данных и подготавливаем строку с соответствующим
@@ -80,12 +85,7 @@ async def read_review_from_database(place: Place, message: types.Message):
         Строка с подготовленным сообщением для пользователя.
 
     """
-
-    @sync_to_async
-    def city_name():
-        return place.city.name
-
-    place = await search_place_name_in_database(place.name, await city_name())
+    place = await search_place_name_in_database(place.name, await city_name(place))
 
     @sync_to_async
     def get_review_list(place: list[Place]) -> str:
@@ -154,7 +154,7 @@ async def read_all_data_from_base(message: types.Message) -> None:
 async def read_places_coordinates(
     location,
     _category: str,
-) -> list[tuple[str, str, float]]:
+) -> list[tuple[Place, float]]:
     """
     Calculate the distances between the user's location and all
     establishments of the desired type.
@@ -169,24 +169,19 @@ async def read_places_coordinates(
         до местоположения пользователя.
 
     """
+
     distance_to_place = []
     async for place in Place.objects.filter(
         category__name__in=PLACE_TYPES[_category.lower()],
-    ).prefetch_related('category').values_list(
-        'name',
-        'latitude',
-        'longitude',
-        'city__name',
-    ):
+    ).prefetch_related('category'):
         _distance = haversine(
-            (place[1], place[2]),
+            (place.latitude, place.longitude),
             list(map(float, location)),
         )
         if _distance < MAX_RANGE_SEARCH / M_IN_KM:
             distance_to_place.append(
                 (
-                    place[3],
-                    place[0],
+                    place,
                     _distance,
                 ),
             )
