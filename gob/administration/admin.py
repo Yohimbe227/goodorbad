@@ -81,7 +81,6 @@ class ReviewAdmin(BaseAdmin):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-
     list_display = (
         'pk',
         'username',
@@ -99,7 +98,6 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(City)
 class CityAdmin(BaseAdmin):
-
     list_display = (
         'pk',
         'name',
@@ -107,6 +105,10 @@ class CityAdmin(BaseAdmin):
         'longitude',
         'show_count_places',
         'show_count_reviews',
+        'left_box_latitude',
+        'left_box_longitude',
+        'right_box_latitude',
+        'right_box_longitude',
     )
 
     def show_count_places(self, obj):

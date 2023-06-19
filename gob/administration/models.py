@@ -11,6 +11,10 @@ class City(models.Model):
     )
     latitude = models.FloatField('широта', blank=True, null=True)
     longitude = models.FloatField('долгота', blank=True, null=True)
+    left_box_latitude = models.FloatField('широта', blank=True, null=True)
+    left_box_longitude = models.FloatField('долгота', blank=True, null=True)
+    right_box_latitude = models.FloatField('широта', blank=True, null=True)
+    right_box_longitude = models.FloatField('долгота', blank=True, null=True)
 
     class Meta:
         verbose_name = 'город'

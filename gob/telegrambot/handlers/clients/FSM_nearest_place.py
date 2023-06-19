@@ -2,12 +2,14 @@
 Диалог поиска ближайших мест для отдыха.
 """
 from copy import copy
+from logging.handlers import RotatingFileHandler
 
 import requests
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
+from administration.models import Place
 from telegrambot.costants import (
     GEO_ENDPOINT,
     KEYBOARD_ADDITIONAL,
@@ -33,8 +35,18 @@ from telegrambot.utils import (
     n_max,
     send_message,
     send_message_with_list_of_places,
-    send_message_with_place_name,
+    send_message_with_place_name, logging,
 )
+
+logger = logging.getLogger(__name__)
+
+handler = RotatingFileHandler('nearest_place.log', maxBytes=5000000, backupCount=3)
+logger.addHandler(handler)
+logger.setLevel('DEBUG')
+formatter = logging.Formatter(
+    '%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
+)
+handler.setFormatter(formatter)
 
 
 class FSMClientSearchPlace(StatesGroup):
@@ -124,18 +136,22 @@ async def search_place_done(message: types.Message, state: FSMContext):
                 location,
                 data['category'],
             ):
+                logger.debug(places_distance)
                 data['places_distance'] = places_distance
                 nearest_place = await n_max(
                     data['places_distance'],
                     NUMBER_OF_PLACES_TO_SHOW,
                 )
+                logger.debug(nearest_place)
                 data['city'] = nearest_place[0][0]
                 sended_places = [place[1] for place in nearest_place]
+                logger.debug(sended_places)
                 data['places'] = sended_places
                 place_to_send = await search_place_name_in_database(
                     sended_places[0],
                     data['city'],
                 )
+                logger.debug(place_to_send)
                 await send_message_with_list_of_places(
                     message,
                     bot,
@@ -186,10 +202,11 @@ async def search_place_additional(message: types.Message, state: FSMContext):
             match message.text:
                 case 'Второе':
                     place_name = data['places'][1]
-                    place_to_send = await search_place_name_in_database(
+                    place_to_send: list[Place] = await search_place_name_in_database(
                         place_name,
                         data['city'],
                     )
+                    logging.debug(place_to_send)
                     await send_message_with_place_name(
                         bot,
                         message,
@@ -202,6 +219,7 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                         place_name,
                         data['city'],
                     )
+                    logging.debug(place_to_send)
                     await send_message_with_place_name(
                         bot,
                         message,
@@ -222,12 +240,15 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                             data['places_distance'],
                             NUMBER_OF_PLACES_TO_SHOW,
                         )
+                        logging.debug(nearest_place)
                         sended_places = [place[1] for place in nearest_place]
+                        logging.debug(sended_places)
                         data['places'] = sended_places
                         place_to_send = await search_place_name_in_database(
                             sended_places[0],
                             nearest_place[0][0],
                         )
+                        logging.debug(place_to_send[0])
                     if (
                         places_distance
                         and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW

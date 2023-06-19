@@ -119,6 +119,10 @@ def get_city(city: str) -> str:
             name=city,
             latitude=coordinates[0],
             longitude=coordinates[1],
+            left_box_latitude=bounded_result[0],
+            left_box_longitude=bounded_result[1],
+            right_box_latitude=bounded_result[2],
+            right_box_longitude=bounded_result[3],
         )
     except IntegrityError:
         logger.warning('Город уже добавлен в базу данных')
@@ -131,9 +135,9 @@ def get_city(city: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-    max_results: int,
-    city: str,
-    category: str,
+        max_results: int,
+        city: str,
+        category: str,
 ) -> dict:
     """Получаем ответ от эндпоинта.
 
@@ -159,7 +163,7 @@ def get_api_answer(
         response = requests.get(
             ENDPOINT,
             params={
-                'text': category,
+                'text': f'{category} {city}',
                 'results': max_results,
                 'apikey': YA_TOKEN,
                 'lang': 'ru',
@@ -189,15 +193,15 @@ def parser(city: str, category: str) -> None:
     """
     place = dict()
     for obj in get_api_answer(
-        MAX_RESULTS_PER_CITY,
-        city,
-        category,
+            MAX_RESULTS_PER_CITY,
+            city,
+            category,
     ):
         place['longitude'] = obj['geometry']['coordinates'][0]
         place['latitude'] = obj['geometry']['coordinates'][1]
         try:
             category_names = [
-                key.get('name')
+                key['name']
                 for key in obj['properties']['CompanyMetaData']['Categories']
             ]
             categories = [

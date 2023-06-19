@@ -3,6 +3,9 @@ Dialog for addind and reading reviews.
 The FSM work on `write` and `read` mode. It's controls by `mode` key
 in `data` dictionary
 """
+import logging
+from logging.handlers import RotatingFileHandler
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
@@ -22,6 +25,16 @@ from telegrambot.keyboards.city_kb import kb_city
 from telegrambot.keyboards.client_kb import get_keyboard, kb_client
 from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import send_message
+
+
+logger = logging.getLogger(__name__)
+
+handler = RotatingFileHandler('review.log', maxBytes=5000000, backupCount=3)
+logger.addHandler(handler)
+formatter = logging.Formatter(
+    '%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
+)
+handler.setFormatter(formatter)
 
 
 class FSMClientReview(StatesGroup):

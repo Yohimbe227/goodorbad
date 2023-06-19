@@ -15,9 +15,6 @@ services:
 
   telega:
     image: yohimbe/goodorbad:latest
-    command:
-      sh -c "gunicorn --bind 0.0.0.0:8000 gob.wsgi 
-      && python manage.py startbot"
     restart: always
     volumes:
       - static_value:/app/static/
@@ -26,6 +23,14 @@ services:
       - db
     env_file:
       - .env
+
+  telega_setup:
+    image: yohimbe/goodorbad:latest
+    depends_on:
+      - telega
+    restart: "no"
+    command:
+      sh -c "python manage.py startbot"
 
   nginx:
     image: nginx:1.18.0-alpine
