@@ -239,9 +239,9 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                     [
                         places_distance.remove(element)
                         for element in data['places_distance']
-                        if element[0] in [place[0] for place in
-                                          data['nearest_places']
-                                          ]
+                        if element in [place for place in
+                                       data['nearest_places']
+                                       ]
                     ]
                     print('after', len(places_distance))
                     data['places_distance'] = places_distance
