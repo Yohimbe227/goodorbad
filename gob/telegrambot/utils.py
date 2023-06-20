@@ -90,6 +90,7 @@ async def n_max(
                     array[index],
                 )
         quantity -= 1
+        print('array', array)
     result = array[len(array) - number_of_maximum:]
     return list(reversed(result))
 
