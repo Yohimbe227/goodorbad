@@ -1,11 +1,11 @@
 import logging
 from typing import Any
 
+import numpy as np
 from aiogram import types
 from aiogram.bot import bot
 
-
-import pandas as pd
+import heapq
 
 from administration.models import Place
 from telegrambot.costants import M_IN_KM, MAX_RANGE_SEARCH
@@ -84,9 +84,9 @@ async def n_max(
         The array of minimum elements in descending order.
 
     """
-    lst = pd.Series(array)
-    i = lst.nsmallest(number_of_maximum)
-    return i.index.values.tolist()
+
+    indices = heapq.nsmallest(number_of_maximum, np.nditer(array), key=array[1])
+    return indices
 
     # quantity = len(array)
     # while quantity > len(array) - number_of_maximum:
