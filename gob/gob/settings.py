@@ -93,6 +93,7 @@ DATABASES = {
         ),
         'HOST': os.getenv(
             'DB_HOST',
+            default='localhost'
         ),
         'PORT': os.getenv(
             'DB_PORT',

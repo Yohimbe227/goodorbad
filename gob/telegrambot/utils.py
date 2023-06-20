@@ -4,6 +4,9 @@ from typing import Any
 from aiogram import types
 from aiogram.bot import bot
 
+
+import pandas as pd
+
 from administration.models import Place
 from telegrambot.costants import M_IN_KM, MAX_RANGE_SEARCH
 from telegrambot.decorators import func_logger
@@ -81,18 +84,22 @@ async def n_max(
         The array of minimum elements in descending order.
 
     """
-    quantity = len(array)
-    while quantity > len(array) - number_of_maximum:
-        for index in range(quantity):
-            if index and array[index - 1][1] < array[index][1]:
-                array[index], array[index - 1] = (
-                    array[index - 1],
-                    array[index],
-                )
-        quantity -= 1
-        print('array', array)
-    result = array[len(array) - number_of_maximum:]
-    return list(reversed(result))
+    lst = pd.Series(array)
+    i = lst.nsmallest(number_of_maximum)
+    return i.index.values.tolist()
+
+    # quantity = len(array)
+    # while quantity > len(array) - number_of_maximum:
+    #     for index in range(quantity):
+    #         if index and array[index - 1][1] < array[index][1]:
+    #             array[index], array[index - 1] = (
+    #                 array[index - 1],
+    #                 array[index],
+    #             )
+    #     quantity -= 1
+    #     print('array', array)
+    # result = array[len(array) - number_of_maximum:]
+    # return list(reversed(result))
 
 
 def convert_time(time_work: str) -> str:
