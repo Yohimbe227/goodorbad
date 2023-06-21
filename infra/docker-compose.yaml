@@ -16,6 +16,8 @@ services:
   telega:
     image: yohimbe/goodorbad:v1
     restart: always
+    command:
+      sh -c "python manage.py startbot"
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
@@ -23,14 +25,6 @@ services:
       - db
     env_file:
       - .env
-
-  telega_setup:
-    image: yohimbe/goodorbad:v1
-    depends_on:
-      - telega
-    restart: "no"
-    command:
-      sh -c "python manage.py startbot"
 
   nginx:
     image: nginx:1.18.0-alpine
@@ -41,4 +35,4 @@ services:
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
-      - telega_setup
+      - telega
