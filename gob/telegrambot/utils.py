@@ -1,10 +1,9 @@
+import heapq
 import logging
 from typing import Any
 
 from aiogram import types
 from aiogram.bot import bot
-
-import heapq
 
 from administration.models import Place
 from telegrambot.costants import M_IN_KM, MAX_RANGE_SEARCH
@@ -84,7 +83,11 @@ async def n_min(
 
     """
 
-    return heapq.nsmallest(number_of_maximum, array, key=lambda _array: _array[1])
+    return heapq.nsmallest(
+        number_of_maximum,
+        array,
+        key=lambda _array: _array[1],
+    )
 
 
 def convert_time(time_work: str) -> str:

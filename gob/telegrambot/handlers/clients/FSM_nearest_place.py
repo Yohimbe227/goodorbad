@@ -17,10 +17,7 @@ from telegrambot.costants import (
     YA_GEO_TOKEN,
 )
 from telegrambot.creation import bot
-from telegrambot.database.database_functions import (
-    read_places_coordinates,
-    city_name,
-)
+from telegrambot.database.database_functions import city_name, read_places_coordinates
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
 from telegrambot.keyboards.client_kb import (
@@ -31,16 +28,21 @@ from telegrambot.keyboards.client_kb import (
 )
 from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import (
+    logging,
     n_min,
     send_message,
     send_message_with_list_of_places,
-    logging,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(
+    __name__,
+)
 
-handler = RotatingFileHandler('nearest_places.log', maxBytes=5000000,
-                              backupCount=3)
+handler = RotatingFileHandler(
+    'nearest_places.log',
+    maxBytes=5000000,
+    backupCount=3,
+)
 logger.addHandler(handler)
 logger.setLevel('DEBUG')
 formatter = logging.Formatter(
@@ -70,8 +72,8 @@ async def start_search_place(message: types.Message) -> None:
 
 @func_logger('Выбираем тип заведения', level='info')
 async def search_place_request_location(
-        message: types.Message,
-        state: FSMContext,
+    message: types.Message,
+    state: FSMContext,
 ) -> None:
     """Получаем тип заведения."""
 
@@ -133,8 +135,8 @@ async def search_place_done(message: types.Message, state: FSMContext):
     if message.location or location:
         async with state.proxy() as data:
             if places_distance := await read_places_coordinates(
-                    location,
-                    data['category'],
+                location,
+                data['category'],
             ):
                 data['places_distance'] = places_distance
                 nearest_places = await n_min(
@@ -222,9 +224,8 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                     [
                         places_distance.remove(element)
                         for element in data['places_distance']
-                        if element in [place for place in
-                                       data['nearest_places']
-                                       ]
+                        if element
+                        in [place for place in data['nearest_places']]
                     ]
                     data['places_distance'] = places_distance
                     len_place_to_send = len(places_distance)
@@ -234,8 +235,8 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                             NUMBER_OF_PLACES_TO_SHOW,
                         )
                     if (
-                            places_distance
-                            and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
+                        places_distance
+                        and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
                     ):
                         await send_message(
                             bot,

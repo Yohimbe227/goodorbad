@@ -9,8 +9,12 @@ from asgiref.sync import sync_to_async
 from haversine import haversine
 
 from administration.models import City, Place, Review, User
-from telegrambot.costants import M_IN_KM, MAX_RANGE_SEARCH, PLACE_TYPES, \
-    MAX_COORDINATES_DIFFERENCE
+from telegrambot.costants import (
+    M_IN_KM,
+    MAX_COORDINATES_DIFFERENCE,
+    MAX_RANGE_SEARCH,
+    PLACE_TYPES,
+)
 from telegrambot.creation import bot
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import ReviewBecomeError
@@ -19,8 +23,8 @@ from telegrambot.utils import logger, send_message
 
 @func_logger('Ищем заведение по названию в БД', level='info')
 async def search_place_name_in_database(
-        place_name: str,
-        city: str,
+    place_name: str,
+    city: str,
 ) -> list[Place]:
     """Search `Place` object by name and city in database.
 
@@ -48,9 +52,9 @@ async def search_place_name_in_database(
 
 @func_logger('создаем объект отзыва', level='info')
 async def add_review_in_database(
-        place: Place,
-        review_text: str,
-        message: types.Message,
+    place: Place,
+    review_text: str,
+    message: types.Message,
 ) -> None:
     """Add `review` object in database.
 
@@ -87,7 +91,8 @@ async def read_review_from_database(place: Place, message: types.Message):
 
     """
     place = await search_place_name_in_database(
-        place.name, await city_name(place)
+        place.name,
+        await city_name(place),
     )
 
     @sync_to_async
@@ -155,8 +160,8 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
 async def read_places_coordinates(
-        location,
-        _category: str,
+    location,
+    _category: str,
 ) -> list[tuple[Place, float]]:
     """
     Calculate the distances between the user's location and all
@@ -174,11 +179,19 @@ async def read_places_coordinates(
     """
     distance_to_place = []
     async for place in Place.objects.filter(
-            Q(category__name__in=PLACE_TYPES[_category.lower()]) &
-            Q(latitude__range=[location[0] - MAX_COORDINATES_DIFFERENCE,
-                               location[0] + MAX_COORDINATES_DIFFERENCE]) &
-            Q(longitude__range=[location[1] - MAX_COORDINATES_DIFFERENCE,
-                                location[1] + MAX_COORDINATES_DIFFERENCE])
+        Q(category__name__in=PLACE_TYPES[_category.lower()])
+        & Q(
+            latitude__range=[
+                location[0] - MAX_COORDINATES_DIFFERENCE,
+                location[0] + MAX_COORDINATES_DIFFERENCE,
+            ],
+        )
+        & Q(
+            longitude__range=[
+                location[1] - MAX_COORDINATES_DIFFERENCE,
+                location[1] + MAX_COORDINATES_DIFFERENCE,
+            ],
+        ),
     ).prefetch_related('category').distinct():
         _distance = haversine(
             (place.latitude, place.longitude),
