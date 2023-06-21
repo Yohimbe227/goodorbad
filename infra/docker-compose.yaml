@@ -14,7 +14,7 @@ services:
       - .env
 
   telega:
-    image: yohimbe/goodorbad:latest
+    image: yohimbe/goodorbad:v1
     restart: always
     volumes:
       - static_value:/app/static/
@@ -25,6 +25,7 @@ services:
       - .env
 
   telega_setup:
+    image: yohimbe/goodorbad:v1
     depends_on:
       - telega
     restart: "no"
