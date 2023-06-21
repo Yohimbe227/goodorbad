@@ -25,7 +25,6 @@ services:
       - .env
 
   telega_setup:
-    image: yohimbe/goodorbad:latest
     depends_on:
       - telega
     restart: "no"
