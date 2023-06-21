@@ -135,9 +135,9 @@ def get_city(city: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-        max_results: int,
-        city: str,
-        category: str,
+    max_results: int,
+    city: str,
+    category: str,
 ) -> dict:
     """Получаем ответ от эндпоинта.
 
@@ -193,9 +193,9 @@ def parser(city: str, category: str) -> None:
     """
     place = dict()
     for obj in get_api_answer(
-            MAX_RESULTS_PER_CITY,
-            city,
-            category,
+        MAX_RESULTS_PER_CITY,
+        city,
+        category,
     ):
         place['longitude'] = obj['geometry']['coordinates'][0]
         place['latitude'] = obj['geometry']['coordinates'][1]

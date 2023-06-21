@@ -26,7 +26,6 @@ from telegrambot.keyboards.client_kb import get_keyboard, kb_client
 from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import send_message
 
-
 logger = logging.getLogger(__name__)
 
 handler = RotatingFileHandler('review.log', maxBytes=5000000, backupCount=3)

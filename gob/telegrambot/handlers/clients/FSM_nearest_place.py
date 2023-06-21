@@ -9,7 +9,6 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from administration.models import Place
 from telegrambot.costants import (
     GEO_ENDPOINT,
     KEYBOARD_ADDITIONAL,
@@ -20,7 +19,7 @@ from telegrambot.costants import (
 from telegrambot.creation import bot
 from telegrambot.database.database_functions import (
     read_places_coordinates,
-    search_place_name_in_database, city_name,
+    city_name,
 )
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
@@ -32,10 +31,9 @@ from telegrambot.keyboards.client_kb import (
 )
 from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import (
-    n_max,
+    n_min,
     send_message,
     send_message_with_list_of_places,
-    # send_message_with_place_name,
     logging,
 )
 
@@ -138,27 +136,18 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     location,
                     data['category'],
             ):
-                print(places_distance, 'places_distance')
                 data['places_distance'] = places_distance
-                nearest_places = await n_max(
+                nearest_places = await n_min(
                     data['places_distance'],
                     NUMBER_OF_PLACES_TO_SHOW,
                 )
                 data['nearest_places'] = nearest_places
-                print('nearest_placse', nearest_places)
                 data['city'] = await city_name(nearest_places[0][0])
-                # sended_places = [place[0].name for place in nearest_places]
-                # data['places'] = sended_places
-                # place_to_send = await search_place_name_in_database(
-                #     sended_places[0],
-                #     data['city'],
-                # )
                 await send_message_with_list_of_places(
                     message,
                     bot,
                     NUMBER_OF_PLACES_TO_SHOW,
                     nearest_places,
-                    # place_to_send,
                 )
                 await FSMClientSearchPlace.additional.set()
                 if data['city'] == 'Петрозаводск':
@@ -187,7 +176,7 @@ async def search_place_done(message: types.Message, state: FSMContext):
 @func_logger('Получаем следующее заведение', level='info')
 async def search_place_additional(message: types.Message, state: FSMContext):
     """
-    Sending locations for additional establishments and receiving
+    Sending locations for additional places and receiving
     additional list of locations.
 
     """
@@ -203,10 +192,6 @@ async def search_place_additional(message: types.Message, state: FSMContext):
             match message.text:
                 case 'Второе':
                     place_name = data['nearest_places'][1][0].name
-                    # place_to_send: list[Place] = await search_place_name_in_database(
-                    #     place_name,
-                    #     data['city'],
-                    # )
                     await send_message(
                         bot,
                         message,
@@ -234,8 +219,6 @@ async def search_place_additional(message: types.Message, state: FSMContext):
 
                 case 'Больше заведений!':
                     places_distance = copy(data['places_distance'])
-                    print(len(places_distance), 'sdf', data['nearest_places'])
-                    # возможно тут лучше переписать
                     [
                         places_distance.remove(element)
                         for element in data['places_distance']
@@ -243,24 +226,13 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                                        data['nearest_places']
                                        ]
                     ]
-                    print('after', len(places_distance))
                     data['places_distance'] = places_distance
                     len_place_to_send = len(places_distance)
                     if places_distance:
-                        data['nearest_places'] = await n_max(
+                        data['nearest_places'] = await n_min(
                             data['places_distance'],
                             NUMBER_OF_PLACES_TO_SHOW,
                         )
-
-                        # sended_places = [place[0] for place in nearest_places]
-                        # print(sended_places, 'sended_places')
-                        # data['places'] = [place[0] for place in nearest_places]
-                        # place_to_send = await search_place_name_in_database(
-                        #     sended_places[0],
-                        #     nearest_places[0][0],
-                        # )
-                        # logging.debug(place_to_send[0])
-                        # print(data['places'], 'data')
                     if (
                             places_distance
                             and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW

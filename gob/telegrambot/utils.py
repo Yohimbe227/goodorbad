@@ -1,7 +1,6 @@
 import logging
 from typing import Any
 
-import numpy as np
 from aiogram import types
 from aiogram.bot import bot
 
@@ -70,7 +69,7 @@ async def send_message(
         raise SendMessageError from err
 
 
-async def n_max(
+async def n_min(
     array: list[tuple[Place, float]],
     number_of_maximum: int,
 ) -> list[tuple[Place, float]]:
@@ -85,21 +84,7 @@ async def n_max(
 
     """
 
-    indices = heapq.nsmallest(number_of_maximum, np.nditer(array), key=array[1])
-    return indices
-
-    # quantity = len(array)
-    # while quantity > len(array) - number_of_maximum:
-    #     for index in range(quantity):
-    #         if index and array[index - 1][1] < array[index][1]:
-    #             array[index], array[index - 1] = (
-    #                 array[index - 1],
-    #                 array[index],
-    #             )
-    #     quantity -= 1
-    #     print('array', array)
-    # result = array[len(array) - number_of_maximum:]
-    # return list(reversed(result))
+    return heapq.nsmallest(number_of_maximum, array, key=lambda _array: _array[1])
 
 
 def convert_time(time_work: str) -> str:
@@ -143,8 +128,6 @@ async def send_message_with_list_of_places(
         number_of_places_to_show: Number of places to show in message to user.
         _nearest_places: Objects `Place`, nearest by distance to the user's
             location.
-        _place_to_send: `Place` objects for become location and sending
-            to user.
         reply_markup: Keyboard type.
 
     """
@@ -180,33 +163,3 @@ async def send_message_with_list_of_places(
             _nearest_places[0][0].latitude,
             _nearest_places[0][0].longitude,
         )
-
-
-# async def send_message_with_place_name(
-#     mybot: bot,
-#     message: types.Message,
-#     place_name_: str,
-#     place_to_send: list[Place],
-# ) -> None:
-#     """Send message with place name and message with location to user.
-#
-#     Args:
-#         mybot: `bot` object.
-#         message: `message` object from user.
-#         place_name_: `Place` name.
-#         place_to_send: `Place` objects for become location and sending
-#             to user.
-#
-#     """
-#
-#     await send_message(
-#         mybot,
-#         message,
-#         place_name_,
-#         reply_markup=kb_place_client_next,
-#     )
-#     await mybot.send_location(
-#         message.from_user.id,
-#         place_to_send[0].latitude,
-#         place_to_send[0].longitude,
-#     )
