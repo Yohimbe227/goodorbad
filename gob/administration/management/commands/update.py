@@ -255,15 +255,15 @@ def parser(city: str, category: str) -> None:
             place['worktime_from'] = parse_time('00:00:01')
             place['worktime_to'] = parse_time('23:59:59')
 
-        try:
-            place_obj, _ = Place.objects.get_or_create(**place)
-        except IntegrityError:
-            logger.debug('Заведение было создано ранее')
+        # try:
+        #     place_obj, _ = Place.objects.get_or_create(**place)
+        # except IntegrityError:
+        #     logger.debug('Заведение было создано ранее')
 
         try:
             [
                 CategoryPlace.objects.get_or_create(
-                    place=place_obj,
+                    place=Place.objects.get_or_create(**place)[0],
                     category=category,
                 )
                 for category in categories
