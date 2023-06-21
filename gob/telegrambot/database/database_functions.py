@@ -160,7 +160,7 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
 async def read_places_coordinates(
-    location,
+    location: tuple[float],
     _category: str,
 ) -> list[tuple[Place, float]]:
     """
@@ -192,12 +192,21 @@ async def read_places_coordinates(
                 location[1] + MAX_COORDINATES_DIFFERENCE,
             ],
         ),
-    ).prefetch_related('category').distinct():
-        _distance = haversine(
-            (place.latitude, place.longitude),
-            list(map(float, location)),
+    ):
+        _distance = int(
+            haversine(
+                (float(place.latitude), float(place.longitude)),
+                list(map(float, location)),
+            )
+            * M_IN_KM
         )
-        if _distance < MAX_RANGE_SEARCH / M_IN_KM:
+        if _distance < MAX_RANGE_SEARCH and (
+            (
+                place,
+                _distance,
+            )
+            not in distance_to_place
+        ):
             distance_to_place.append(
                 (
                     place,

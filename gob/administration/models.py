@@ -98,8 +98,19 @@ class Place(models.Model):
         blank=True,
     )
     sponsored = models.BooleanField(default=False, verbose_name='проплачено')
-    latitude = models.FloatField('широта', blank=True, null=True)
-    longitude = models.FloatField('долгота', blank=True, null=True)
+    latitude = models.CharField(
+        max_length=11, verbose_name='широта', blank=True, null=True,
+    )
+    longitude = models.CharField(
+        max_length=11, verbose_name='долгота', blank=True, null=True,
+    )
+
+    def __eq__(self, other):
+        return (
+            self.name == other.name
+            and self.latitude == other.latitude
+            and self.longitude == other.longitude
+        )
 
     class Meta:
         verbose_name = 'заведение'

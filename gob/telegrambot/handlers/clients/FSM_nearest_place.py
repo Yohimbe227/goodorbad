@@ -118,7 +118,7 @@ async def search_place_done(message: types.Message, state: FSMContext):
             location = response.json()['response']['GeoObjectCollection'][
                 'featureMember'
             ][0]['GeoObject']['Point']['pos'].split(' ')
-            location = location[::-1]
+            location = list(map(float, location[::-1]))
         except (KeyError, IndexError):
             await send_message(
                 bot,

@@ -6,7 +6,7 @@ from aiogram import types
 from aiogram.bot import bot
 
 from administration.models import Place
-from telegrambot.costants import M_IN_KM, MAX_RANGE_SEARCH
+from telegrambot.costants import MAX_RANGE_SEARCH
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import SendMessageError, TokenError
 from telegrambot.keyboards.client_kb import kb_place_client_next
@@ -42,7 +42,7 @@ async def send_message(
     message_text,
     **kwargs: Any,
 ) -> None:
-    """Sends messages to Telegram.
+    """Sends messages via Telegram.
 
     Includes logging and error handling.
 
@@ -82,12 +82,12 @@ async def n_min(
         The array of minimum elements in descending order.
 
     """
-
-    return heapq.nsmallest(
+    result = heapq.nsmallest(
         number_of_maximum,
         array,
         key=lambda _array: _array[1],
     )
+    return result
 
 
 def convert_time(time_work: str) -> str:
@@ -151,10 +151,7 @@ async def send_message_with_list_of_places(
             f'<b>карте</b>: \n-> '
             + '\n-> '.join(
                 [
-                    str(round(_distance * M_IN_KM))
-                    + ' м.: <b>'
-                    + place.name
-                    + '</b>'
+                    str(round(_distance)) + ' м.: <b>' + place.name + '</b>'
                     for place, _distance in _nearest_places
                     if _distance
                 ],

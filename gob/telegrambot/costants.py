@@ -150,5 +150,6 @@ KEYBOARD_ADDITIONAL = [
     'отмена',
 ]
 
-# Постоянная для фильтрации очевидно, слишком далеких объектов `Place`
-MAX_COORDINATES_DIFFERENCE = 0.2
+# Постоянная для фильтрации очевидно, слишком далеких объектов `Place`.
+# Отличия по координатам не более `MAX_COORDINATES_DIFFERENCE`
+MAX_COORDINATES_DIFFERENCE = 0.15
