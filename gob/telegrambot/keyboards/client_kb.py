@@ -7,6 +7,7 @@ button_about = KeyboardButton('/о_боте')
 button_nearest_place = KeyboardButton('/ближайшее_место_для...')
 button_read_review = KeyboardButton('/узнать_отзывы')
 button_add_review = KeyboardButton('/добавить_отзыв')
+button_HR = KeyboardButton('/Я_HR_и_мне_нравится')
 
 kb_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 kb_start.add(button_start)
@@ -15,6 +16,7 @@ kb_client = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 kb_client.add(button_start, button_about).add(button_nearest_place).add(
     button_read_review,
     button_add_review,
+    button_HR,
 )
 
 kb_client_with_places = ReplyKeyboardMarkup(
@@ -24,7 +26,7 @@ kb_client_with_places = ReplyKeyboardMarkup(
 
 
 def get_keyboard(
-    buttons: list[str],
+        buttons: list[str],
 ):
     """Create keyboard object by names of buttons.
 

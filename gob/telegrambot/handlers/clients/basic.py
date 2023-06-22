@@ -1,3 +1,4 @@
+from asyncio import sleep
 from datetime import datetime
 
 from django.core.exceptions import MultipleObjectsReturned
@@ -8,7 +9,7 @@ from aiogram.dispatcher import Dispatcher
 from asgiref.sync import sync_to_async
 
 from administration.models import User
-from telegrambot.costants import START_MESSAGE
+from telegrambot.costants import START_MESSAGE, ID
 from telegrambot.creation import bot
 from telegrambot.database import database_functions
 from telegrambot.decorators import func_logger
@@ -93,6 +94,30 @@ async def about_bot(message: types.Message) -> None:
     )
 
 
+@func_logger('вывод сообщения HR', level='info')
+async def hr_attention(message: types.Message) -> None:
+    """Отсылает сообщение с описанием основного функционала бота.
+
+    Args:
+        message: `message` object from user.
+
+    """
+    await send_message(
+        bot,
+        message,
+        'Спасибо за интерес, жуть как приятно, встретимся на собесе :)',
+        reply_markup=kb_client,
+    )
+    await sleep(3)
+    await send_message(
+        bot,
+        message,
+        'Ну или нет :(',
+        reply_markup=kb_client,
+    )
+    await bot.send_message(ID, 'Кто-то заюзал эту функцию, может даже HR')
+
+
 def register_handlers_client(disp: Dispatcher):
     """Handlers registration."""
 
@@ -108,3 +133,4 @@ def register_handlers_client(disp: Dispatcher):
         ],
     )
     disp.register_message_handler(_places_all, commands=['место'])
+    disp.register_message_handler(hr_attention, commands=['Я_HR_и_мне_нравится'])
