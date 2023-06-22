@@ -17,7 +17,10 @@ from telegrambot.costants import (
     YA_GEO_TOKEN,
 )
 from telegrambot.creation import bot
-from telegrambot.database.database_functions import city_name, read_places_coordinates
+from telegrambot.database.database_functions import (
+    city_name,
+    read_places_coordinates,
+)
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
 from telegrambot.keyboards.client_kb import (
@@ -59,8 +62,12 @@ class FSMClientSearchPlace(StatesGroup):
 
 @func_logger('Старт поиска ближайших мест', level='info')
 async def start_search_place(message: types.Message) -> None:
-    """Dialog start."""
+    """Dialog start.
 
+    Args:
+        message: Object `message` telegram with everyone info.
+
+    """
     await FSMClientSearchPlace.first.set()
     await send_message(
         bot,
@@ -75,8 +82,16 @@ async def search_place_request_location(
     message: types.Message,
     state: FSMContext,
 ) -> None:
-    """Получаем тип заведения."""
+    """Retrieving place category.
 
+    The selected category is matched with the real categories in the database
+    by the PLACE_TYPES dictionary.
+
+    Args:
+        message: Object `message` telegram with everyone info.
+        state: State object that stores the current state.
+
+    """
     async with state.proxy() as data:
         if message.text.lower() in PLACE_TYPES:
             data['category'] = message.text.lower()
@@ -100,8 +115,20 @@ async def search_place_request_location(
 
 
 @func_logger('Получаем данные локации', level='info')
-async def search_place_done(message: types.Message, state: FSMContext):
-    """Получаем данные геолокации пользователя."""
+async def search_place_done(message: types.Message, state: FSMContext) -> None:
+    """Retrieving user geolocation data.
+
+    The location data can come in the form of a telegram object or as an
+    address, entered by the user.
+
+    Args:
+        message: Object `message` telegram with everyone info.
+        state: State object that stores the current state.
+
+    Raises:
+        HTTPError: If endpoint is not available.
+
+    """
     if message.text:
         try:
             response = requests.get(
@@ -152,12 +179,6 @@ async def search_place_done(message: types.Message, state: FSMContext):
                     nearest_places,
                 )
                 await FSMClientSearchPlace.additional.set()
-                if data['city'] == 'Петрозаводск':
-                    await send_message(
-                        bot,
-                        message,
-                        'Пасхалка для лучшего ревьюера Анюты Агаренко :)',
-                    )
             else:
                 await send_message(
                     bot,

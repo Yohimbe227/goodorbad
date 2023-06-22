@@ -26,20 +26,19 @@ def func_logger(message: str, level: str = 'debug'):
 
     Args:
         message: Message on function execute.
-        level: Допустимые значения: 'info', 'debug', 'error', 'critical'.
+        level: Available value: 'info', 'debug', 'error', 'critical'.
 
     Returns:
-        Объект функции `_func_logger`
+        Function object `_func_logger`
 
-    Raises:
-        NameError: При недокументированном уровне логирования.
+    Raise:
+        NameError: With an undocumented logging level.
 
     """
-
     def _func_logger(function):
         @wraps(function)
         def wrapper(*args2, **kwargs):
-            ret = function(*args2, **kwargs)
+            _value = function(*args2, **kwargs)
             log_level = {
                 'debug': logger.debug,
                 'info': logger.info,
@@ -50,7 +49,7 @@ def func_logger(message: str, level: str = 'debug'):
                 log_level.get(level)(message)
             else:
                 raise NameError(f'Unknown parameter {level}')
-            return ret
+            return _value
 
         return wrapper
 

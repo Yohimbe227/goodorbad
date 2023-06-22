@@ -14,59 +14,27 @@ _**Основной стэк**_:
 
 ### Возможности/Features:
 
-* Этот телеграм бот умеет находить ближайшие заведения по выбранному пользователем типу (кафе, бар, ресторан и т.п.) и отсылать их локацию пользователю (пользователю, нужно только жмякнуть, чтобы открыть карту с нужным заведением).
+* Этот телеграм бот умеет находить ближайшие заведения по выбранному пользователем типу (кафе, бар, ресторан и т.п.) и отсылать их локацию пользователю (пользователю, нужно только жмякнуть, чтобы открыть карту с нужным заведением) или ввести свой примерный адресс в произвольном формате.
 * Возможен листинг заведений с дальнейшим удалением от местоположения пользователя.
 * Фильтр мата с возможностью регулировки уровня строгости.
-* Бот GoodOrBad собирает/показывает отзывы пользователей на посещенные заведения. 
+* Бот NextPlace собирает/показывает отзывы пользователей на посещенные заведения. 
 * Заведения делятся на категории. 
 * Добавлять заведения и категории  может только администратор.
-* Для администратора разработана админка с возможностью создания/редактирования/удаления заведений и их категорий.
+* Для администратора разработана админка с основной статистикой и возможностью создания/редактирования/удаления заведений и их категорий.
 
-## Установка/Installation
 
-Клонировать репозиторий и перейти в него в командной строке:
-```bash
-git clone https://github.com/Yohimbe227/goodorbad.git
-```
-```bash
-cd goodorbad/
-```
-Cоздать и активировать виртуальное окружение:
-```bash
-python -m venv venv
-```
-```bash
-source env/bin/activate
-```
-Обновить pip:
-```bash
-python -m pip install --upgrade pip
-```
-Установить зависимости из файла requirements.txt:
-```bash
-pip install -r requirements.txt
-```
-Выполнить миграции:
-```bash
-python manage.py migrate
-```
-Запустить админку:
-```bash
-python manage.py runserver
-```
-Запустить бота:
-```bash
-python manage.py startbot
-```
+
 
 ## Наполнение базы данных/Filling the database
 
-Наполнение/обновление базы данных проводится через API от 2gis. Реализовано
+Наполнение/обновление базы данных проводится через различные API. Реализовано
 посредством managment комманды Django.
 ```bash
 python manage.py update_base
+или
+python manage.py update
 ```
-Duplicate table rows will be ignored.
+В тексте файла update.py можно выбрать нужный город и категорию заведения.
 
 ## FAQ
 
@@ -78,9 +46,9 @@ Is this bot available for use on Telegram?
 
 **Ответ 1/ Answer 1**
 
-Еще нет. Будет запущен, когда я разберусь с деплоем. Исправлю старые баги. Может попорошу кого-нибудь сделать ревью кода...  
+Да доступен и полностью функционален. Ищите в телеграмм бот NextPlace! 
 
-Not yet. It will be launched when I figure out the deployment. I'll fix some old bugs. Maybe I'll get someone to do a code review...
+Yes available and fully functional. Look for the NextPlace bot in Telegram!
 
 **Вопрос 2/ Question 2**
 
@@ -90,9 +58,9 @@ Is this bot available for use on Telegram?
 
 **Ответ 2/ Answer 2**
 
-Увы нет. Собрать такую базу несложно, но нужны деньги. 
+Нет. Такая цель не ставилась. Проект не предполагает коммерческого использования. Собранная база является временной и регулярно обновляется. Если Вы HR и хотите платить мне 1000000000 $ в миниту, то напишите мне и я добавлю нужный Вам город. 
 
-Alas, no. It's not hard to assemble such a base, but you need money.
+No. That was not the goal. The project is not intended for commercial use. The database collected is temporary and regularly updated. If you HR and want to pay me $ 1000000000 per minitu, then write to me and I will add your desired city.
 
 **Вопрос 3/ Question 3**
 
@@ -104,7 +72,44 @@ Yuri, then what do you need students for, let them use their hands to parse!
 Хм, жестокий ты... Почему бы и нет, но как бы увязать студентов, зачет по термеху и список баров в Тамбове?
 
 Hmm, you're cruel... Why not, but how would you connect the students, the term paper, and the list of bars in Tambov?
+
+
+
+
+## Установка/Installation
+
+Клонировать репозиторий и перейти в него в командной строке:
+```bash
+sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+Чтобы проверить успешность установки, запустите следующую команду:
+```bash
+docker-compose --version
+```
+Вывод будет выглядеть следующим образом:
+```bash
+Output
+docker-compose version 1.26.0, build 8a1c60f6
+```
+Скопируйте из папки infra файлы в папку /home/your_user/:
+* заполненный Вашими данными файл .env.example, переименуйте его в .env и копируйте.
+* папку nginx с ее содержимым.
+* файл docker-compose.yaml.
+А теперь просто запустите:
+```bash
+docker-compose up
+```
+Если нужна админка, то дополнительно выполните комманду:
+```bash
+sudo docker-compose exec -T telega gunicorn gob.wsgi:application --bind 0:8000
+```
+и она будет доступна по адресу http:yourdomain_or_ip/admin
+## Author
+ Юрий Каманин 
+ [@Yohimbe227](https://www.github.com/Yohimbe227)
+
 ## License
 
-Не используйте этот программный продукт без согласования с автором. Он только для ознакомления!
-
+Студентам Яндекс Практикума копировать запрещено совсем и категорически! А учиться кто будет? ;)
+Не используйте этот программный продукт без согласования с автором. Он только для ознакомления! Вот такая жесткая лицензия).

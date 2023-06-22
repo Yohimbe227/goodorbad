@@ -90,7 +90,7 @@ MAX_QUANTITY_OF_PLACES_ON_KB = 12
 M_IN_KM = 1000  # 1000 to become the distance in meter
 
 NUMBER_OF_PLACES_TO_SHOW = 3
-MAX_RANGE_SEARCH = 20000
+MAX_RANGE_SEARCH = 15000
 START_MESSAGE = (
     'Добро пожаловать {username}. \nИщи кафе, бары, рестораны и'
     ' прочие заведения, находящиеся поблизости. \nЧитай и оставляй '

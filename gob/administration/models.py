@@ -99,10 +99,16 @@ class Place(models.Model):
     )
     sponsored = models.BooleanField(default=False, verbose_name='проплачено')
     latitude = models.CharField(
-        max_length=11, verbose_name='широта', blank=True, null=True,
+        max_length=11,
+        verbose_name='широта',
+        blank=True,
+        null=True,
     )
     longitude = models.CharField(
-        max_length=11, verbose_name='долгота', blank=True, null=True,
+        max_length=11,
+        verbose_name='долгота',
+        blank=True,
+        null=True,
     )
 
     def __eq__(self, other):

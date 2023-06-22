@@ -96,13 +96,13 @@ async def read_review_from_database(place: Place, message: types.Message):
     )
 
     @sync_to_async
-    def get_review_list(place: list[Place]) -> str:
+    def get_review_list(_place: list[Place]) -> str:
         """
         This is an auxiliary function for performing synchronous actions
         with the database in an asynchronous function.
         """
         try:
-            reviews = Review.objects.filter(place=place[0].pk).select_related(
+            reviews = Review.objects.filter(place=_place[0].pk).select_related(
                 'place',
                 'author',
             )
@@ -198,7 +198,7 @@ async def read_places_coordinates(
                 (float(place.latitude), float(place.longitude)),
                 list(map(float, location)),
             )
-            * M_IN_KM
+            * M_IN_KM,
         )
         if _distance < MAX_RANGE_SEARCH and (
             (
