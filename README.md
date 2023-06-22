@@ -54,7 +54,7 @@ Yes available and fully functional. Look for the NextPlace bot in Telegram!
 
 В базе прям все все заведения?
 
-Is this bot available for use on Telegram?
+Does the database contain all of the places?
 
 **Ответ 2/ Answer 2**
 
@@ -72,9 +72,6 @@ Yuri, then what do you need students for, let them use their hands to parse!
 Хм, жестокий ты... Почему бы и нет, но как бы увязать студентов, зачет по термеху и список баров в Тамбове?
 
 Hmm, you're cruel... Why not, but how would you connect the students, the term paper, and the list of bars in Tambov?
-
-
-
 
 ## Установка/Installation
 
