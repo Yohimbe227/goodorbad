@@ -119,10 +119,6 @@ def get_city(city: str) -> str:
             name=city,
             latitude=coordinates[0],
             longitude=coordinates[1],
-            left_box_latitude=bounded_result[0],
-            left_box_longitude=bounded_result[1],
-            right_box_latitude=bounded_result[2],
-            right_box_longitude=bounded_result[3],
         )
     except IntegrityError:
         logger.warning('Город уже добавлен в базу данных')

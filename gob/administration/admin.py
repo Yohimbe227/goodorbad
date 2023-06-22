@@ -14,24 +14,6 @@ class BaseAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-# @admin.register(Place)
-# class PlaceAdmin(BaseAdmin):
-#     list_display = (
-#         'pk',
-#         'name',
-#         'city',
-#         # 'created',
-#         # 'sponsored',
-#         'address_name',
-#         # 'place_type'
-#     )
-#     list_editable = (
-#         'name',
-#         # 'sponsored',
-#     )
-# form = PlaceForm
-
-
 class CategoryPlaceInline(admin.TabularInline):
     model = CategoryPlace
     extra = 1
@@ -89,7 +71,8 @@ class UserAdmin(BaseUserAdmin):
         'show_count',
     )
 
-    def show_count(self, obj):
+    @staticmethod
+    def show_count(obj):
         result = Place.objects.filter(reviews__author=obj).aggregate(
             Count('reviews'),
         )
@@ -105,10 +88,6 @@ class CityAdmin(BaseAdmin):
         'longitude',
         'show_count_places',
         'show_count_reviews',
-        'left_box_latitude',
-        'left_box_longitude',
-        'right_box_latitude',
-        'right_box_longitude',
     )
 
     def show_count_places(self, obj):
