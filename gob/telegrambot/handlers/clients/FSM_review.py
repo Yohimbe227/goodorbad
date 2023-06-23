@@ -65,7 +65,7 @@ async def add_city(message: types.Message, state: FSMContext) -> None:
         async with state.proxy() as data:
             data['city'] = message.text
         await FSMClientReview.name.set()
-        await message.reply('Введите название заведения')
+        await message.reply('Введите название заведения (можно не полностью)')
     else:
         await send_message(
             bot,
