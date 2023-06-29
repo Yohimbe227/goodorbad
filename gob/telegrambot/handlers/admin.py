@@ -1,11 +1,14 @@
 """
 Unused module in this version app.
 """
+from django.core.management import call_command
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import IDFilter, Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup
+from asgiref.sync import sync_to_async
 
 from telegrambot.costants import ID
 from telegrambot.creation import bot
@@ -25,9 +28,9 @@ class FSMAdmin(StatesGroup):
     description = State()
 
 
-async def cm_start(message: types.Message) -> None:
+async def city_add(message: types.Message) -> None:
     """
-    Starting a dialog to load a new place.
+    Starting a dialog to load a new city.
 
     Args:
         message: message being sent
@@ -37,12 +40,10 @@ async def cm_start(message: types.Message) -> None:
         bot,
         message,
         'Приветствую босс!!!',
-        reply_markup=kb_admin,
     )
     await FSMAdmin.city.set()
     await message.reply(
-        'Введите Ваш город',
-        reply_markup=kb_city,
+        'Введите город для добавления в базу',
     )
 
 
@@ -65,48 +66,12 @@ async def load_city(message: types.Message, state: FSMContext) -> None:
     """Process the first answer and write it in the dictionary.
 
     Args:
-        message: message being sent
-        state: current state
+        message: message being sent.
+        state: current state.
 
     """
-    async with state.proxy() as data:
-        data['city'] = message.text
-    await FSMAdmin.next()
-    await message.reply('Введите название заведения')
-
-
-async def load_name(message: types.Message, state: FSMContext) -> None:
-    """
-    Process the second answer and write it in the dictionary.
-
-    Args:
-        message: message being sent
-        state: current state
-    """
-    async with state.proxy() as data:
-        data['name'] = message.text
-    await FSMAdmin.next()
-    await message.reply('Введите описание')
-
-
-async def load_description(message: types.Message, state: FSMContext) -> None:
-    """
-    Process the third answer and write it in the dictionary.
-
-    Args:
-        message: message being sent
-        state: current state
-    """
-    async with state.proxy() as data:
-        data['review'] = message.text
-    await database_functions.sql_add_command(state)
-    async with state.proxy() as data:
-        await send_message(bot, message, str(data._data)[1:-1])
-        await send_message(
-            bot,
-            message,
-            'Добавление нового заведения закончено',
-        )
+    await sync_to_async(call_command)('update', city=message.text)
+    await send_message(bot, message, f'Город {message.text} добавлен!')
     await state.finish()
 
 
@@ -167,7 +132,7 @@ def register_handlers_admin(disp: Dispatcher) -> None:
 
     """
     disp.register_message_handler(
-        cm_start,
+        city_add,
         IDFilter(user_id=ID),
         commands=[
             'загрузить',
@@ -185,16 +150,7 @@ def register_handlers_admin(disp: Dispatcher) -> None:
         IsCurseMessage(),
         state=FSMAdmin.city,
     )
-    disp.register_message_handler(
-        load_name,
-        IsCurseMessage(),
-        state=FSMAdmin.name,
-    )
-    disp.register_message_handler(
-        load_description,
-        IsCurseMessage(),
-        state=FSMAdmin.description,
-    )
+
     disp.register_callback_query_handler(
         del_callback_run,
         lambda command: command.data and command.data.startswith('del '),

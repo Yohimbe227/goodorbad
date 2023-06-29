@@ -7,6 +7,7 @@ from logging.handlers import RotatingFileHandler
 import requests
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from telegrambot.costants import (
@@ -296,11 +297,10 @@ def register_handlers_nearest_place(disp: Dispatcher):
     disp.register_message_handler(
         start_search_place,
         IsCurseMessage(),
+        Text(
+            equals=['Ближайшее место для...', '/next_place'], ignore_case=True
+        ),
         state=None,
-        commands=[
-            'ближайшее_место_для...',
-            'NextPlace',
-        ],
     )
     disp.register_message_handler(
         search_place_request_location,

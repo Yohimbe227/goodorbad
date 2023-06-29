@@ -23,8 +23,8 @@ from telegrambot.utils import logger, send_message
 
 @func_logger('Ищем заведение по названию в БД', level='info')
 async def search_place_name_in_database(
-        place_name: str,
-        city: str,
+    place_name: str,
+    city: str,
 ) -> list[Place]:
     """Search `Place` object by name and city in database.
 
@@ -52,9 +52,9 @@ async def search_place_name_in_database(
 
 @func_logger('создаем объект отзыва', level='info')
 async def add_review_in_database(
-        place: Place,
-        review_text: str,
-        message: types.Message,
+    place: Place,
+    review_text: str,
+    message: types.Message,
 ) -> None:
     """Add `review` object in database.
 
@@ -104,7 +104,8 @@ async def read_review_from_database(_place: Place, message: types.Message):
             )
         except Exception as error:
             logger.critical(
-                f'Проблемы со считыванием отзывов из базы данных {error}')
+                f'Проблемы со считыванием отзывов из базы данных {error}'
+            )
             raise ReviewBecomeError
 
         user = User.objects.get(username=message.from_user.id)
@@ -129,13 +130,15 @@ async def read_review_from_database(_place: Place, message: types.Message):
                 '\n'.join(['<b>Все отзывы:</b>'] + reviews_other_text)
                 if reviews_other_text or reviews_user_text
                 else f'Отзывов на <b>{_place.name}</b> пока нет, '
-                     f'\nно Вы можете добавить через меню'
+                f'\nно Вы можете добавить через меню'
             )
         elif reviews_user_text and not reviews_other_text:
             return '\n'.join(['<b>Мои отзывы:</b>'] + reviews_user_text)
         else:
-            return (f'Отзывов на <b>{_place.name}</b> пока нет, \nно Вы можете '
-                    f'их добавить через меню')
+            return (
+                f'Отзывов на <b>{_place.name}</b> пока нет, \nно Вы можете '
+                f'их добавить через меню'
+            )
 
     return await get_review_list(_place)
 
@@ -159,8 +162,8 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
 async def read_places_coordinates(
-        location: tuple[float],
-        _category: str,
+    location: tuple[float],
+    _category: str,
 ) -> list[tuple[Place, float]]:
     """
     Calculate the distances between the user's location and all
@@ -178,19 +181,19 @@ async def read_places_coordinates(
     """
     distance_to_place = []
     async for place in Place.objects.filter(
-            Q(category__name__in=PLACE_TYPES[_category.lower()])
-            & Q(
-                latitude__range=[
-                    location[0] - MAX_COORDINATES_DIFFERENCE,
-                    location[0] + MAX_COORDINATES_DIFFERENCE,
-                ],
-            )
-            & Q(
-                longitude__range=[
-                    location[1] - MAX_COORDINATES_DIFFERENCE,
-                    location[1] + MAX_COORDINATES_DIFFERENCE,
-                ],
-            ),
+        Q(category__name__in=PLACE_TYPES[_category.lower()])
+        & Q(
+            latitude__range=[
+                location[0] - MAX_COORDINATES_DIFFERENCE,
+                location[0] + MAX_COORDINATES_DIFFERENCE,
+            ],
+        )
+        & Q(
+            longitude__range=[
+                location[1] - MAX_COORDINATES_DIFFERENCE,
+                location[1] + MAX_COORDINATES_DIFFERENCE,
+            ],
+        ),
     ):
         _distance = int(
             haversine(
@@ -200,11 +203,11 @@ async def read_places_coordinates(
             * M_IN_KM,
         )
         if _distance < MAX_RANGE_SEARCH and (
-                (
-                        place,
-                        _distance,
-                )
-                not in distance_to_place
+            (
+                place,
+                _distance,
+            )
+            not in distance_to_place
         ):
             distance_to_place.append(
                 (

@@ -4,7 +4,6 @@ It uses the yandex API.
 """
 import logging
 import os
-import time
 from http import HTTPStatus
 from itertools import chain
 from logging.handlers import RotatingFileHandler
@@ -119,6 +118,10 @@ def get_city(city: str) -> str:
             name=city,
             latitude=coordinates[0],
             longitude=coordinates[1],
+            left_box_latitude=bounded_result[0],
+            left_box_longitude=bounded_result[1],
+            right_box_latitude=bounded_result[2],
+            right_box_longitude=bounded_result[3],
         )
     except IntegrityError:
         logger.warning('Город уже добавлен в базу данных')
@@ -264,11 +267,17 @@ def parser(city: str, category: str) -> None:
 
 
 class Command(BaseCommand):
+    help = 'Команда для записи данных в базу'
+
+    def add_arguments(self, func):
+        func.add_argument('--city', type=str, help='Название города')
+
     def handle(self, *args, **options):
         check_tokens()
-        for city in CITIES:
-            time.sleep(0.2)
-            for place in PLACES:
-                time.sleep(0.2)
-                parser(city, place)
+        city = options['city']
+        parser(city, 'Бар')
+        if city:
+            [parser(city, place) for place in PLACES]
+        else:
+            [[parser(city, place) for place in PLACES] for city in CITIES]
         logger.info('Импорт завершен успешно!')

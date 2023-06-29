@@ -35,6 +35,7 @@ def func_logger(message: str, level: str = 'debug'):
         NameError: With an undocumented logging level.
 
     """
+
     def _func_logger(function):
         @wraps(function)
         def wrapper(*args2, **kwargs):

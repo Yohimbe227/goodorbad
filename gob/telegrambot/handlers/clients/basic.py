@@ -6,10 +6,11 @@ from django.db import IntegrityError
 
 from aiogram import types
 from aiogram.dispatcher import Dispatcher
+from aiogram.dispatcher.filters import Text
 from asgiref.sync import sync_to_async
 
 from administration.models import User
-from telegrambot.costants import START_MESSAGE, ID
+from telegrambot.costants import ID, START_MESSAGE
 from telegrambot.creation import bot
 from telegrambot.database import database_functions
 from telegrambot.decorators import func_logger
@@ -123,14 +124,34 @@ def register_handlers_client(disp: Dispatcher):
 
     disp.register_message_handler(
         command_start,
-        commands=['start', 'старт'],
+        Text(
+            equals=[
+                'Старт',
+                '/start',
+            ],
+            ignore_case=True,
+        ),
     )
     disp.register_message_handler(
         about_bot,
-        commands=[
-            'о_боте',
-            'about',
-        ],
+        Text(
+            equals=[
+                'О боте',
+                '/about',
+            ],
+            ignore_case=True,
+        ),
     )
-    disp.register_message_handler(_places_all, commands=['место'])
-    disp.register_message_handler(hr_attention, commands=['Я_HR_и_мне_нравится'])
+    disp.register_message_handler(
+        _places_all,
+        Text(equals='место', ignore_case=True),
+    )
+    disp.register_message_handler(
+        hr_attention,
+        Text(
+            equals=[
+                'Я HR и мне нравится!',
+            ],
+            ignore_case=True,
+        ),
+    )

@@ -10,6 +10,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import ReplyKeyboardRemove
 
 from telegrambot.costants import MAX_QUANTITY_OF_PLACES_ON_KB
 from telegrambot.creation import bot
@@ -98,7 +99,7 @@ async def add_place_name(message: types.Message, state: FSMContext) -> None:
                         bot,
                         message,
                         f'Введите Ваш отзыв на <b>"{places[0]}"</b>',
-                        reply_markup=kb_client,
+                        reply_markup=ReplyKeyboardRemove(),
                     )
                     data['places'] = places[0]
                     await FSMClientReview.review.set()
@@ -157,16 +158,26 @@ def register_handlers_fsm(disp: Dispatcher):
     disp.register_message_handler(
         start_read_review,
         IsCurseMessage(),
+        Text(
+            equals=[
+                'Узнать отзывы',
+                '/reviews',
+            ],
+            ignore_case=True,
+        ),
         state=None,
-        commands=[
-            'узнать_отзывы',
-        ],
     )
     disp.register_message_handler(
         start_add_review,
         IsCurseMessage(),
+        Text(
+            equals=[
+                'Добавить отзыв',
+                '/add_review',
+            ],
+            ignore_case=True,
+        ),
         state=None,
-        commands=['добавить_отзыв', 'add_reviews'],
     )
     disp.register_message_handler(
         cancel_handler,
@@ -192,6 +203,6 @@ def register_handlers_fsm(disp: Dispatcher):
     disp.register_message_handler(
         start_read_review,
         IsCurseMessage(),
+        Text(equals='Узнать отзывы', ignore_case=True),
         state=None,
-        commands=['узнать_отзывы', 'reviews'],
     )

@@ -2,12 +2,12 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 NUMBER_OF_COLUMNS_KB = 4
 
-button_start = KeyboardButton('/start')
-button_about = KeyboardButton('/о_боте')
-button_nearest_place = KeyboardButton('/ближайшее_место_для...')
-button_read_review = KeyboardButton('/узнать_отзывы')
-button_add_review = KeyboardButton('/добавить_отзыв')
-button_HR = KeyboardButton('/Я_HR_и_мне_нравится')
+button_start = KeyboardButton('Старт')
+button_about = KeyboardButton('О боте')
+button_nearest_place = KeyboardButton('Ближайшее место для...')
+button_read_review = KeyboardButton('Узнать отзывы')
+button_add_review = KeyboardButton('Добавить отзыв')
+button_HR = KeyboardButton('Я HR и мне нравится!')
 
 kb_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 kb_start.add(button_start)
@@ -26,7 +26,7 @@ kb_client_with_places = ReplyKeyboardMarkup(
 
 
 def get_keyboard(
-        buttons: list[str],
+    buttons: list[str],
 ):
     """Create keyboard object by names of buttons.
 
@@ -49,7 +49,7 @@ kb_client_location = ReplyKeyboardMarkup(
     resize_keyboard=True,
     one_time_keyboard=True,
 ).add(
-    KeyboardButton('отправить локацию', request_location=True),
+    KeyboardButton('Отправить локацию', request_location=True),
 )
 
 kb_place_client_next = get_keyboard(
