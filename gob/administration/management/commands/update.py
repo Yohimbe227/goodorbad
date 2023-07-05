@@ -27,7 +27,7 @@ MAX_RESULTS_PER_CITY = 1000
 FIRST_RESULT = 1
 MESSAGE_ERROR_REQUEST = 'Какие то проблемы с endpoint'
 # places for search in API
-PLACES = (
+CATEGORIES = (
     'Кафе',
     'Бар',
     'Паб',
@@ -271,13 +271,20 @@ class Command(BaseCommand):
 
     def add_arguments(self, func):
         func.add_argument('--city', type=str, help='Название города')
+        func.add_argument('--file', type=str, help='Название файла')
 
     def handle(self, *args, **options):
         check_tokens()
         city = options['city']
-        parser(city, 'Бар')
+        file = options['file']
         if city:
-            [parser(city, place) for place in PLACES]
+            [parser(city, category) for category in CATEGORIES]
+            logger.info(f'Импорт города {city} завершен успешно!')
         else:
-            [[parser(city, place) for place in PLACES] for city in CITIES]
-        logger.info('Импорт завершен успешно!')
+            [[parser(city, category) for category in CATEGORIES] for city in CITIES]
+            logger.info(f'Импорт городов {CITIES} завершен успешно!')
+        if file:
+            with open(file, "r") as file:
+                city = file.readline()
+
+                print(city)
