@@ -101,6 +101,7 @@ def get_city(city: str) -> str:
                 'type': 'geo',
             },
         )
+
     except requests.RequestException as error:
         logging.exception(MESSAGE_ERROR_REQUEST)
         raise HTTPError from error
@@ -128,7 +129,6 @@ def get_city(city: str) -> str:
         )
     except IntegrityError:
         logger.warning('Город уже добавлен в базу данных')
-
     return (
         f'{bounded_result[0]},{bounded_result[1]}~'
         f'{bounded_result[2]},{bounded_result[3]}'
