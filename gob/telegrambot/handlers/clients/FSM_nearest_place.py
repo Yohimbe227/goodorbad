@@ -184,7 +184,7 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 await send_message(
                     bot,
                     message,
-                    'Тут ничего нет, совсем.',
+                    'Тут ничего нет, совсем. Или Ваш город не поддерживается',
                     reply_markup=kb_client_location,
                 )
     if message.content_type not in ('text', 'location'):
