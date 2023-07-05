@@ -16,6 +16,7 @@ from django.utils.dateparse import parse_time
 import requests
 
 from administration.models import Category, CategoryPlace, City, Place
+from gob.settings import MAX_COUNT_TRY_ACCES_TO_ENDPOINT
 from telegrambot.costants import MAX_LENGTH_NAME
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError, TokenError
@@ -160,6 +161,17 @@ def get_api_answer(
         (lower left - upper right corner)
 
     """
+
+    for count in range(MAX_COUNT_TRY_ACCES_TO_ENDPOINT):
+        try:
+            _city = get_city(city)
+            break
+        except HTTPError:
+            logger.warning('Эндпоинт опять недоступен! Курим 2 сек.')
+            if count == MAX_COUNT_TRY_ACCES_TO_ENDPOINT - 1:
+                raise HTTPError('Видимо совсем забанили :(')
+            time.sleep(2)
+
     try:
         response = requests.get(
             ENDPOINT,
@@ -169,7 +181,7 @@ def get_api_answer(
                 'apikey': YA_TOKEN,
                 'lang': 'ru',
                 'type': 'biz',
-                'bbox': get_city(city),
+                'bbox': _city,
             },
         )
     except requests.RequestException as error:

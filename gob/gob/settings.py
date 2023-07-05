@@ -130,3 +130,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MAX_COUNT_TRY_ACCES_TO_ENDPOINT = 5
