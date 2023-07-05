@@ -192,7 +192,7 @@ def parser(city: str, category: str) -> None:
         city: City for filtering in question.
 
     """
-    time.sleep(0.1)
+    time.sleep(0.2)
     place = dict()
     for obj in get_api_answer(
         MAX_RESULTS_PER_CITY,
@@ -289,6 +289,7 @@ class Command(BaseCommand):
             with open(file_path, "r", encoding='utf-8') as file:
                 cities = [city.strip() for city in file.readlines()]
             [[parser(city, category) for category in CATEGORIES] for city in cities]
+            logger.info(f'Импорт городов {cities} завершен успешно!')
         elif not city and not file:
             [[parser(city, category) for category in CATEGORIES] for city in CITIES]
             logger.info(f'Импорт городов {CITIES} завершен успешно!')
