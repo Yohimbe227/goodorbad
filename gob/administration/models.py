@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from telegrambot.costants import MAX_LENGTH_NAME
+
 User = get_user_model()
 
 
@@ -42,7 +44,7 @@ class Place(models.Model):
 
     name = models.CharField(
         verbose_name='имя',
-        max_length=60,
+        max_length=MAX_LENGTH_NAME,
     )
     city = models.ForeignKey(
         City,

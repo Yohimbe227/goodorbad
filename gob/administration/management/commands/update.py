@@ -4,6 +4,7 @@ It uses the yandex API.
 """
 import logging
 import os
+import time
 from http import HTTPStatus
 from itertools import chain
 from logging.handlers import RotatingFileHandler
@@ -15,6 +16,7 @@ from django.utils.dateparse import parse_time
 import requests
 
 from administration.models import Category, CategoryPlace, City, Place
+from telegrambot.costants import MAX_LENGTH_NAME
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError, TokenError
 from telegrambot.utils import extract_address
@@ -190,6 +192,7 @@ def parser(city: str, category: str) -> None:
         city: City for filtering in question.
 
     """
+    time.sleep(0.1)
     place = dict()
     for obj in get_api_answer(
         MAX_RESULTS_PER_CITY,
@@ -216,7 +219,7 @@ def parser(city: str, category: str) -> None:
             logger.debug('Такой тип заведения уже добавлен')
 
         try:
-            place['name'] = obj['properties']['CompanyMetaData']['name']
+            place['name'] = obj['properties']['CompanyMetaData']['name'][:MAX_LENGTH_NAME]
             place['address'] = extract_address(
                 obj['properties']['description'],
             )
@@ -280,11 +283,14 @@ class Command(BaseCommand):
         if city:
             [parser(city, category) for category in CATEGORIES]
             logger.info(f'Импорт города {city} завершен успешно!')
-        else:
+            return
+        elif file and not city:
+            file_path = os.path.join('data', file)
+            with open(file_path, "r", encoding='utf-8') as file:
+                cities = [city.strip() for city in file.readlines()]
+            [[parser(city, category) for category in CATEGORIES] for city in cities]
+        elif not city and not file:
             [[parser(city, category) for category in CATEGORIES] for city in CITIES]
             logger.info(f'Импорт городов {CITIES} завершен успешно!')
-        if file:
-            with open(file, "r") as file:
-                city = file.readline()
+            return
 
-                print(city)
