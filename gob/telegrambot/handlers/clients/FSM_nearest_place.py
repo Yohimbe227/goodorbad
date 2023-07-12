@@ -28,7 +28,8 @@ from telegrambot.keyboards.client_kb import (
     get_keyboard,
     kb_client,
     kb_client_location,
-    kb_place_client_next,
+    kb_place_client_next, kb_client_return, button_return,
+    kb_client_categories,
 )
 from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import (
@@ -56,14 +57,14 @@ handler.setFormatter(formatter)
 
 
 class FSMClientSearchPlace(StatesGroup):
+    flag = State()
     first = State()
     second = State()
     additional = State()
 
-
 @func_logger('Старт поиска ближайших мест', level='info')
 async def start_search_place(message: types.Message) -> None:
-    """Dialog start.
+    """Start the nearest place search.
 
     Args:
         message: Object `message` telegram with everyone info.
@@ -74,7 +75,7 @@ async def start_search_place(message: types.Message) -> None:
         bot,
         message,
         'Уточните свои пожелания',
-        reply_markup=get_keyboard(PLACE_TYPES.keys()),
+        reply_markup=kb_client_categories,
     )
 
 
@@ -131,6 +132,7 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
 
     """
     if message.text:
+
         try:
             response = requests.get(
                 GEO_ENDPOINT,
@@ -153,7 +155,7 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 message,
                 f'Проверьте введенный адресс <b>{message.text}</b>, '
                 f'а то не находится ничего!',
-                reply_markup=kb_client_location,
+                reply_markup=kb_client_return,
             )
             location = None
 
@@ -181,11 +183,14 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 )
                 await FSMClientSearchPlace.additional.set()
             else:
+                if message.text == button_return.text:
+                    await send_message(bot, message, '',
+                                       reply_markup=kb_client)
                 await send_message(
                     bot,
                     message,
                     'Тут ничего нет, совсем. Или Ваш город не поддерживается',
-                    reply_markup=kb_client_location,
+                    reply_markup=kb_client_return,
                 )
     if message.content_type not in ('text', 'location'):
         await send_message(

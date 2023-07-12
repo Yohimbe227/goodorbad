@@ -10,7 +10,7 @@ from aiogram.dispatcher.filters import Text
 from asgiref.sync import sync_to_async
 
 from administration.models import User
-from telegrambot.costants import ID, START_MESSAGE
+from telegrambot.costants import ID, START_MESSAGE, ABOUT_MESSAGE
 from telegrambot.creation import bot
 from telegrambot.database import database_functions
 from telegrambot.decorators import func_logger
@@ -86,11 +86,7 @@ async def about_bot(message: types.Message) -> None:
     await send_message(
         bot,
         message,
-        'Этот бот подскажет тебе где поблизости находятся интересные '
-        'заведения: <b>бары, кафе, рестораны</b> и т.п. \nТакже вы можете '
-        'посмотреть/добавить отзывы об выбранном заведении! \n Если вдруг бот '
-        'ничего не находит значит Ваш город еще не поддерживается или Вы ну '
-        'совсем в долбенях!',
+        ABOUT_MESSAGE,
         reply_markup=kb_client,
     )
 

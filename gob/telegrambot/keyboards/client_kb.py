@@ -1,4 +1,8 @@
+from copy import deepcopy
+
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+
+from telegrambot.costants import PLACE_TYPES
 
 NUMBER_OF_COLUMNS_KB = 4
 
@@ -8,6 +12,7 @@ button_nearest_place = KeyboardButton('Ближайшее место для...')
 button_read_review = KeyboardButton('Узнать отзывы')
 button_add_review = KeyboardButton('Добавить отзыв')
 button_HR = KeyboardButton('Я HR и мне нравится!')
+button_return = KeyboardButton('Вернуться')
 
 kb_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 kb_start.add(button_start)
@@ -23,7 +28,6 @@ kb_client_with_places = ReplyKeyboardMarkup(
     resize_keyboard=True,
     one_time_keyboard=True,
 )
-
 
 def get_keyboard(
     buttons: list[str],
@@ -52,6 +56,9 @@ kb_client_location = ReplyKeyboardMarkup(
     KeyboardButton('Отправить локацию', request_location=True),
 )
 
+kb_client_return = deepcopy(kb_client_location)
+kb_client_return.add(button_return)
+
 kb_place_client_next = get_keyboard(
     [
         'Второе',
@@ -60,3 +67,5 @@ kb_place_client_next = get_keyboard(
         'отмена',
     ],
 )
+
+kb_client_categories = get_keyboard(PLACE_TYPES.keys())
