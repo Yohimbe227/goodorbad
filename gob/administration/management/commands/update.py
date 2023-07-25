@@ -128,7 +128,7 @@ def get_city(city: str) -> str:
             right_box_longitude=bounded_result[3],
         )
     except IntegrityError:
-        logger.warning('Город уже добавлен в базу данных')
+        logger.warning(f'Город {city} уже добавлен в базу данных')
     return (
         f'{bounded_result[0]},{bounded_result[1]}~'
         f'{bounded_result[2]},{bounded_result[3]}'
