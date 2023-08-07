@@ -46,7 +46,7 @@ jobs:
             sudo docker compose stop telega
             sudo docker compose rm -f telega
             sudo docker compose pull telega
-            rm .env
+            #rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
