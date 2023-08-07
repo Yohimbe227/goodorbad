@@ -181,7 +181,7 @@ def register_handlers_fsm(disp: Dispatcher):
     )
     disp.register_message_handler(
         cancel_handler,
-        Text(equals='отмена', ignore_case=True),
+        Text(equals=['отмена', 'вернуться'], ignore_case=True),
         state='*',
     )
     disp.register_message_handler(
