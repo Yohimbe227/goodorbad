@@ -43,10 +43,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            sudo docker compose stop telega
-            sudo docker compose rm -f telega
-            sudo docker compose pull telega
+
+            docker compose pull telega
             rm .env
+            #touch .env
 
   send_message:
     runs-on: ubuntu-latest
