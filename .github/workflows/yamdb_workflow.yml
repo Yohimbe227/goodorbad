@@ -35,9 +35,6 @@ jobs:
     needs: build_and_push_to_docker_hub
 
     steps:
-      - name: Check current directory
-        run: |
-          echo "Current directory: ${{ github.workspace }}"
       - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
@@ -48,10 +45,9 @@ jobs:
           script: |
             sudo docker compose stop telega
             sudo docker compose rm -f telega
-            sudo docker compose pull telega
-            pwd
+            sudo docker compose build telega
             rm .env
-            #touch .env
+            touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
             echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
