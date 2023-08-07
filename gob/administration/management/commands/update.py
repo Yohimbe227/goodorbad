@@ -171,7 +171,6 @@ def get_api_answer(
             if count == MAX_COUNT_TRY_ACCES_TO_ENDPOINT - 1:
                 raise HTTPError('Видимо совсем забанили :(')
             time.sleep(2)
-
     try:
         response = requests.get(
             ENDPOINT,
