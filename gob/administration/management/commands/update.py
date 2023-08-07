@@ -117,6 +117,7 @@ def get_city(city: str) -> str:
             ]['boundedBy'],
         ),
     )
+
     try:
         City.objects.create(
             name=city,
