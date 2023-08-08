@@ -12,4 +12,3 @@ RUN pip3 install -r ./requirements.txt --no-cache-dir
 COPY . .
 
 LABEL author='Kamanin Y.N.' version=1.0
-CMD ["gunicorn", "backend.wsgi:application", "--bind", "0:8000" ]
