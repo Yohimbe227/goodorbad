@@ -24,14 +24,14 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     'telega',
-    '212.237.35.59',
+    '185.244.48.124',
     '127.0.0.1',
 ]
 
 DJANGO_ALLOW_ASYNC_UNSAFE = 'True'
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://212.237.35.59',
+    'http://185.244.48.124',
 ]
 
 INSTALLED_APPS = [
