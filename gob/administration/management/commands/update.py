@@ -137,9 +137,9 @@ def get_city(city: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-    max_results: int,
-    city: str,
-    category: str,
+        max_results: int,
+        city: str,
+        category: str,
 ) -> dict:
     """Получаем ответ от эндпоинта.
 
@@ -205,11 +205,16 @@ def parser(city: str, category: str) -> None:
     """
     time.sleep(0.2)
     place = dict()
-    for obj in get_api_answer(
-        MAX_RESULTS_PER_CITY,
-        city,
-        category,
-    ):
+    try:
+        api_answer = get_api_answer(
+            MAX_RESULTS_PER_CITY,
+            city,
+            category,
+        )
+    except HTTPError:
+        logger.info('Ключ заблочили')
+
+    for obj in api_answer:
         place['longitude'] = obj['geometry']['coordinates'][0]
         place['latitude'] = obj['geometry']['coordinates'][1]
         try:
@@ -230,7 +235,8 @@ def parser(city: str, category: str) -> None:
             logger.debug('Такой тип заведения уже добавлен')
 
         try:
-            place['name'] = obj['properties']['CompanyMetaData']['name'][:MAX_LENGTH_NAME]
+            place['name'] = obj['properties']['CompanyMetaData']['name'][
+                            :MAX_LENGTH_NAME]
             place['address'] = extract_address(
                 obj['properties']['description'],
             )
@@ -299,10 +305,11 @@ class Command(BaseCommand):
             file_path = os.path.join('data', file)
             with open(file_path, "r", encoding='utf-8') as file:
                 cities = [city.strip() for city in file.readlines()]
-            [[parser(city, category) for category in CATEGORIES] for city in cities]
+            [[parser(city, category) for category in CATEGORIES] for city in
+             cities]
             logger.info(f'Импорт городов {cities} завершен успешно!')
         elif not city and not file:
-            [[parser(city, category) for category in CATEGORIES] for city in CITIES]
+            [[parser(city, category) for category in CATEGORIES] for city in
+             CITIES]
             logger.info(f'Импорт городов {CITIES} завершен успешно!')
             return
-

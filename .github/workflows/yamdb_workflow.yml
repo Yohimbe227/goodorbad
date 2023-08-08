@@ -46,7 +46,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            
             cd /home
             touch .env
             sudo docker compose pull telega
