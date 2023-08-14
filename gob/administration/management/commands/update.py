@@ -19,17 +19,17 @@ from administration.models import Category, CategoryPlace, City, Place
 from gob.settings import MAX_COUNT_TRY_ACCES_TO_ENDPOINT
 from telegrambot.costants import MAX_LENGTH_NAME
 from telegrambot.decorators import func_logger
-from telegrambot.exceptions import HTTPError, TokenError
+from telegrambot.exceptions import HTTPError, TokenError, TokenQuantityError
 from telegrambot.utils import extract_address
 
 ENDPOINT = 'https://search-maps.yandex.ru/v1/'
 RETRY_PERIOD = 100
-YA_TOKEN = os.getenv('YA_TOKEN')
-HEADERS = {'apikey': f'{YA_TOKEN}'}
+YA_TOKENS = os.getenv('YA_TOKEN').split(', ')
+token_generator = (token for token in YA_TOKENS)
 MAX_RESULTS_PER_CITY = 1000
 FIRST_RESULT = 1
 MESSAGE_ERROR_REQUEST = 'Какие то проблемы с endpoint'
-# places for search in API
+# places for search in API by default
 CATEGORIES = (
     'Кафе',
     'Бар',
@@ -40,16 +40,16 @@ CATEGORIES = (
     'Баня',
     'Сауна',
 )
-# Change here `city` to adding to base.
 CITIES = (
-    'Орел',
-    'Курск',
+    'Нягань',
     'Москва',
-    'Суджа',
-    'Белгород',
-    'Болхов',
-    'Мценск',
-    'Петрозаводск',
+    'Санкт-Петербург',
+    'Новосибирск',
+    'Екатеринбург',
+    'Казань',
+    'Нижний Новгород',
+    'Челябинск',
+    'Красноярск',
 )
 logging.basicConfig(
     level=logging.DEBUG,
@@ -64,6 +64,16 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 
 
+def get_next_token():
+    try:
+        return next(token_generator)
+    except StopIteration:
+        raise TokenQuantityError
+
+
+ya_token = get_next_token()
+
+
 def check_tokens() -> None:
     """Availability of tokens in environment variables.
 
@@ -71,20 +81,21 @@ def check_tokens() -> None:
         TokenError: Any of the required tokens is missing.
 
     """
-    if not YA_TOKEN:
+    if not YA_TOKENS:
         logger.critical('Необходимый токен: %s не обнаружен', 'YA_TOKEN')
         raise TokenError('YA_TOKEN')
 
 
-def get_city(city: str) -> str:
-    """Gets the region of the city by its coordinates of its center.
+def get_city(city: str, ya_token: str) -> str:
+    """Get the region of the city by coordinates of his center.
 
     Args:
-        city: Name of city to find them box location
+        city: Name of city to find them box location.
+        ya_token: Yandex token for API organisation.
 
     Returns:
         Coordinates of the lower left and upper right corners of the city
-        region
+        region.
 
     Raises:
         HTTPError: If Endpoint is unavailable.
@@ -96,7 +107,7 @@ def get_city(city: str) -> str:
             params={
                 'text': f"{city}",
                 'results': FIRST_RESULT,
-                'apikey': YA_TOKEN,
+                'apikey': ya_token,
                 'lang': 'ru',
                 'type': 'geo',
             },
@@ -105,6 +116,7 @@ def get_city(city: str) -> str:
     except requests.RequestException as error:
         logging.exception(MESSAGE_ERROR_REQUEST)
         raise HTTPError from error
+
     if response.status_code != HTTPStatus.OK:
         logger.error(MESSAGE_ERROR_REQUEST)
         raise HTTPError
@@ -137,9 +149,10 @@ def get_city(city: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-    max_results: int,
-    city: str,
-    category: str,
+        max_results: int,
+        city: str,
+        category: str,
+        token: str,
 ) -> dict:
     """Получаем ответ от эндпоинта.
 
@@ -161,16 +174,16 @@ def get_api_answer(
         (lower left - upper right corner)
 
     """
-
     for count in range(MAX_COUNT_TRY_ACCES_TO_ENDPOINT):
         try:
-            _city = get_city(city)
+            _city = get_city(city, token)
             break
         except HTTPError:
             logger.warning('Эндпоинт опять недоступен! Курим 2 сек.')
             if count == MAX_COUNT_TRY_ACCES_TO_ENDPOINT - 1:
-                raise HTTPError('Видимо совсем забанили :(')
-            time.sleep(2)
+                logger.info('Видимо токен помер!')
+                raise HTTPError
+            time.sleep(1)
 
     try:
         response = requests.get(
@@ -178,7 +191,7 @@ def get_api_answer(
             params={
                 'text': f'{category} {city}',
                 'results': max_results,
-                'apikey': YA_TOKEN,
+                'apikey': token,
                 'lang': 'ru',
                 'type': 'biz',
                 'bbox': _city,
@@ -206,11 +219,21 @@ def parser(city: str, category: str) -> None:
     """
     time.sleep(0.2)
     place = dict()
-    for obj in get_api_answer(
-        MAX_RESULTS_PER_CITY,
-        city,
-        category,
-    ):
+    for token in YA_TOKENS:
+
+        try:
+            print(token)
+            api_answer = get_api_answer(
+                MAX_RESULTS_PER_CITY,
+                city,
+                category,
+                token,
+            )
+            break
+        except HTTPError:
+            logger.info('Следущий токен пошел')
+
+    for obj in api_answer:
         place['longitude'] = obj['geometry']['coordinates'][0]
         place['latitude'] = obj['geometry']['coordinates'][1]
         try:
@@ -231,7 +254,8 @@ def parser(city: str, category: str) -> None:
             logger.debug('Такой тип заведения уже добавлен')
 
         try:
-            place['name'] = obj['properties']['CompanyMetaData']['name'][:MAX_LENGTH_NAME]
+            place['name'] = obj['properties']['CompanyMetaData']['name'][
+                            :MAX_LENGTH_NAME]
             place['address'] = extract_address(
                 obj['properties']['description'],
             )
@@ -300,10 +324,11 @@ class Command(BaseCommand):
             file_path = os.path.join('data', file)
             with open(file_path, "r", encoding='utf-8') as file:
                 cities = [city.strip() for city in file.readlines()]
-            [[parser(city, category) for category in CATEGORIES] for city in cities]
+            [[parser(city, category) for category in CATEGORIES] for city in
+             cities]
             logger.info(f'Импорт городов {cities} завершен успешно!')
         elif not city and not file:
-            [[parser(city, category) for category in CATEGORIES] for city in CITIES]
+            [[parser(city, category) for category in CATEGORIES] for city in
+             CITIES]
             logger.info(f'Импорт городов {CITIES} завершен успешно!')
             return
-

@@ -8,6 +8,11 @@ class TokenError(Error):
         super().__init__(f'Отсутствует необходимый токен: {token}')
 
 
+class TokenQuantityError(Error):
+    def __str__(self):
+        return f'Все доступные токены кончились'
+
+
 class HTTPError(Error):
     def __str__(self):
         return f'{type(self).__name__}. Эндпоинт не доступен'
