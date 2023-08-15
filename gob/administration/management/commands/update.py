@@ -86,12 +86,12 @@ def check_tokens() -> None:
         raise TokenError('YA_TOKEN')
 
 
-def get_city(city: str, ya_token: str) -> str:
+def get_city(city: str, token: str) -> str:
     """Get the region of the city by coordinates of his center.
 
     Args:
         city: Name of city to find them box location.
-        ya_token: Yandex token for API organisation.
+        token: Yandex token for API organisation.
 
     Returns:
         Coordinates of the lower left and upper right corners of the city
@@ -107,7 +107,7 @@ def get_city(city: str, ya_token: str) -> str:
             params={
                 'text': f"{city}",
                 'results': FIRST_RESULT,
-                'apikey': ya_token,
+                'apikey': token,
                 'lang': 'ru',
                 'type': 'geo',
             },
@@ -221,7 +221,7 @@ def parser(city: str, category: str) -> None:
     place = dict()
     for token in YA_TOKENS:
         try:
-            print(token)
+            logger.info(f'{token[10:]}')
             api_answer = get_api_answer(
                 MAX_RESULTS_PER_CITY,
                 city,
