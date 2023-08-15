@@ -119,7 +119,7 @@ def get_city(city: str, token: str) -> str:
         ),
     )
     try:
-        City.objects.create(
+        City.objects.get_or_create(
             name=city,
             latitude=coordinates[0],
             longitude=coordinates[1],
