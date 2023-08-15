@@ -25,6 +25,7 @@ from telegrambot.utils import extract_address
 ENDPOINT = 'https://search-maps.yandex.ru/v1/'
 RETRY_PERIOD = 100
 YA_TOKENS = os.getenv('YA_TOKEN').split(', ')
+YA_GEO_TOKEN = os.getenv('YA_GEO_TOKEN')
 token_generator = (token for token in YA_TOKENS)
 MAX_RESULTS_PER_CITY = 1000
 FIRST_RESULT = 1
@@ -64,16 +65,6 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 
 
-def get_next_token():
-    try:
-        return next(token_generator)
-    except StopIteration:
-        raise TokenQuantityError
-
-
-ya_token = get_next_token()
-
-
 def check_tokens() -> None:
     """Availability of tokens in environment variables.
 
@@ -91,7 +82,6 @@ def get_city(city: str, token: str) -> str:
 
     Args:
         city: Name of city to find them box location.
-        token: Yandex token for API organisation.
 
     Returns:
         Coordinates of the lower left and upper right corners of the city
@@ -120,7 +110,6 @@ def get_city(city: str, token: str) -> str:
     if response.status_code != HTTPStatus.OK:
         logger.error(MESSAGE_ERROR_REQUEST)
         raise HTTPError
-
     coordinates = response.json()['features'][0]['geometry']['coordinates']
     bounded_result = list(
         chain.from_iterable(
