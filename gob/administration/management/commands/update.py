@@ -149,10 +149,10 @@ def get_city(city: str, ya_token: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-        max_results: int,
-        city: str,
-        category: str,
-        token: str,
+    max_results: int,
+    city: str,
+    category: str,
+    token: str,
 ) -> dict:
     """Получаем ответ от эндпоинта.
 
@@ -220,7 +220,6 @@ def parser(city: str, category: str) -> None:
     time.sleep(0.2)
     place = dict()
     for token in YA_TOKENS:
-
         try:
             print(token)
             api_answer = get_api_answer(
@@ -255,7 +254,8 @@ def parser(city: str, category: str) -> None:
 
         try:
             place['name'] = obj['properties']['CompanyMetaData']['name'][
-                            :MAX_LENGTH_NAME]
+                :MAX_LENGTH_NAME
+            ]
             place['address'] = extract_address(
                 obj['properties']['description'],
             )
@@ -324,11 +324,15 @@ class Command(BaseCommand):
             file_path = os.path.join('data', file)
             with open(file_path, "r", encoding='utf-8') as file:
                 cities = [city.strip() for city in file.readlines()]
-            [[parser(city, category) for category in CATEGORIES] for city in
-             cities]
+            [
+                [parser(city, category) for category in CATEGORIES]
+                for city in cities
+            ]
             logger.info(f'Импорт городов {cities} завершен успешно!')
         elif not city and not file:
-            [[parser(city, category) for category in CATEGORIES] for city in
-             CITIES]
+            [
+                [parser(city, category) for category in CATEGORIES]
+                for city in CITIES
+            ]
             logger.info(f'Импорт городов {CITIES} завершен успешно!')
             return

@@ -10,7 +10,7 @@ from aiogram.dispatcher.filters import Text
 from asgiref.sync import sync_to_async
 
 from administration.models import User
-from telegrambot.costants import ID, START_MESSAGE, ABOUT_MESSAGE
+from telegrambot.costants import ABOUT_MESSAGE, ID, START_MESSAGE
 from telegrambot.creation import bot
 from telegrambot.database import database_functions
 from telegrambot.decorators import func_logger

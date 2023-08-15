@@ -25,11 +25,13 @@ from telegrambot.database.database_functions import (
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import HTTPError
 from telegrambot.keyboards.client_kb import (
+    button_return,
     get_keyboard,
     kb_client,
-    kb_client_location,
-    kb_place_client_next, kb_client_return, button_return,
     kb_client_categories,
+    kb_client_location,
+    kb_client_return,
+    kb_place_client_next,
 )
 from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import (
@@ -61,6 +63,7 @@ class FSMClientSearchPlace(StatesGroup):
     first = State()
     second = State()
     additional = State()
+
 
 @func_logger('Старт поиска ближайших мест', level='info')
 async def start_search_place(message: types.Message) -> None:
@@ -184,8 +187,9 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 await FSMClientSearchPlace.additional.set()
             else:
                 if message.text == button_return.text:
-                    await send_message(bot, message, '',
-                                       reply_markup=kb_client)
+                    await send_message(
+                        bot, message, '', reply_markup=kb_client,
+                    )
                 await send_message(
                     bot,
                     message,
@@ -303,7 +307,7 @@ def register_handlers_nearest_place(disp: Dispatcher):
         start_search_place,
         IsCurseMessage(),
         Text(
-            equals=['Ближайшее место для...', '/next_place'], ignore_case=True
+            equals=['Ближайшее место для...', '/next_place'], ignore_case=True,
         ),
         state=None,
     )

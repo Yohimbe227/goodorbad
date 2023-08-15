@@ -29,6 +29,7 @@ kb_client_with_places = ReplyKeyboardMarkup(
     one_time_keyboard=True,
 )
 
+
 def get_keyboard(
     buttons: list[str],
 ):
