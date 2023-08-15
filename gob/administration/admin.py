@@ -37,6 +37,7 @@ class PlaceAdmin(BaseAdmin):
     )
     list_filter = ('city',)
     search_fields = ('name__istartswith',)
+    empty_value_display = '-пусто-'
 
     def show_count(self, obj):
         result = Place.objects.filter(name=obj).aggregate(Count('reviews'))
@@ -77,6 +78,8 @@ class UserAdmin(BaseUserAdmin):
             Count('reviews'),
         )
         return result['reviews__count']
+
+    show_count.short_description = 'количество отзывов клиента'
 
 
 @admin.register(City)

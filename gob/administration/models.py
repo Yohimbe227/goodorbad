@@ -20,7 +20,7 @@ class City(models.Model):
 
     class Meta:
         verbose_name = 'город'
-        verbose_name_plural = 'городов'
+        verbose_name_plural = 'города'
 
     def __str__(self):
         return self.name
@@ -41,7 +41,8 @@ class Category(models.Model):
 
 
 class Place(models.Model):
-
+    # This need to use __eq__ metod!
+    __hash__ = models.Model.__hash__
     name = models.CharField(
         verbose_name='имя',
         max_length=MAX_LENGTH_NAME,
@@ -139,7 +140,7 @@ class Place(models.Model):
         return self.name
 
     def clean(self) -> None:
-        if len(self.url) > 198:
+        if self.url and len(self.url) > 198:
             self.url = ''
         super().clean()
 

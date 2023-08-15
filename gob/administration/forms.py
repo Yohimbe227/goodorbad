@@ -24,9 +24,9 @@ class PlaceForm(forms.ModelForm):
             'longitude',
             'sponsored',
         )
-        widgets = {
-            'city': forms.TextInput,
-        }
+        # widgets = {
+        #     'city': forms.TextInput,
+        # }
 
 
 class CustomUserCreationForm(UserCreationForm):
