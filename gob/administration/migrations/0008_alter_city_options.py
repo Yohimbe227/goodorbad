@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name="city",
             options={
                 "verbose_name": "город",
-                "verbose_name_plural": "городов",
+                "verbose_name_plural": "города",
             },
         ),
     ]
