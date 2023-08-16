@@ -13,6 +13,11 @@ class TokenQuantityError(Error):
         return f'Все доступные токены кончились'
 
 
+class TokenNotValidError(Error):
+    def __str__(self):
+        return f'Токен заблокирован'
+
+
 class HTTPError(Error):
     def __str__(self):
         return f'{type(self).__name__}. Эндпоинт не доступен'
