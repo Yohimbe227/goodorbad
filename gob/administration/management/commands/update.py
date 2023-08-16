@@ -95,9 +95,10 @@ def is_connect_ok():
             'type': 'geo',
         },
     )
-    if test_response.status_code != HTTPStatus.OK:
+    if test_response.status_code == HTTPStatus.OK:
         logger.error(MESSAGE_ERROR_REQUEST)
-        return False
+        return True
+    return False
 
 
 def is_token_valid(token):
@@ -131,25 +132,21 @@ def get_city(city: str, token: str) -> str:
         HTTPError: If Endpoint is unavailable.
 
     """
-    try:
-        response = requests.get(
-            ENDPOINT,
-            params={
-                'text': f"{city}",
-                'results': FIRST_RESULT,
-                'apikey': token,
-                'lang': 'ru',
-                'type': 'geo',
-            },
-        )
+    if not is_token_valid(token):
+        raise TokenNotValidError
 
-    except requests.RequestException as error:
-        logging.exception(MESSAGE_ERROR_REQUEST)
-        raise HTTPError from error
+    response = requests.get(
+        ENDPOINT,
+        params={
+            'text': f"{city}",
+            'results': FIRST_RESULT,
+            'apikey': token,
+            'lang': 'ru',
+            'type': 'geo',
+        },
+    )
 
-    if response.status_code != HTTPStatus.OK:
-        logger.error(MESSAGE_ERROR_REQUEST)
-        raise HTTPError
+
     coordinates = response.json()['features'][0]['geometry']['coordinates']
     bounded_result = list(
         chain.from_iterable(
@@ -203,34 +200,41 @@ def get_api_answer(
         (lower left - upper right corner)
 
     """
-    try:
-        _city = get_city(city, token)
-    except HTTPError as error:
-        logger.warning('Эндпоинт опять недоступен!')
-        raise HTTPError from error
-        # if count == MAX_COUNT_TRY_ACCES_TO_ENDPOINT - 1:
-        #     logger.info('Видимо токен помер!')
-        #     raise HTTPError
-        # time.sleep(1)
-    try:
-        response = requests.get(
-            ENDPOINT,
-            params={
-                'text': f'{category} {city}',
-                'results': max_results,
-                'apikey': token,
-                'lang': 'ru',
-                'type': 'biz',
-                'bbox': _city,
-            },
-        )
-    except requests.RequestException as error:
-        logging.exception(MESSAGE_ERROR_REQUEST)
-        raise HTTPError from error
+    if not is_token_valid(token):
+        raise TokenNotValidError('Токен заблокирован')
+    if not is_connect_ok():
+        raise HTTPError('Проблемы  с сетью')
 
-    if response.status_code != HTTPStatus.OK:
-        logger.error(MESSAGE_ERROR_REQUEST)
-        raise HTTPError
+    _city = get_city(city, token)
+    # except HTTPError as error:
+    #     logger.warning('Эндпоинт опять недоступен!')
+    #     raise HTTPError from error
+    #     # if count == MAX_COUNT_TRY_ACCES_TO_ENDPOINT - 1:
+    #     #     logger.info('Видимо токен помер!')
+    #     #     raise HTTPError
+    #     # time.sleep(1)
+    # try:
+    response = requests.get(
+        ENDPOINT,
+        params={
+            'text': f'{category} {city}',
+            'results': max_results,
+            'apikey': token,
+            'lang': 'ru',
+            'type': 'biz',
+            'bbox': _city,
+        },
+    )
+    # except requests.RequestException as error:
+    #     logging.exception(MESSAGE_ERROR_REQUEST)
+    #     raise HTTPError from error
+    #
+    # if response.status_code != HTTPStatus.OK:
+    #     logger.error(MESSAGE_ERROR_REQUEST)
+    #     raise HTTPError
+    # if response.status_code == HTTPStatus.FORBIDDEN:
+    #     logger.error(MESSAGE_ERROR_REQUEST)
+    #     raise TokenNotValidError
     return response.json().get('features')
 
 
@@ -247,17 +251,22 @@ def parser(city: str, category: str, token: str) -> None:
     """
     time.sleep(0.2)
     place = dict()
-    try:
-        logger.info(f'{token[10:]}')
-        api_answer = get_api_answer(
-            MAX_RESULTS_PER_CITY,
-            city,
-            category,
-            token,
-        )
-    except HTTPError:
-        logger.info('Токен умер или Эндпоинт недоступен')
-        return
+    if not is_token_valid(token):
+        raise TokenNotValidError('Токен заблокирован')
+    if not is_connect_ok():
+        raise HTTPError('Проблемы  с сетью')
+
+    # try:
+    logger.info(f'{token[10:]}')
+    api_answer = get_api_answer(
+        MAX_RESULTS_PER_CITY,
+        city,
+        category,
+        token,
+    )
+    # except HTTPError:
+    #     logger.info('Токен умер или Эндпоинт недоступен')
+    #     return True
 
     for obj in api_answer:
         place['longitude'] = obj['geometry']['coordinates'][0]
@@ -343,30 +352,36 @@ class Command(BaseCommand):
         is_token_present()
         city = options['city']
         file = options['file']
-        for token in YA_TOKENS:
-            if not is_connect_ok:
-                logger.critical('Похоже, что нет доступа к интернету!')
-                break
-            if not is_token_valid(token):
-                continue
-            if city:
-                [parser(city, category, token) for category in CATEGORIES]
-                logger.info(f'Импорт города {city} завершен успешно!')
-                return
-            elif file and not city:
-                file_path = os.path.join('data', file)
-                with open(file_path, "r", encoding='utf-8') as file:
-                    cities = [city.strip() for city in file.readlines()]
-                [
-                    [parser(city, category, token) for category in CATEGORIES]
-                    for city in cities
-                ]
+
+        if city:
+            [parser(city, category, token) for category in CATEGORIES]
+            logger.info(f'Импорт города {city} завершен успешно!')
+            return
+        elif file and not city:
+            file_path = os.path.join('data', file)
+            with open(file_path, "r", encoding='utf-8') as file:
+                cities = [city.strip() for city in file.readlines()]
+                for city in cities:
+                    for category in CATEGORIES:
+                        for token in YA_TOKENS:
+                            if not is_connect_ok:
+                                logger.critical(
+                                    'Похоже, что нет доступа к интернету!')
+                                break
+                            if not is_token_valid(token):
+                                logger.critical('Токен заблокирован!')
+                                continue
+                            parser(city, category, token)
+                        if is_connect_ok() or is_token_valid(token):
+                            break
+                    break
+
                 logger.info(f'Импорт городов {cities} завершен успешно!')
-            elif not city and not file:
-                [
-                    [parser(city, category, token) for category in CATEGORIES]
-                    for city in CITIES
-                ]
-                logger.info(f'Импорт городов {CITIES} завершен успешно!')
-                return
-            break
+        elif not city and not file:
+            [
+                [parser(city, category, token) for category in CATEGORIES]
+                for city in CITIES
+            ]
+            logger.info(f'Импорт городов {CITIES} завершен успешно!')
+            return
+
