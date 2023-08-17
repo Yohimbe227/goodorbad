@@ -35,8 +35,18 @@ def get_api_answer(
     number_of_page: int,
     city: str,
 ) -> dict:
-    """Получаем ответ от эндпоинта."""
+    """Получаем ответ от эндпоинта.
 
+    Args:
+        number_of_page: Number of page to show.
+        city: City name parameter add to request.
+
+    Returns:
+        All Response from API in json.
+
+    Raises:
+
+    """
     try:
         response = requests.get(
             ENDPOINT,

@@ -8,14 +8,14 @@ class TokenError(Error):
         super().__init__(f'Отсутствует необходимый токен: {token}')
 
 
-class TokenQuantityError(Error):
+class TokensIsOutError(Error):
     def __str__(self):
-        return f'Все доступные токены кончились'
+        return 'Все доступные токены кончились'
 
 
 class TokenNotValidError(Error):
     def __str__(self):
-        return f'Токен заблокирован'
+        return 'Токен заблокирован'
 
 
 class HTTPError(Error):

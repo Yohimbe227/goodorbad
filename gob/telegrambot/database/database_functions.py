@@ -104,7 +104,7 @@ async def read_review_from_database(_place: Place, message: types.Message):
             )
         except Exception as error:
             logger.critical(
-                f'Проблемы со считыванием отзывов из базы данных {error}'
+                f'Проблемы со считыванием отзывов из базы данных {error}',
             )
             raise ReviewBecomeError
 

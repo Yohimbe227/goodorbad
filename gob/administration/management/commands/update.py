@@ -5,6 +5,7 @@ It uses the yandex API.
 import logging
 import os
 import time
+from copy import copy
 from http import HTTPStatus
 from itertools import chain
 from logging.handlers import RotatingFileHandler
@@ -18,8 +19,12 @@ import requests
 from administration.models import Category, CategoryPlace, City, Place
 from telegrambot.costants import MAX_LENGTH_NAME
 from telegrambot.decorators import func_logger
-from telegrambot.exceptions import (HTTPError, TokenError,
-                                    TokenNotValidError, )
+from telegrambot.exceptions import (
+    HTTPError,
+    TokenError,
+    TokenNotValidError,
+    TokensIsOutError,
+)
 from telegrambot.utils import extract_address
 
 ENDPOINT = 'https://search-maps.yandex.ru/v1/'
@@ -84,7 +89,7 @@ def is_token_present() -> None:
         raise TokenError('YA_TOKEN')
 
 
-def is_connect_ok():
+def is_api_ok():
     test_response = requests.get(
         ENDPOINT,
         params={
@@ -95,9 +100,9 @@ def is_connect_ok():
             'type': 'geo',
         },
     )
-    if test_response.status_code == HTTPStatus.OK:
-        logger.error(MESSAGE_ERROR_REQUEST)
+    if test_response.status_code in (HTTPStatus.OK, HTTPStatus.FORBIDDEN):
         return True
+    logger.error(MESSAGE_ERROR_REQUEST)
     return False
 
 
@@ -129,7 +134,7 @@ def get_city(city: str, token: str) -> str:
         region.
 
     Raises:
-        HTTPError: If Endpoint is unavailable.
+        TokenNotValidError: If token is not valid.
 
     """
     if not is_token_valid(token):
@@ -145,7 +150,6 @@ def get_city(city: str, token: str) -> str:
             'type': 'geo',
         },
     )
-
 
     coordinates = response.json()['features'][0]['geometry']['coordinates']
     bounded_result = list(
@@ -175,10 +179,10 @@ def get_city(city: str, token: str) -> str:
 
 @func_logger('Получение ответа API')
 def get_api_answer(
-        max_results: int,
-        city: str,
-        category: str,
-        token: str,
+    max_results: int,
+    city: str,
+    category: str,
+    token: str,
 ) -> dict:
     """Получаем ответ от эндпоинта.
 
@@ -189,10 +193,9 @@ def get_api_answer(
 
     Returns:
         Response in json form with all Places after filtering.
-
     Raises:
         HTTPError: If endpoint is unavailable.
-
+        TokenNotValidError: If token is not valid.
     Notes:
         `biz` - Parameter that shows that in the output you need to specify
         organizations.
@@ -202,18 +205,10 @@ def get_api_answer(
     """
     if not is_token_valid(token):
         raise TokenNotValidError('Токен заблокирован')
-    if not is_connect_ok():
+    if not is_api_ok():
         raise HTTPError('Проблемы  с сетью')
 
     _city = get_city(city, token)
-    # except HTTPError as error:
-    #     logger.warning('Эндпоинт опять недоступен!')
-    #     raise HTTPError from error
-    #     # if count == MAX_COUNT_TRY_ACCES_TO_ENDPOINT - 1:
-    #     #     logger.info('Видимо токен помер!')
-    #     #     raise HTTPError
-    #     # time.sleep(1)
-    # try:
     response = requests.get(
         ENDPOINT,
         params={
@@ -225,17 +220,45 @@ def get_api_answer(
             'bbox': _city,
         },
     )
-    # except requests.RequestException as error:
-    #     logging.exception(MESSAGE_ERROR_REQUEST)
-    #     raise HTTPError from error
-    #
-    # if response.status_code != HTTPStatus.OK:
-    #     logger.error(MESSAGE_ERROR_REQUEST)
-    #     raise HTTPError
-    # if response.status_code == HTTPStatus.FORBIDDEN:
-    #     logger.error(MESSAGE_ERROR_REQUEST)
-    #     raise TokenNotValidError
     return response.json().get('features')
+
+
+def _parse_from_file(cities: list[str]) -> None:
+    """Парсим заведения по городам и категориям из списка.
+
+    Из-за ограничения на количество запросов к API используется список токенов.
+    При выходе из строя одного токены, подключается следующий.
+
+    Args:
+        cities: Список городов.
+
+    Raises:
+        HTTPError: If any troubles with API.
+        TokensIsOutError: If valid tokens is out.
+
+    """
+    ya_tokens = copy(YA_TOKENS)
+
+    for city in cities:
+        for category in CATEGORIES:
+            for token in ya_tokens[::-1]:
+                token = token
+                if not is_api_ok:
+                    raise HTTPError(MESSAGE_ERROR_REQUEST)
+                if not is_token_valid(token):
+                    try:
+                        ya_tokens.pop()
+                    except IndexError:
+                        raise TokensIsOutError('Токены закончились')
+                    continue
+                parser(city, category, token)
+                break
+            if is_token_valid(token):
+                logger.info(
+                    f'Все заведения из категории {category} города {city} '
+                    f'были добавлены',
+                )
+        logger.info(f'импорт города {city} завершен успешно!')
 
 
 def parser(city: str, category: str, token: str) -> None:
@@ -248,15 +271,18 @@ def parser(city: str, category: str, token: str) -> None:
         city: City for filtering in question.
         token: Ya token for API.
 
+    Raises:
+        HTTPError: If endpoint is unavailable.
+        TokenNotValidError: If token is not valid.
+
     """
     time.sleep(0.2)
     place = dict()
     if not is_token_valid(token):
         raise TokenNotValidError('Токен заблокирован')
-    if not is_connect_ok():
+    if not is_api_ok():
         raise HTTPError('Проблемы  с сетью')
 
-    # try:
     logger.info(f'{token[10:]}')
     api_answer = get_api_answer(
         MAX_RESULTS_PER_CITY,
@@ -264,9 +290,6 @@ def parser(city: str, category: str, token: str) -> None:
         category,
         token,
     )
-    # except HTTPError:
-    #     logger.info('Токен умер или Эндпоинт недоступен')
-    #     return True
 
     for obj in api_answer:
         place['longitude'] = obj['geometry']['coordinates'][0]
@@ -290,8 +313,8 @@ def parser(city: str, category: str, token: str) -> None:
 
         try:
             place['name'] = obj['properties']['CompanyMetaData']['name'][
-                            :MAX_LENGTH_NAME
-                            ]
+                :MAX_LENGTH_NAME
+            ]
             place['address'] = extract_address(
                 obj['properties']['description'],
             )
@@ -354,34 +377,27 @@ class Command(BaseCommand):
         file = options['file']
 
         if city:
-            [parser(city, category, token) for category in CATEGORIES]
+            [parser(city, category, YA_TOKENS[0]) for category in CATEGORIES]
             logger.info(f'Импорт города {city} завершен успешно!')
             return
         elif file and not city:
             file_path = os.path.join('data', file)
             with open(file_path, "r", encoding='utf-8') as file:
                 cities = [city.strip() for city in file.readlines()]
-                for city in cities:
-                    for category in CATEGORIES:
-                        for token in YA_TOKENS:
-                            if not is_connect_ok:
-                                logger.critical(
-                                    'Похоже, что нет доступа к интернету!')
-                                break
-                            if not is_token_valid(token):
-                                logger.critical('Токен заблокирован!')
-                                continue
-                            parser(city, category, token)
-                        if is_connect_ok() or is_token_valid(token):
-                            break
-                    break
-
+                try:
+                    _parse_from_file(cities)
+                except HTTPError:
+                    logger.critical(MESSAGE_ERROR_REQUEST)
+                except TokensIsOutError:
+                    logger.critical('Рабочие токены закончились')
                 logger.info(f'Импорт городов {cities} завершен успешно!')
         elif not city and not file:
             [
-                [parser(city, category, token) for category in CATEGORIES]
+                [
+                    parser(city, category, YA_TOKENS[0])
+                    for category in CATEGORIES
+                ]
                 for city in CITIES
             ]
             logger.info(f'Импорт городов {CITIES} завершен успешно!')
             return
-

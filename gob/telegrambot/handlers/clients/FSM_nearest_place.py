@@ -188,7 +188,10 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
             else:
                 if message.text == button_return.text:
                     await send_message(
-                        bot, message, '', reply_markup=kb_client,
+                        bot,
+                        message,
+                        '',
+                        reply_markup=kb_client,
                     )
                 await send_message(
                     bot,
@@ -307,7 +310,8 @@ def register_handlers_nearest_place(disp: Dispatcher):
         start_search_place,
         IsCurseMessage(),
         Text(
-            equals=['Ближайшее место для...', '/next_place'], ignore_case=True,
+            equals=['Ближайшее место для...', '/next_place'],
+            ignore_case=True,
         ),
         state=None,
     )
