@@ -242,23 +242,23 @@ def _parse_from_file(cities: list[str]) -> None:
     for city in cities:
         for category in CATEGORIES:
             for token in ya_tokens[::-1]:
-                token = token
                 if not is_api_ok:
                     raise HTTPError(MESSAGE_ERROR_REQUEST)
-                if not is_token_valid(token):
-                    try:
-                        ya_tokens.pop()
-                    except IndexError:
-                        raise TokensIsOutError('Токены закончились')
+                is_valid = is_token_valid(token)
+                if not is_valid:
+                    ya_tokens.pop()
+                    if not ya_tokens:
+                        raise TokensIsOutError
                     continue
                 parser(city, category, token)
                 break
-            if is_token_valid(token):
+            if is_valid:
                 logger.info(
                     f'Все заведения из категории {category} города {city} '
                     f'были добавлены',
                 )
-        logger.info(f'импорт города {city} завершен успешно!')
+        if is_valid:
+            logger.info(f'импорт города {city} завершен успешно!')
 
 
 def parser(city: str, category: str, token: str) -> None:
@@ -300,8 +300,9 @@ def parser(city: str, category: str, token: str) -> None:
                 for key in obj['properties']['CompanyMetaData']['Categories']
             ]
             categories = [
-                Category.objects.get_or_create(name=name)[0]
+                Category.objects.create(name=name)
                 for name in category_names
+                if not Category.objects.filter(name=name).exists()
             ]
         except KeyError:
             _category, _ = Category.objects.get_or_create(name='Неизвестно')
@@ -386,11 +387,11 @@ class Command(BaseCommand):
                 cities = [city.strip() for city in file.readlines()]
                 try:
                     _parse_from_file(cities)
+                    logger.info(f'Импорт городов {cities} завершен успешно!')
                 except HTTPError:
                     logger.critical(MESSAGE_ERROR_REQUEST)
                 except TokensIsOutError:
                     logger.critical('Рабочие токены закончились')
-                logger.info(f'Импорт городов {cities} завершен успешно!')
         elif not city and not file:
             [
                 [
