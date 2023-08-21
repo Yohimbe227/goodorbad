@@ -8,6 +8,5 @@ from telegrambot.utils import check_tokens
 storage = MemoryStorage()
 
 check_tokens(TELEGRAM_TOKEN)
-
 bot = Bot(TELEGRAM_TOKEN)
 dp = Dispatcher(bot, storage=storage)
