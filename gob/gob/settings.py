@@ -5,6 +5,8 @@ import sentry_sdk
 from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
 
+import telegrambot.apps
+
 sentry_sdk.init(
     dsn="https://5112ec66a3604169944867de0957147a@o4504877334200320.ingest.sentry.io/4505334835118080",
     integrations=[DjangoIntegration()],
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'administration.apps.AdministrationConfig',
+    'telegrambot.apps.TelegrambotConfig',
     'django_extensions',
 ]
 
@@ -119,8 +122,6 @@ LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
-
-USE_L10N = True
 
 USE_TZ = True
 
