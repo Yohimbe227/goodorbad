@@ -4,20 +4,18 @@ Unused module in this version app.
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-# from django.core.management import call_command
+from django.core.management import call_command
 
 from aiogram import Dispatcher, types, F, Router, filters
-# from aiogram.dispatcher import FSMContext
-# from aiogram.dispatcher.filters.builtin import IDFilter, Text
-# from aiogram.dispatcher.filters.state import State, StatesGroup
-# from aiogram.types import InlineKeyboardMarkup
-# from asgiref.sync import sync_to_async
+
+from aiogram.types import InlineKeyboardMarkup
+from asgiref.sync import sync_to_async
 
 from telegrambot.costants import ID
 from telegrambot.creation import bot
-# from telegrambot.database import database_functions
-# from telegrambot.keyboards.client_kb import kb_client
-# from telegrambot.moderator import IsCurseMessage
+from telegrambot.database import database_functions
+from telegrambot.keyboards.client_kb import kb_client
+from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import send_message
 
 
@@ -25,8 +23,8 @@ class FSMAdmin(StatesGroup):
     """Class of states."""
 
     city = State()
-    # name = State()
-    # description = State()
+    name = State()
+    description = State()
 
 
 router = Router()
@@ -52,37 +50,35 @@ async def city_add(message: types.Message, state: FSMContext) -> None:
         'Введите город для добавления в базу',
     )
 
-#
-# @router.message(F.text.casefold() == 'загрузить',
-#                 # IsCurseMessage,
-#                 )
-# async def cancel_handler(message: types.Message, state: FSMContext) -> None:
-#     """Exit from the state.
-#
-#     Args:
-#         message: message being sent
-#         state: current state
-#
-#     """
-#     current_state = await state.get_state()
-#     if current_state is None:
-#         return
-#     await state.clear()
-#     await message.reply('OK', reply_markup=kb_client)
-#
-#
-# @router.message(F.text.casefold() in ['отмена', 'вернуться'])
-# async def load_city(message: types.Message, state: FSMContext) -> None:
-#     """Process the first answer and write it in the dictionary.
-#
-#     Args:
-#         message: message being sent.
-#         state: current state.
-#
-#     """
-#     await sync_to_async(call_command)('update', city=message.text)
-#     await send_message(bot, message, f'Город {message.text} добавлен!')
-#     await state.clear()
+
+@router.message(F.data.in_({'отмена', 'вернуться'}))
+async def cancel_handler(message: types.Message, state: FSMContext) -> None:
+    """Exit from the state.
+
+    Args:
+        message: message being sent
+        state: current state
+
+    """
+    current_state = await state.get_state()
+    if current_state is None:
+        return
+    await state.clear()
+    await message.answer('OK', reply_markup=kb_client)
+
+
+@router.message(F.text.casefold() == 'загрузить',)
+async def load_city(message: types.Message, state: FSMContext) -> None:
+    """Process the first answer and write it in the dictionary.
+
+    Args:
+        message: message being sent.
+        state: current state.
+
+    """
+    await sync_to_async(call_command)('update', city=message.text)
+    await send_message(bot, message, f'Город {message.text} добавлен!')
+    await state.clear()
 
 
 # def register_handlers_admin(disp: Dispatcher) -> None:

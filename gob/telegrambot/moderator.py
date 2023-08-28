@@ -14,14 +14,13 @@ STRICTNESS_FILTER = 75
 
 class IsCurseMessage(BaseFilter):
     """Filter for curse words."""
-    def __init__(self):
+    def __init__(self, _):
         with open(
             BASE_DIR / 'data/banned_words.txt',
             'r',
             encoding='utf-8',
         ) as reader:
-            curse_words = ''.join(reader.readlines()).split('\n')[:-1]
-        self.curse_words = curse_words
+            self.curse_words = ''.join(reader.readlines()).split('\n')[:-1]
 
     @staticmethod
     def replace_letters(word: str = None) -> str:
