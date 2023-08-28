@@ -4,9 +4,8 @@ from datetime import datetime
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import IntegrityError
 
-from aiogram import types
-from aiogram.dispatcher import Dispatcher
-from aiogram.dispatcher.filters import Text
+from aiogram import types, Dispatcher
+
 from asgiref.sync import sync_to_async
 
 from administration.models import User

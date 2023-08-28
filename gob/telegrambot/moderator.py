@@ -14,13 +14,14 @@ STRICTNESS_FILTER = 75
 
 class IsCurseMessage(BaseFilter):
     """Filter for curse words."""
-
-    with open(
-        BASE_DIR / 'data/banned_words.txt',
-        'r',
-        encoding='utf-8',
-    ) as reader:
-        CurseWords = ''.join(reader.readlines()).split('\n')[:-1]
+    def __init__(self):
+        with open(
+            BASE_DIR / 'data/banned_words.txt',
+            'r',
+            encoding='utf-8',
+        ) as reader:
+            curse_words = ''.join(reader.readlines()).split('\n')[:-1]
+        self.curse_words = curse_words
 
     @staticmethod
     def replace_letters(word: str = None) -> str:
@@ -72,7 +73,7 @@ class IsCurseMessage(BaseFilter):
                 else '',
             ).lower()
             word = self.replace_letters(word)
-            for word_bad in self.CurseWords:
+            for word_bad in self.curse_words:
                 strictness = fuzz.token_sort_ratio(word_bad, word)
                 if strictness >= STRICTNESS_FILTER:
                     logger.info(
