@@ -1,12 +1,12 @@
 """
-Unused module in this version app.
+Module for admin.
 """
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from django.core.management import call_command
 
-from aiogram import Dispatcher, types, F, Router, filters
+from aiogram import Dispatcher, types, F, filters, Router
 
 from aiogram.types import InlineKeyboardMarkup
 from asgiref.sync import sync_to_async
@@ -23,8 +23,6 @@ class FSMAdmin(StatesGroup):
     """Class of states."""
 
     city = State()
-    name = State()
-    description = State()
 
 
 router = Router()
@@ -51,7 +49,21 @@ async def city_add(message: types.Message, state: FSMContext) -> None:
     )
 
 
-@router.message(F.data.in_({'отмена', 'вернуться'}))
+@router.message(FSMAdmin.city, F.text, )
+async def save_city_to_base(message: types.Message, state: FSMContext) -> None:
+    """Process the first answer and write it in the dictionary.
+
+    Args:
+        message: message being sent.
+        state: current state.
+
+    """
+    await sync_to_async(call_command)('update', city=message.text)
+    await send_message(bot, message, f'Город {message.text} добавлен!')
+    await state.clear()
+
+
+@router.message(F.text.in_({'отмена', 'вернуться'}), )
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     """Exit from the state.
 
@@ -65,20 +77,6 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
         return
     await state.clear()
     await message.answer('OK', reply_markup=kb_client)
-
-
-@router.message(F.text.casefold() == 'загрузить',)
-async def load_city(message: types.Message, state: FSMContext) -> None:
-    """Process the first answer and write it in the dictionary.
-
-    Args:
-        message: message being sent.
-        state: current state.
-
-    """
-    await sync_to_async(call_command)('update', city=message.text)
-    await send_message(bot, message, f'Город {message.text} добавлен!')
-    await state.clear()
 
 
 # def register_handlers_admin(disp: Dispatcher) -> None:
@@ -103,7 +101,7 @@ async def load_city(message: types.Message, state: FSMContext) -> None:
     #     state='*',
     # )
     # disp.register_message_handler(
-    #     load_city,
+    #     save_city_to_base,
     #     IsCurseMessage(),
     #     state=FSMAdmin.city,
     # )

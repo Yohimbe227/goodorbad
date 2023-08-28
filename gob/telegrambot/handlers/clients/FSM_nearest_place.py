@@ -5,10 +5,12 @@ from copy import copy
 from logging.handlers import RotatingFileHandler
 
 import requests
-from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram import Dispatcher, types, F
+# from aiogram.dispatcher import FSMContext
+# from aiogram.dispatcher.filters import Text
+# from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 
 from telegrambot.costants import (
     GEO_ENDPOINT,
@@ -66,14 +68,15 @@ class FSMClientSearchPlace(StatesGroup):
 
 
 @func_logger('Старт поиска ближайших мест', level='info')
-async def start_search_place(message: types.Message) -> None:
+async def start_search_place(message: types.Message, state: FSMContext) -> None:
     """Start the nearest place search.
 
     Args:
+        state: Current state.
         message: Object `message` telegram with everyone info.
 
     """
-    await FSMClientSearchPlace.first.set()
+    await state.set_state(FSMClientSearchPlace.first)
     await send_message(
         bot,
         message,
@@ -303,19 +306,16 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                         )
 
 
-def register_handlers_nearest_place(disp: Dispatcher):
+async def register_handlers_nearest_place(dp: Dispatcher):
     """Handlers registrations."""
 
-    disp.register_message_handler(
+    await dp.message.register(
         start_search_place,
         IsCurseMessage(),
-        Text(
-            equals=['Ближайшее место для...', '/next_place'],
-            ignore_case=True,
-        ),
+        F.text.in_({'Ближайшее место для...', '/next_place'}),
         state=None,
     )
-    disp.register_message_handler(
+    dp.register_message(
         search_place_request_location,
         IsCurseMessage(),
         state=FSMClientSearchPlace.first,

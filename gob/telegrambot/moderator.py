@@ -14,7 +14,7 @@ STRICTNESS_FILTER = 75
 
 class IsCurseMessage(BaseFilter):
     """Filter for curse words."""
-    def __init__(self, _):
+    def __init__(self, ):
         with open(
             BASE_DIR / 'data/banned_words.txt',
             'r',
@@ -37,7 +37,7 @@ class IsCurseMessage(BaseFilter):
         """
         word = word.lower()
         for key, value in ALPHABET.items():
-            word = re.sub(value, key, word)
+            word = re.sub(re.escape(value), key, word)
         return word
 
     async def __call__(self, message: types.Message) -> bool:
@@ -58,7 +58,6 @@ class IsCurseMessage(BaseFilter):
         """
         if not message.text:
             return True
-
         punctuation = r'!|"|#|$|%|&|, |-|;|>|@|_|~| '
         for word in re.split(punctuation, message.text)[:-1]:
             word = ''.join(

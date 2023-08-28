@@ -1,12 +1,12 @@
 from asyncio import sleep
-from datetime import datetime
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import IntegrityError
 
-from aiogram import types, Dispatcher
+from aiogram import types, Router, F
 
 from asgiref.sync import sync_to_async
+from django.utils import timezone
 
 from administration.models import User
 from telegrambot.costants import ABOUT_MESSAGE, ID, START_MESSAGE
@@ -17,7 +17,11 @@ from telegrambot.exceptions import UnknownError
 from telegrambot.keyboards.client_kb import kb_client
 from telegrambot.utils import send_message
 
+router = Router()
 
+
+@func_logger('Старт бота', level='info')
+@router.message(F.text.lower().in_({'/start', 'старт', 'start'}))
 async def command_start(message: types.Message) -> None:
     """Initial Login to the System.
 
@@ -40,7 +44,7 @@ async def command_start(message: types.Message) -> None:
 
     try:
         author, created = await User.objects.aget_or_create(**params_user)
-        author.last_login = datetime.now()
+        author.last_login = timezone.now()
         await sync_to_async(author.save)()
     except (MultipleObjectsReturned, IntegrityError) as error:
         raise UnknownError(error)
@@ -62,6 +66,7 @@ async def command_start(message: types.Message) -> None:
 
 
 @func_logger('вывод всех заведений', level='info')
+@router.message(F.text == 'все места!')
 async def _places_all(message: types.Message) -> None:
     """Output of all places.
 
@@ -75,6 +80,7 @@ async def _places_all(message: types.Message) -> None:
 
 
 @func_logger('вывод сообщения о боте', level='info')
+@router.message(F.text.lower().in_({'о боте', '/about', 'about', }))
 async def about_bot(message: types.Message) -> None:
     """Отсылает сообщение с описанием основного функционала бота.
 
@@ -90,7 +96,8 @@ async def about_bot(message: types.Message) -> None:
     )
 
 
-@func_logger('вывод сообщения HR', level='info')
+@router.message(F.text == 'Я HR и мне нравится!')
+@router.message(F.text.lower().in_({'О боте', '/about', }))
 async def hr_attention(message: types.Message) -> None:
     """Отсылает сообщение с описанием основного функционала бота.
 
@@ -113,40 +120,40 @@ async def hr_attention(message: types.Message) -> None:
     )
     await bot.send_message(ID, 'Кто-то заюзал эту функцию, может даже HR')
 
-
-def register_handlers_client(disp: Dispatcher):
-    """Handlers registration."""
-
-    disp.register_message_handler(
-        command_start,
-        Text(
-            equals=[
-                'Старт',
-                '/start',
-            ],
-            ignore_case=True,
-        ),
-    )
-    disp.register_message_handler(
-        about_bot,
-        Text(
-            equals=[
-                'О боте',
-                '/about',
-            ],
-            ignore_case=True,
-        ),
-    )
-    disp.register_message_handler(
-        _places_all,
-        Text(equals='место', ignore_case=True),
-    )
-    disp.register_message_handler(
-        hr_attention,
-        Text(
-            equals=[
-                'Я HR и мне нравится!',
-            ],
-            ignore_case=True,
-        ),
-    )
+#
+# def register_handlers_client(disp: Dispatcher):
+#     """Handlers registration."""
+#
+#     disp.register_message_handler(
+#         command_start,
+#         Text(
+#             equals=[
+#                 'Старт',
+#                 '/start',
+#             ],
+#             ignore_case=True,
+#         ),
+#     )
+#     disp.register_message_handler(
+#         about_bot,
+#         Text(
+#             equals=[
+#                 'О боте',
+#                 '/about',
+#             ],
+#             ignore_case=True,
+#         ),
+#     )
+#     disp.register_message_handler(
+#         _places_all,
+#         Text(equals='место', ignore_case=True),
+#     )
+#     disp.register_message_handler(
+#         hr_attention,
+#         Text(
+#             equals=[
+#                 'Я HR и мне нравится!',
+#             ],
+#             ignore_case=True,
+#         ),
+#     )
