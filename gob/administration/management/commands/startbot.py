@@ -1,7 +1,5 @@
 from django.core.management import BaseCommand
 
-from aiogram.utils import executor
-
 from telegrambot.creation import dp
 from telegrambot.handlers import admin, other
 from telegrambot.handlers.clients import FSM_nearest_place, FSM_review, basic
@@ -21,7 +19,7 @@ def starts_bot() -> None:
     FSM_nearest_place.register_handlers_nearest_place(dp)
     admin.register_handlers_admin(dp)
     other.register_handlers_other(dp)
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    dp.start_polling(dp, skip_updates=True, on_startup=on_startup)
 
 
 class Command(BaseCommand):

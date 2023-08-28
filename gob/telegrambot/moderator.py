@@ -1,7 +1,8 @@
 import re
 
 from aiogram import types
-from aiogram.dispatcher.filters import BoundFilter
+# from aiogram.dispatcher.filters import BoundFilter
+from aiogram.filters import BaseFilter
 from fuzzywuzzy import fuzz
 
 from gob.settings import BASE_DIR
@@ -11,7 +12,7 @@ from telegrambot.decorators import logger
 STRICTNESS_FILTER = 75
 
 
-class IsCurseMessage(BoundFilter):
+class IsCurseMessage(BaseFilter):
     """Filter for curse words."""
 
     with open(
@@ -39,7 +40,7 @@ class IsCurseMessage(BoundFilter):
             word = re.sub(value, key, word)
         return word
 
-    async def check(self, message: types.Message) -> bool:
+    async def __call__(self, message: types.Message) -> bool:
         """
         Curse word filter.
 

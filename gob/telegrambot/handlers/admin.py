@@ -1,12 +1,15 @@
 """
 Unused module in this version app.
 """
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from django.core.management import call_command
 
-from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.builtin import IDFilter, Text
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram import Dispatcher, types, F, Router, filters
+# from aiogram.dispatcher import FSMContext
+# from aiogram.dispatcher.filters.builtin import IDFilter, Text
+# from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup
 from asgiref.sync import sync_to_async
 
@@ -26,11 +29,16 @@ class FSMAdmin(StatesGroup):
     description = State()
 
 
-async def city_add(message: types.Message) -> None:
+router = Router()
+
+
+@router.message(Command('загрузить'), F.from_user.id == ID,)
+async def city_add(message: types.Message, state: FSMContext) -> None:
     """
     Starting a dialog to load a new city.
 
     Args:
+        state: current state
         message: message being sent
 
     """
@@ -39,12 +47,13 @@ async def city_add(message: types.Message) -> None:
         message,
         'Приветствую босс!!!',
     )
-    await FSMAdmin.city.set()
+    await state.set_state(FSMAdmin.city)
     await message.reply(
         'Введите город для добавления в базу',
     )
 
 
+@router.message(F.text.casefold() == 'загрузить', IsCurseMessage,)
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     """Exit from the state.
 
@@ -56,10 +65,11 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     if current_state is None:
         return
-    await state.finish()
+    await state.clear()
     await message.reply('OK', reply_markup=kb_client)
 
 
+@router.message(F.text.casefold() in ['отмена', 'вернуться'])
 async def load_city(message: types.Message, state: FSMContext) -> None:
     """Process the first answer and write it in the dictionary.
 
@@ -70,86 +80,32 @@ async def load_city(message: types.Message, state: FSMContext) -> None:
     """
     await sync_to_async(call_command)('update', city=message.text)
     await send_message(bot, message, f'Город {message.text} добавлен!')
-    await state.finish()
+    await state.clear()
 
 
-async def del_callback_run(callback_query: types.CallbackQuery) -> None:
-    """
-    Deleting a place.
+# def register_handlers_admin(disp: Dispatcher) -> None:
+#     """
+#     Handler registration.
+#
+#     Args:
+#         disp: Dispatcher object
 
-    Args:
-        callback_query: callback query
-    """
-    await database_functions.sql_delete_command(
-        callback_query.data.replace(
-            'del ',
-            '',
-        ),
-    )
-    await callback_query.answer(
-        text=f'{callback_query.data.replace("del ", "")} удалена.',
-        show_alert=True,
-    )
-
-
-async def delete_item(message: types.Message) -> None:
-    """
-    Issuing a database to delete a part of it.
-
-    Args:
-        message: message being sent
-    """
-    if message.from_user.id == ID:
-        read = await database_functions.sql_read()
-        for value in read:
-            await send_message(
-                bot,
-                message,
-                f'Город: {value[0]}\nИмя заведения:{value[1]}'
-                f'\nОписание:{value[2]}',
-            )
-            await send_message(
-                bot,
-                message,
-                '^^^',
-                reply_markup=InlineKeyboardMarkup().add(
-                    InlineKeyboardMarkup(
-                        text=f'Удалить {value[1]}',
-                        callback_data=f'del {value[1]}',
-                    ),
-                ),
-            )
-
-
-def register_handlers_admin(disp: Dispatcher) -> None:
-    """
-    Handler registration.
-
-    Args:
-        disp: Dispatcher object
-
-    """
-    disp.register_message_handler(
-        city_add,
-        IDFilter(user_id=ID),
-        commands=[
-            'загрузить',
-        ],
-        state=None,
-    )
-    disp.register_message_handler(
-        cancel_handler,
-        Text(equals=['отмена', 'вернуться'], ignore_case=True),
-        state='*',
-    )
-    disp.register_message_handler(
-        load_city,
-        IsCurseMessage(),
-        state=FSMAdmin.city,
-    )
-
-    disp.register_callback_query_handler(
-        del_callback_run,
-        lambda command: command.data and command.data.startswith('del '),
-    )
-    disp.register_message_handler(delete_item, commands='Удалить')
+    # """
+    # disp.register_message_handler(
+    #     city_add,
+    #     IDFilter(user_id=ID),
+    #     commands=[
+    #         'загрузить',
+    #     ],
+    #     state=None,
+    # )
+    # disp.register_message_handler(
+    #     cancel_handler,
+    #     Text(equals=['отмена', 'вернуться'], ignore_case=True),
+    #     state='*',
+    # )
+    # disp.register_message_handler(
+    #     load_city,
+    #     IsCurseMessage(),
+    #     state=FSMAdmin.city,
+    # )

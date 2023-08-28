@@ -3,7 +3,7 @@ import logging
 from typing import Any
 
 from aiogram import types
-from aiogram.bot import bot
+from aiogram import Bot
 
 from administration.models import Place
 from telegrambot.costants import MAX_RANGE_SEARCH
@@ -37,7 +37,7 @@ def check_tokens(token) -> None:
 
 @func_logger('Отправка сообщения в телеграм', level='info')
 async def send_message(
-    mybot: bot,
+    mybot: Bot,
     message: types.Message,
     message_text,
     **kwargs: Any,
@@ -118,7 +118,7 @@ def extract_address(address_string):
 
 async def send_message_with_list_of_places(
     message: types.Message,
-    mybot: bot,
+    mybot: Bot,
     number_of_places_to_show: int,
     _nearest_places: list[tuple[Place, float]],
     reply_markup=kb_place_client_next,
