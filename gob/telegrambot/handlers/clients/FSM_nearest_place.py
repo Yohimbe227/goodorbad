@@ -168,18 +168,18 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
 
     if message.location or location:
         data = await state.get_data()
+        print(data)
         if places_distance := await read_places_coordinates(
-            data['location'],
+            location,
             data['category'],
         ):
             await state.update_data(places_distance=places_distance)
             nearest_places = await n_min(
-                data['places_distance'],
+                places_distance,
                 NUMBER_OF_PLACES_TO_SHOW,
             )
             await state.update_data(nearest_places=nearest_places)
             await state.update_data(city=await city_name(nearest_places[0][0]))
-            # data['city'] = await city_name(nearest_places[0][0])
             await send_message_with_list_of_places(
                 message,
                 bot,
@@ -315,13 +315,16 @@ async def register_handlers_nearest_place(dp: Dispatcher):
     )
     dp.message.register(
         search_place_request_location,
+        FSMClientSearchPlace.first,
         IsCurseMessage(),
     )
     dp.message.register(
         search_place_done,
+        FSMClientSearchPlace.second,
         IsCurseMessage(),
     )
     dp.message.register(
         search_place_additional,
+        FSMClientSearchPlace.additional,
         IsCurseMessage(),
     )

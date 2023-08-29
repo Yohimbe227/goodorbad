@@ -33,6 +33,11 @@ class UnknownError(Error):
         return f'{type(self).__name__}. Что-то не так с созданием пользователя'
 
 
+class EmptyKeyboardError(Error):
+    def __str__(self):
+        return 'Пустая клавиатура!'
+
+
 class ReviewBecomeError(Error):
     def __str__(self):
         return (

@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from telegrambot.costants import PLACE_TYPES
+from telegrambot.costants import PLACE_TYPES, ROW_LENGTH
 
 NUMBER_OF_COLUMNS_KB = 4
 
@@ -24,6 +24,7 @@ kb_client = ReplyKeyboardMarkup(
                button_add_review, button_HR, ]], resize_keyboard=True,
     one_time_keyboard=True)
 
+
 # kb_client_with_places = ReplyKeyboardMarkup(
 #     keyboard=[[]],
 #     resize_keyboard=True,
@@ -33,21 +34,43 @@ kb_client = ReplyKeyboardMarkup(
 
 def get_keyboard(
         buttons: list[str],
+        row_length=ROW_LENGTH,
 ):
     """Create keyboard object by names of buttons.
 
     Args:
+        row_length: Length of every row.
         buttons: Names of needed buttons.
 
     Returns:
         Keyboard object.
 
     """
+    row = []
+    matrix = []
+    for index, button in enumerate(buttons):
+        button = KeyboardButton(text=button)
+        row.append(button)
+        if (index + 1) % row_length == 0:
+            matrix.append(row)
+            row = []
+    if row:
+        matrix.append(row)
+    if not matrix and not row:
+        return [[]]
     return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text=button.capitalize()) for button in buttons]],
+        keyboard=matrix,
         resize_keyboard=True,
         one_time_keyboard=True,
     )
+
+    #
+    #
+    # return ReplyKeyboardMarkup(
+    #     keyboard=[[KeyboardButton(text=button.capitalize()) for button in buttons]],
+    #     resize_keyboard=True,
+    #     one_time_keyboard=True,
+    # )
 
 
 kb_client_location = ReplyKeyboardMarkup(
@@ -66,6 +89,7 @@ kb_place_client_next = get_keyboard(
         'Больше заведений!',
         'отмена',
     ],
+    3,
 )
 
 kb_client_categories = get_keyboard(PLACE_TYPES.keys())
