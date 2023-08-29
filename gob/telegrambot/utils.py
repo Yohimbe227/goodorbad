@@ -39,7 +39,7 @@ def check_tokens(token) -> None:
 async def send_message(
     mybot: Bot,
     message: types.Message,
-    message_text,
+    message_text: str,
     **kwargs: Any,
 ) -> None:
     """Sends messages via Telegram.
@@ -56,16 +56,16 @@ async def send_message(
         SendMessageError: If there is an error sending a message via Telegram.
 
     """
-    try:
-        await mybot.send_message(
-            message.from_user.id,
-            message_text,
-            parse_mode='HTML',
-            **kwargs,
-        )
-    except Exception as err:
-        logging.exception('Сообщение не отправлено')
-        raise SendMessageError from err
+    # try:
+    await mybot.send_message(
+        message.from_user.id,
+        message_text,
+        parse_mode='HTML',
+        **kwargs,
+    )
+    # except Exception as err:
+    #     logging.exception('Сообщение не отправлено')
+    #     raise SendMessageError from err
 
 
 async def n_min(

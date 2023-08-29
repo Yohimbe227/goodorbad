@@ -162,7 +162,7 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 @func_logger('Поднимаем базу для подсчета расстояний', level='info')
 async def read_places_coordinates(
-    location: tuple[float],
+    location: list[float],
     _category: str,
 ) -> list[tuple[Place, float]]:
     """
@@ -180,6 +180,8 @@ async def read_places_coordinates(
 
     """
     distance_to_place = []
+    print(location, _category, PLACE_TYPES[_category.lower()])
+    # print(await Place.objects.aget(category__name='кафе'))
     async for place in Place.objects.filter(
         Q(category__name__in=PLACE_TYPES[_category.lower()])
         & Q(
@@ -195,6 +197,7 @@ async def read_places_coordinates(
             ],
         ),
     ):
+        print(place)
         _distance = int(
             haversine(
                 (float(place.latitude), float(place.longitude)),
@@ -202,6 +205,7 @@ async def read_places_coordinates(
             )
             * M_IN_KM,
         )
+        print(_distance)
         if _distance < MAX_RANGE_SEARCH and (
             (
                 place,

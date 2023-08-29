@@ -49,7 +49,7 @@ def get_keyboard(
     row = []
     matrix = []
     for index, button in enumerate(buttons):
-        button = KeyboardButton(text=button)
+        button = KeyboardButton(text=button.capitalize())
         row.append(button)
         if (index + 1) % row_length == 0:
             matrix.append(row)

@@ -101,7 +101,7 @@ async def search_place_request_location(
 
     """
     if message.text.lower() in PLACE_TYPES:
-        await state.update_data(category=message.text.lower())
+        await state.update_data(category=message.text)
         await send_message(
             bot,
             message,
@@ -164,11 +164,10 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
             location = None
 
     if message.location:
-        location = list(dict(message.location).values())
-
+        location = list(dict(message.location).values())[:2]
+    print(location)
     if message.location or location:
         data = await state.get_data()
-        print(data)
         if places_distance := await read_places_coordinates(
             location,
             data['category'],
@@ -242,7 +241,7 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                     data['nearest_places'][1][0].longitude,
                 )
             case 'Третье':
-                place_name = data['nearest_places'][2][0]
+                place_name = data['nearest_places'][2][0].name
                 await send_message(
                     bot,
                     message,
@@ -266,10 +265,11 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                 await state.update_data(places_distance=places_distance)
                 len_place_to_send = len(places_distance)
                 if places_distance:
-                    data['nearest_places'] = await n_min(
+                    await state.update_data(nearest_places = await n_min(
                         data['places_distance'],
                         NUMBER_OF_PLACES_TO_SHOW,
                     )
+                                            )
                 if (
                     places_distance
                     and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
