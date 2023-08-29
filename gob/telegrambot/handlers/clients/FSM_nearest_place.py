@@ -100,26 +100,25 @@ async def search_place_request_location(
         state: State object that stores the current state.
 
     """
-    async with state.proxy() as data:
-        if message.text.lower() in PLACE_TYPES:
-            data['category'] = message.text.lower()
-            await send_message(
-                bot,
-                message,
-                'Отправьте свою локацию, чтобы мы могли подобрать ближайшие '
-                'заведения или напишите свой приблизительный адресс, '
-                'содержащий город, улицу и номер дома, формат не важен.',
-                reply_markup=kb_client_location,
-            )
-            await FSMClientSearchPlace.second.set()
-        else:
-            await send_message(
-                bot,
-                message,
-                'Такого типа заведения в нашей базе нет,'
-                ' воспользуйтесь вариантами с клавиатуры!',
-                reply_markup=get_keyboard(PLACE_TYPES.keys()),
-            )
+    if message.text.lower() in PLACE_TYPES:
+        await state.update_data(category=message.text.lower())
+        await send_message(
+            bot,
+            message,
+            'Отправьте свою локацию, чтобы мы могли подобрать ближайшие '
+            'заведения или напишите свой приблизительный адресс, '
+            'содержащий город, улицу и номер дома, формат не важен.',
+            reply_markup=kb_client_location,
+        )
+        await state.set_state(FSMClientSearchPlace.second)
+    else:
+        await send_message(
+            bot,
+            message,
+            'Такого типа заведения в нашей базе нет,'
+            ' воспользуйтесь вариантами с клавиатуры!',
+            reply_markup=get_keyboard(PLACE_TYPES.keys()),
+        )
 
 
 @func_logger('Получаем данные локации', level='info')
@@ -138,7 +137,6 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
 
     """
     if message.text:
-
         try:
             response = requests.get(
                 GEO_ENDPOINT,
@@ -169,39 +167,40 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
         location = list(dict(message.location).values())
 
     if message.location or location:
-        async with state.proxy() as data:
-            if places_distance := await read_places_coordinates(
-                location,
-                data['category'],
-            ):
-                data['places_distance'] = places_distance
-                nearest_places = await n_min(
-                    data['places_distance'],
-                    NUMBER_OF_PLACES_TO_SHOW,
-                )
-                data['nearest_places'] = nearest_places
-                data['city'] = await city_name(nearest_places[0][0])
-                await send_message_with_list_of_places(
-                    message,
-                    bot,
-                    NUMBER_OF_PLACES_TO_SHOW,
-                    nearest_places,
-                )
-                await FSMClientSearchPlace.additional.set()
-            else:
-                if message.text == button_return.text:
-                    await send_message(
-                        bot,
-                        message,
-                        '',
-                        reply_markup=kb_client,
-                    )
+        data = await state.get_data()
+        if places_distance := await read_places_coordinates(
+            data['location'],
+            data['category'],
+        ):
+            await state.update_data(places_distance=places_distance)
+            nearest_places = await n_min(
+                data['places_distance'],
+                NUMBER_OF_PLACES_TO_SHOW,
+            )
+            await state.update_data(nearest_places=nearest_places)
+            await state.update_data(city=await city_name(nearest_places[0][0]))
+            # data['city'] = await city_name(nearest_places[0][0])
+            await send_message_with_list_of_places(
+                message,
+                bot,
+                NUMBER_OF_PLACES_TO_SHOW,
+                nearest_places,
+            )
+            await state.set_state(FSMClientSearchPlace.additional)
+        else:
+            if message.text == button_return.text:
                 await send_message(
                     bot,
                     message,
-                    'Тут ничего нет, совсем. Или Ваш город не поддерживается',
-                    reply_markup=kb_client_return,
+                    '',
+                    reply_markup=kb_client,
                 )
+            await send_message(
+                bot,
+                message,
+                'Тут ничего нет, совсем. Или Ваш город не поддерживается',
+                reply_markup=kb_client_return,
+            )
     if message.content_type not in ('text', 'location'):
         await send_message(
             bot,
@@ -227,109 +226,102 @@ async def search_place_additional(message: types.Message, state: FSMContext):
             reply_markup=kb_place_client_next,
         )
     else:
-        async with state.proxy() as data:
-            match message.text:
-                case 'Второе':
-                    place_name = data['nearest_places'][1][0].name
-                    await send_message(
-                        bot,
-                        message,
-                        place_name,
-                        reply_markup=kb_place_client_next,
-                    )
-                    await bot.send_location(
-                        message.from_user.id,
-                        data['nearest_places'][1][0].latitude,
-                        data['nearest_places'][1][0].longitude,
-                    )
-                case 'Третье':
-                    place_name = data['nearest_places'][2][0]
-                    await send_message(
-                        bot,
-                        message,
-                        place_name,
-                        reply_markup=kb_place_client_next,
-                    )
-                    await bot.send_location(
-                        message.from_user.id,
-                        data['nearest_places'][2][0].latitude,
-                        data['nearest_places'][2][0].longitude,
-                    )
+        data = await state.get_data()
+        match message.text:
+            case 'Второе':
+                place_name = data['nearest_places'][1][0].name
+                await send_message(
+                    bot,
+                    message,
+                    place_name,
+                    reply_markup=kb_place_client_next,
+                )
+                await bot.send_location(
+                    message.from_user.id,
+                    data['nearest_places'][1][0].latitude,
+                    data['nearest_places'][1][0].longitude,
+                )
+            case 'Третье':
+                place_name = data['nearest_places'][2][0]
+                await send_message(
+                    bot,
+                    message,
+                    place_name,
+                    reply_markup=kb_place_client_next,
+                )
+                await bot.send_location(
+                    message.from_user.id,
+                    data['nearest_places'][2][0].latitude,
+                    data['nearest_places'][2][0].longitude,
+                )
 
-                case 'Больше заведений!':
-                    places_distance = copy(data['places_distance'])
-                    [
-                        places_distance.remove(element)
-                        for element in data['places_distance']
-                        if element
-                        in [place for place in data['nearest_places']]
-                    ]
-                    data['places_distance'] = places_distance
-                    len_place_to_send = len(places_distance)
-                    if places_distance:
-                        data['nearest_places'] = await n_min(
-                            data['places_distance'],
-                            NUMBER_OF_PLACES_TO_SHOW,
-                        )
-                    if (
-                        places_distance
-                        and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
-                    ):
-                        await send_message(
-                            bot,
-                            message,
-                            'Это последние :(',
-                            reply_markup=kb_client,
-                        )
-                        await send_message_with_list_of_places(
-                            message,
-                            bot,
-                            len_place_to_send,
-                            data['nearest_places'],
-                            reply_markup=kb_client,
-                        )
-                        await state.finish()
-                    elif not places_distance:
-                        await send_message(
-                            bot,
-                            message,
-                            'Больше нет заведений по Вашему запросу :(',
-                            reply_markup=kb_client,
-                        )
-                        await state.finish()
-                    else:
-                        await send_message_with_list_of_places(
-                            message,
-                            bot,
-                            NUMBER_OF_PLACES_TO_SHOW,
-                            data['nearest_places'],
-                        )
+            case 'Больше заведений!':
+                places_distance = copy(data['places_distance'])
+                [
+                    places_distance.remove(element)
+                    for element in data['places_distance']
+                    if element
+                    in [place for place in data['nearest_places']]
+                ]
+                await state.update_data(places_distance=places_distance)
+                len_place_to_send = len(places_distance)
+                if places_distance:
+                    data['nearest_places'] = await n_min(
+                        data['places_distance'],
+                        NUMBER_OF_PLACES_TO_SHOW,
+                    )
+                if (
+                    places_distance
+                    and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
+                ):
+                    await send_message(
+                        bot,
+                        message,
+                        'Это последние :(',
+                        reply_markup=kb_client,
+                    )
+                    await send_message_with_list_of_places(
+                        message,
+                        bot,
+                        len_place_to_send,
+                        data['nearest_places'],
+                        reply_markup=kb_client,
+                    )
+                    await state.clear()
+                elif not places_distance:
+                    await send_message(
+                        bot,
+                        message,
+                        'Больше нет заведений по Вашему запросу :(',
+                        reply_markup=kb_client,
+                    )
+                    await state.clear()
+                else:
+                    await send_message_with_list_of_places(
+                        message,
+                        bot,
+                        NUMBER_OF_PLACES_TO_SHOW,
+                        data['nearest_places'],
+                    )
 
 
 async def register_handlers_nearest_place(dp: Dispatcher):
     """Handlers registrations."""
 
-    await dp.message.register(
+    dp.message.register(
         start_search_place,
         IsCurseMessage(),
         F.text.in_({'Ближайшее место для...', '/next_place'}),
-        state=None,
     )
-    dp.register_message(
+    dp.message.register(
         search_place_request_location,
         IsCurseMessage(),
-        state=FSMClientSearchPlace.first,
     )
-    disp.register_message_handler(
+    dp.message.register(
         search_place_done,
         IsCurseMessage(),
-        state=FSMClientSearchPlace.second,
-        content_types=[
-            'any',
-        ],
     )
-    disp.register_message_handler(
+    dp.message.register(
         search_place_additional,
         IsCurseMessage(),
-        state=FSMClientSearchPlace.additional,
     )
