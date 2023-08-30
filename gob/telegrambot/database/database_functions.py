@@ -180,32 +180,28 @@ async def read_places_coordinates(
 
     """
     distance_to_place = []
-    print(location, _category, PLACE_TYPES[_category.lower()])
-    # print(await Place.objects.aget(category__name='кафе'))
     async for place in Place.objects.filter(
         Q(category__name__in=PLACE_TYPES[_category.lower()])
         & Q(
             latitude__range=[
-                location[0] - MAX_COORDINATES_DIFFERENCE,
-                location[0] + MAX_COORDINATES_DIFFERENCE,
+                location[1] - MAX_COORDINATES_DIFFERENCE,
+                location[1] + MAX_COORDINATES_DIFFERENCE,
             ],
         )
         & Q(
             longitude__range=[
-                location[1] - MAX_COORDINATES_DIFFERENCE,
-                location[1] + MAX_COORDINATES_DIFFERENCE,
+                location[0] - MAX_COORDINATES_DIFFERENCE,
+                location[0] + MAX_COORDINATES_DIFFERENCE,
             ],
         ),
     ):
-        print(place)
         _distance = int(
             haversine(
-                (float(place.latitude), float(place.longitude)),
+                (float(place.longitude), float(place.latitude)),
                 list(map(float, location)),
             )
             * M_IN_KM,
         )
-        print(_distance)
         if _distance < MAX_RANGE_SEARCH and (
             (
                 place,

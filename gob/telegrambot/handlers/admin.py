@@ -63,20 +63,21 @@ async def save_city_to_base(message: types.Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(F.text.in_({'отмена', 'вернуться'}), )
+@router.message(F.text.lower().in_({'отмена', 'вернуться'}))
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     """Exit from the state.
 
     Args:
-        message: message being sent
-        state: current state
+        message: Message being sent.
+        state: Current state.
 
     """
+    print('cancel handelr activated')
     current_state = await state.get_state()
     if current_state is None:
         return
     await state.clear()
-    await message.answer('OK', reply_markup=kb_client)
+    await message.reply('OK', reply_markup=kb_client)
 
 
 # def register_handlers_admin(disp: Dispatcher) -> None:

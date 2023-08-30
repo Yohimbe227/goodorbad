@@ -21,6 +21,8 @@ async def main():
     dp.include_router(basic_router)
     # dp.filters_factory.bind(IsCurseMessage)
     dp.include_router(other_router)
+
+
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 

@@ -165,7 +165,6 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
 
     if message.location:
         location = list(dict(message.location).values())[:2]
-    print(location)
     if message.location or location:
         data = await state.get_data()
         if places_distance := await read_places_coordinates(
