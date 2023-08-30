@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from telegrambot.costants import PLACE_TYPES, ROW_LENGTH
+from telegrambot.costants import PLACE_TYPES, NUMBER_OF_COLUMNS
 
 NUMBER_OF_COLUMNS_KB = 4
 
@@ -25,21 +25,14 @@ kb_client = ReplyKeyboardMarkup(
     one_time_keyboard=True)
 
 
-# kb_client_with_places = ReplyKeyboardMarkup(
-#     keyboard=[[]],
-#     resize_keyboard=True,
-#     one_time_keyboard=True,
-# )
-
-
 def get_keyboard(
         buttons: list[str],
-        row_length=ROW_LENGTH,
+        columns=NUMBER_OF_COLUMNS,
 ):
     """Create keyboard object by names of buttons.
 
     Args:
-        row_length: Length of every row.
+        columns: Length of every row.
         buttons: Names of needed buttons.
 
     Returns:
@@ -51,7 +44,7 @@ def get_keyboard(
     for index, button in enumerate(buttons):
         button = KeyboardButton(text=button.capitalize())
         row.append(button)
-        if (index + 1) % row_length == 0:
+        if (index + 1) % columns == 0:
             matrix.append(row)
             row = []
     if row:

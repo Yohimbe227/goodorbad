@@ -10,13 +10,12 @@ from telegrambot.creation import dp, bot
 from telegrambot.handlers.admin import router as admin_router
 from telegrambot.handlers.other import router as other_router
 from telegrambot.handlers.clients.basic import router as basic_router
-from telegrambot.handlers.clients import FSM_nearest_place
-from telegrambot.handlers import admin
+from telegrambot.handlers.clients import FSM_nearest_place, FSM_review
 
 
 async def main():
     await FSM_nearest_place.register_handlers_nearest_place(dp)
-    # await admin.register_handlers_admin(dp)
+    await FSM_review.register_handlers_review(dp)
     dp.include_router(admin_router)
     dp.include_router(basic_router)
     dp.include_router(other_router)

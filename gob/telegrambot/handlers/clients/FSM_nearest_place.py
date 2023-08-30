@@ -308,7 +308,6 @@ async def register_handlers_nearest_place(dp: Dispatcher):
     """Handlers registrations."""
     dp.message.filter(IsCurseMessage())
     dp.message.register(
-
         start_search_place,
         F.text.in_({'Ближайшее место для...', '/next_place'}),
     )

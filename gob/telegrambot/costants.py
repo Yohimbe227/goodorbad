@@ -11,7 +11,6 @@ YA_GEO_TOKEN = os.getenv('YA_GEO_TOKEN')
 # Size of city keyboard
 NUMBER_OF_ROWS = 2
 NUMBER_OF_COLUMNS = 3
-ROW_LENGTH = 3
 
 PLACE_TYPES = {
     'бар': ('Бары', 'Бар, паб', 'Кальян-бар'),

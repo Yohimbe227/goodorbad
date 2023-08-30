@@ -6,10 +6,10 @@ in `data` dictionary
 import logging
 from logging.handlers import RotatingFileHandler
 
-from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram import Dispatcher, types, F
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
+
 from aiogram.types import ReplyKeyboardRemove
 
 from telegrambot.costants import MAX_QUANTITY_OF_PLACES_ON_KB
@@ -21,7 +21,6 @@ from telegrambot.database.database_functions import (
     search_place_name_in_database,
 )
 from telegrambot.decorators import func_logger
-from telegrambot.handlers.admin import cancel_handler
 from telegrambot.keyboards.city_kb import kb_city
 from telegrambot.keyboards.client_kb import get_keyboard, kb_client
 from telegrambot.moderator import IsCurseMessage
@@ -47,9 +46,8 @@ class FSMClientReview(StatesGroup):
 async def start_add_review(message: types.Message, state: FSMContext) -> None:
     """Dialog start."""
 
-    async with state.proxy() as data:
-        data['mode'] = 'write'
-    await FSMClientReview.city.set()
+    await state.update_data(mode='write')
+    await state.set_state(FSMClientReview.city)
     await send_message(
         bot,
         message,
@@ -63,9 +61,8 @@ async def add_city(message: types.Message, state: FSMContext) -> None:
     """Get the name of the user's city."""
 
     if message.text in await get_cities():
-        async with state.proxy() as data:
-            data['city'] = message.text
-        await FSMClientReview.name.set()
+        await state.update_data(city=message.text)
+        await state.set_state(FSMClientReview.name)
         await message.reply('Введите название заведения (можно не полностью)')
     else:
         await send_message(
@@ -79,60 +76,61 @@ async def add_city(message: types.Message, state: FSMContext) -> None:
 async def add_place_name(message: types.Message, state: FSMContext) -> None:
     """Get the name of the place."""
 
-    async with state.proxy() as data:
-        data['name'] = message.text
-        places = await search_place_name_in_database(
-            data['name'],
-            data['city'],
-        )
-        match len(places):
-            case 0:
+    await state.update_data(name=message.text)
+    data = await state.get_data()
+    places = await search_place_name_in_database(
+        data['name'],
+        data['city'],
+    )
+    match len(places):
+        case 0:
+            await send_message(
+                bot,
+                message,
+                f'Мы не нашли такого заведения {data["name"]}.'
+                f' Может что-то не так с названием?',
+            )
+        case 1:
+            if data['mode'] == 'write':
                 await send_message(
                     bot,
                     message,
-                    f'Мы не нашли такого заведения {data["name"]}.'
-                    f' Может что-то не так с названием?',
+                    f'Введите Ваш отзыв на <b>"{places[0]}"</b>',
+                    reply_markup=ReplyKeyboardRemove(),
                 )
-            case 1:
-                if data['mode'] == 'write':
-                    await send_message(
-                        bot,
-                        message,
-                        f'Введите Ваш отзыв на <b>"{places[0]}"</b>',
-                        reply_markup=ReplyKeyboardRemove(),
-                    )
-                    data['places'] = places[0]
-                    await FSMClientReview.review.set()
-                else:
-                    await send_message(
-                        bot,
-                        message,
-                        await read_review_from_database(places[0], message),
-                        reply_markup=kb_client,
-                    )
-                    await state.finish()
+                await state.update_data(places=places[0])
+                await state.set_state(FSMClientReview.review)
+            else:
+                await send_message(
+                    bot,
+                    message,
+                    await read_review_from_database(places[0], message),
+                    reply_markup=kb_client,
+                )
+                await state.clear()
 
-            case _:
-                buttons = [
-                    place.name
-                    for place in places[:MAX_QUANTITY_OF_PLACES_ON_KB]
-                ]
-                await send_message(
-                    bot,
-                    message,
-                    f'Слишком общий запрос "{data["name"]}". Уточните!'
-                    f'\nна клавиатуре самые похожие названия, но Вы можете '
-                    f'ввести свое!',
-                    reply_markup=get_keyboard(buttons),
-                )
+        case _:
+            buttons = [
+                place.name
+                for place in places[:MAX_QUANTITY_OF_PLACES_ON_KB]
+            ]
+            await send_message(
+                bot,
+                message,
+                f'Слишком общий запрос "{data["name"]}". Уточните!'
+                f'\nна клавиатуре самые похожие названия, но Вы можете '
+                f'ввести свое!',
+                reply_markup=get_keyboard(buttons),
+            )
 
 
 @func_logger('Добавляется текст отзыва', level='info')
 async def add_place_review(message: types.Message, state: FSMContext):
     """Получаем отзыв и сохраняем его в базу данных."""
 
-    async with state.proxy() as data:
-        data['review'] = message.text
+    # async with state.proxy() as data:
+    await state.update_data(review=message.text)
+    data = await state.get_data()
     await add_review_in_database(data['places'], data['review'], message)
     await send_message(
         bot,
@@ -140,69 +138,55 @@ async def add_place_review(message: types.Message, state: FSMContext):
         'Ваш отзыв успешно сохранен',
         reply_markup=kb_client,
     )
-    await state.finish()
+    await state.clear()
 
 
 @func_logger('Старт просмотра отзывов', level='info')
 async def start_read_review(message: types.Message, state: FSMContext):
     """Dialog read reviews start."""
-    async with state.proxy() as data:
-        data['mode'] = 'read'
-    await FSMClientReview.city.set()
+
+    await state.update_data(mode='read')
+    await state.set_state(FSMClientReview.city)
     await send_message(bot, message, 'Введите город!', reply_markup=kb_city)
 
 
-def register_handlers_fsm(disp: Dispatcher):
+async def register_handlers_review(dp: Dispatcher) -> None:
     """Hadlers register."""
 
-    disp.register_message_handler(
+    dp.message.register(
         start_read_review,
         IsCurseMessage(),
-        Text(
-            equals=[
+        F.text.in_({
                 'Узнать отзывы',
                 '/reviews',
-            ],
-            ignore_case=True,
-        ),
-        state=None,
+        }),
     )
-    disp.register_message_handler(
+    dp.message.register(
         start_add_review,
         IsCurseMessage(),
-        Text(
-            equals=[
+        F.text.in_({
                 'Добавить отзыв',
                 '/add_review',
-            ],
-            ignore_case=True,
-        ),
-        state=None,
+    }),
     )
-    disp.register_message_handler(
-        cancel_handler,
-        Text(equals=['отмена', 'вернуться'], ignore_case=True),
-        state='*',
-    )
-    disp.register_message_handler(
+    dp.message.register(
         add_city,
         IsCurseMessage(),
-        state=FSMClientReview.city,
+        FSMClientReview.city,
     )
-    disp.register_message_handler(
+    dp.message.register(
         add_place_name,
         IsCurseMessage(),
-        state=FSMClientReview.name,
+        FSMClientReview.name,
     )
-    disp.register_message_handler(
+    dp.message.register(
         add_place_review,
         IsCurseMessage(),
-        state=FSMClientReview.review,
+        FSMClientReview.review,
     )
 
-    disp.register_message_handler(
+    dp.message.register(
         start_read_review,
         IsCurseMessage(),
-        Text(equals='Узнать отзывы', ignore_case=True),
-        state=None,
+        F.text.capsfold() == 'Узнать отзывы',
     )

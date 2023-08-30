@@ -56,16 +56,12 @@ async def send_message(
         SendMessageError: If there is an error sending a message via Telegram.
 
     """
-    # try:
     await mybot.send_message(
         message.from_user.id,
         message_text,
         parse_mode='HTML',
         **kwargs,
     )
-    # except Exception as err:
-    #     logging.exception('Сообщение не отправлено')
-    #     raise SendMessageError from err
 
 
 async def n_min(
