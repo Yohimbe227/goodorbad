@@ -306,24 +306,21 @@ async def search_place_additional(message: types.Message, state: FSMContext):
 
 async def register_handlers_nearest_place(dp: Dispatcher):
     """Handlers registrations."""
-
+    dp.message.filter(IsCurseMessage())
     dp.message.register(
+
         start_search_place,
-        IsCurseMessage(),
         F.text.in_({'Ближайшее место для...', '/next_place'}),
     )
     dp.message.register(
         search_place_request_location,
         FSMClientSearchPlace.first,
-        IsCurseMessage(),
     )
     dp.message.register(
         search_place_done,
         FSMClientSearchPlace.second,
-        IsCurseMessage(),
     )
     dp.message.register(
         search_place_additional,
         FSMClientSearchPlace.additional,
-        IsCurseMessage(),
     )
