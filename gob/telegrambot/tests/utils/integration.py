@@ -6,4 +6,5 @@ from aiogram.client.session.base import BaseSession
 from aiogram.methods import TelegramMethod
 from aiogram.methods.base import Request, Response, TelegramType
 from aiogram.types import ResponseParameters, User
-from aiogram_tests.mocked_bot import MockedSession
+from aiogram.tests.mocked_bot import MockedBot
+
