@@ -159,3 +159,7 @@ async def send_message_with_list_of_places(
             _nearest_places[0][0].latitude,
             _nearest_places[0][0].longitude,
         )
+
+
+def prints(arg):
+    print(arg)

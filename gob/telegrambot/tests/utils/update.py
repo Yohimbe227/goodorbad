@@ -4,7 +4,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import CallbackQuery, Chat, Message, Update, User
 
 TEST_USER = User(
-    id=123,
+    id=1235,
     is_bot=False,
     first_name="Test",
     last_name="Bot",
@@ -42,7 +42,13 @@ TEST_CHAT = Chat(
     location=None,
 )
 
-TEST_MESSAGE = Message(message_id=123, date=datetime.now(), chat=TEST_CHAT)
+TEST_MESSAGE = Message(
+    message_id=123,
+    date=datetime.now(),
+    chat=TEST_CHAT,
+    from_user=TEST_USER,
+    text='text_text',
+)
 
 
 def get_message(text: str, chat=TEST_CHAT, from_user=TEST_USER):
@@ -110,12 +116,12 @@ def get_message(text: str, chat=TEST_CHAT, from_user=TEST_USER):
 
 
 def get_chat(
-    id: int = None,
-    type: str = "private",
-    title: str = "TEST_TITLE",
-    username: str = TEST_CHAT.username,
-    *args,
-    **kwargs
+        id: int = None,
+        type: str = "private",
+        title: str = "TEST_TITLE",
+        username: str = TEST_CHAT.username,
+        *args,
+        **kwargs
 ) -> Chat:
     return Chat(
         id=id,
@@ -129,7 +135,8 @@ def get_chat(
     )
 
 
-def get_callback_query(data: str | CallbackData, from_user=TEST_USER, message=None):
+def get_callback_query(data: str | CallbackData, from_user=TEST_USER,
+                       message=None):
     return CallbackQuery(
         id="test",
         from_user=from_user,

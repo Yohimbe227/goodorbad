@@ -15,7 +15,7 @@ from telegrambot.database import database_functions
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import UnknownError
 from telegrambot.keyboards.client_kb import kb_client
-from telegrambot.utils import send_message
+from telegrambot.utils import send_message, prints, check_tokens
 
 router = Router()
 
