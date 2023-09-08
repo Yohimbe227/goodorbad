@@ -2,9 +2,11 @@ from django.core.management import BaseCommand
 
 from telegrambot.creation import dp, bot
 from telegrambot.handlers import admin, other
+
 # other
 from telegrambot.handlers.clients import FSM_nearest_place, FSM_review, basic
 from telegrambot.moderator import IsCurseMessage
+
 # from telegrambot.utils import logger
 
 

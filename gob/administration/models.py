@@ -11,16 +11,16 @@ class City(models.Model):
         max_length=50,
         unique=True,
     )
-    latitude = models.FloatField('широта', blank=True, null=True)
-    longitude = models.FloatField('долгота', blank=True, null=True)
-    left_box_latitude = models.FloatField('широта', blank=True, null=True)
-    left_box_longitude = models.FloatField('долгота', blank=True, null=True)
-    right_box_latitude = models.FloatField('широта', blank=True, null=True)
-    right_box_longitude = models.FloatField('долгота', blank=True, null=True)
+    latitude = models.FloatField("широта", blank=True, null=True)
+    longitude = models.FloatField("долгота", blank=True, null=True)
+    left_box_latitude = models.FloatField("широта", blank=True, null=True)
+    left_box_longitude = models.FloatField("долгота", blank=True, null=True)
+    right_box_latitude = models.FloatField("широта", blank=True, null=True)
+    right_box_longitude = models.FloatField("долгота", blank=True, null=True)
 
     class Meta:
-        verbose_name = 'город'
-        verbose_name_plural = 'города'
+        verbose_name = "город"
+        verbose_name_plural = "города"
 
     def __str__(self):
         return self.name
@@ -33,8 +33,8 @@ class Category(models.Model):
     )
 
     class Meta:
-        verbose_name = 'тип заведения'
-        verbose_name_plural = 'типы заведений'
+        verbose_name = "тип заведения"
+        verbose_name_plural = "типы заведений"
 
     def __str__(self):
         return self.name
@@ -44,45 +44,45 @@ class Place(models.Model):
     # This need to use __eq__ metod!
     __hash__ = models.Model.__hash__
     name = models.CharField(
-        verbose_name='имя',
+        verbose_name="имя",
         max_length=MAX_LENGTH_NAME,
     )
     city = models.ForeignKey(
         City,
-        verbose_name='город',
-        related_name='places',
+        verbose_name="город",
+        related_name="places",
         on_delete=models.CASCADE,
     )
     category = models.ManyToManyField(
         Category,
-        verbose_name='вид заведения',
+        verbose_name="вид заведения",
         max_length=30,
-        through='CategoryPlace',
+        through="CategoryPlace",
     )
     address = models.TextField(
-        verbose_name='Адрес',
+        verbose_name="Адрес",
         blank=True,
         null=True,
     )
     phone = models.TextField(
-        verbose_name='телефонный номер',
+        verbose_name="телефонный номер",
         blank=True,
         null=True,
     )
     description = models.TextField(
-        verbose_name='описание',
+        verbose_name="описание",
         blank=True,
         null=True,
     )
     worktime_from = models.TimeField(
-        'Время работы, с',
+        "Время работы, с",
         db_index=True,
         blank=True,
         null=True,
         default=None,
     )
     worktime_to = models.TimeField(
-        'Время работы, до',
+        "Время работы, до",
         db_index=True,
         blank=True,
         null=True,
@@ -90,26 +90,26 @@ class Place(models.Model):
     )
     url = models.URLField(
         max_length=400,
-        verbose_name='ссылка на сайт заведения',
+        verbose_name="ссылка на сайт заведения",
         null=True,
         blank=True,
     )
     created = models.DateTimeField(
-        'Дата добавления',
+        "Дата добавления",
         auto_now_add=True,
         db_index=True,
         blank=True,
     )
-    sponsored = models.BooleanField(default=False, verbose_name='проплачено')
+    sponsored = models.BooleanField(default=False, verbose_name="проплачено")
     latitude = models.CharField(
         max_length=11,
-        verbose_name='широта',
+        verbose_name="широта",
         blank=True,
         null=True,
     )
     longitude = models.CharField(
         max_length=11,
-        verbose_name='долгота',
+        verbose_name="долгота",
         blank=True,
         null=True,
     )
@@ -122,17 +122,17 @@ class Place(models.Model):
         )
 
     class Meta:
-        verbose_name = 'заведение'
-        verbose_name_plural = 'заведения'
-        default_related_name = 'places'
+        verbose_name = "заведение"
+        verbose_name_plural = "заведения"
+        default_related_name = "places"
         constraints = [
             models.UniqueConstraint(
                 fields=[
-                    'name',
-                    'address',
-                    'city',
+                    "name",
+                    "address",
+                    "city",
                 ],
-                name='%(app_label)s_%(class)s_unique_relationships',
+                name="%(app_label)s_%(class)s_unique_relationships",
             ),
         ]
 
@@ -141,7 +141,7 @@ class Place(models.Model):
 
     def clean(self) -> None:
         if self.url and len(self.url) > 198:
-            self.url = ''
+            self.url = ""
         super().clean()
 
 
@@ -149,10 +149,10 @@ class Review(models.Model):
     place = models.ForeignKey(
         Place,
         on_delete=models.CASCADE,
-        related_name='reviews',
+        related_name="reviews",
     )
     text = models.TextField(
-        verbose_name='отзывы',
+        verbose_name="отзывы",
     )
     author = models.ForeignKey(
         User,
@@ -160,7 +160,7 @@ class Review(models.Model):
         verbose_name="автор",
     )
     date = models.DateTimeField(
-        'Дата добавления',
+        "Дата добавления",
         auto_now_add=True,
         db_index=True,
     )
@@ -169,8 +169,8 @@ class Review(models.Model):
         return self.text
 
     class Meta:
-        verbose_name = 'отзыв'
-        verbose_name_plural = 'отзывы'
+        verbose_name = "отзыв"
+        verbose_name_plural = "отзывы"
 
 
 class CategoryPlace(models.Model):

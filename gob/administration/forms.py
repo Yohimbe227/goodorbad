@@ -15,14 +15,14 @@ class PlaceForm(forms.ModelForm):
         model = Place
 
         fields = (
-            'name',
-            'city',
-            'category',
-            'description',
-            'url',
-            'latitude',
-            'longitude',
-            'sponsored',
+            "name",
+            "city",
+            "category",
+            "description",
+            "url",
+            "latitude",
+            "longitude",
+            "sponsored",
         )
         # widgets = {
         #     'city': forms.TextInput,
@@ -32,5 +32,5 @@ class PlaceForm(forms.ModelForm):
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = UserCreationForm.Meta.model
-        fields = '__all__'
+        fields = "__all__"
         field_classes = UserCreationForm.Meta.field_classes

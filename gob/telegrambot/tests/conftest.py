@@ -42,6 +42,5 @@ async def message():
 @pytest.fixture
 def mock_send_message(mocker):
     return mocker.patch(
-        'telegrambot.handlers.clients.basic.send_message',
-        new_callable=AsyncMock
+        "telegrambot.handlers.clients.basic.send_message", new_callable=AsyncMock
     )

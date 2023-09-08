@@ -3,7 +3,7 @@ from functools import wraps
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s, %(levelname)s, %(message)s',
+    format="%(asctime)s, %(levelname)s, %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def only_one(func):
     return wrapper
 
 
-def func_logger(message: str, level: str = 'debug'):
+def func_logger(message: str, level: str = "debug"):
     """Декоратор для логирования функции.
 
     Args:
@@ -41,15 +41,15 @@ def func_logger(message: str, level: str = 'debug'):
         def wrapper(*args2, **kwargs):
             _value = function(*args2, **kwargs)
             log_level = {
-                'debug': logger.debug,
-                'info': logger.info,
-                'error': logger.error,
-                'critical': logger.critical,
+                "debug": logger.debug,
+                "info": logger.info,
+                "error": logger.error,
+                "critical": logger.critical,
             }
             if level in log_level:
                 log_level.get(level)(message)
             else:
-                raise NameError(f'Unknown parameter {level}')
+                raise NameError(f"Unknown parameter {level}")
             return _value
 
         return wrapper

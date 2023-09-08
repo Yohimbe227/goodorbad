@@ -27,53 +27,53 @@ from telegrambot.exceptions import (
 )
 from telegrambot.utils import extract_address
 
-ENDPOINT = 'https://search-maps.yandex.ru/v1/'
+ENDPOINT = "https://search-maps.yandex.ru/v1/"
 RETRY_PERIOD = 100
-YA_TOKENS = os.getenv('YA_TOKEN').split(', ')
-YA_GEO_TOKEN = os.getenv('YA_GEO_TOKEN')
+YA_TOKENS = os.getenv("YA_TOKEN").split(", ")
+YA_GEO_TOKEN = os.getenv("YA_GEO_TOKEN")
 MAX_RESULTS_PER_CITY = 1000
 FIRST_RESULT = 1
-MESSAGE_ERROR_REQUEST = 'Какие то проблемы с endpoint'
+MESSAGE_ERROR_REQUEST = "Какие то проблемы с endpoint"
 # places for search in API by default
 CATEGORIES = (
-    'Кафе',
-    'Бар',
-    'Паб',
-    'Ресторан',
-    'Пиццерия',
-    'Суши',
-    'Баня',
-    'Сауна',
+    "Кафе",
+    "Бар",
+    "Паб",
+    "Ресторан",
+    "Пиццерия",
+    "Суши",
+    "Баня",
+    "Сауна",
 )
 CITIES = (
-    'Нягань',
-    'Москва',
-    'Санкт-Петербург',
-    'Новосибирск',
-    'Екатеринбург',
-    'Казань',
-    'Нижний Новгород',
-    'Челябинск',
-    'Красноярск',
+    "Нягань",
+    "Москва",
+    "Санкт-Петербург",
+    "Новосибирск",
+    "Екатеринбург",
+    "Казань",
+    "Нижний Новгород",
+    "Челябинск",
+    "Красноярск",
 )
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
+    format="%(asctime)s, %(levelname)s, %(message)s, %(funcName)s",
 )
 logger = logging.getLogger(__name__)
-handler = RotatingFileHandler('my_logger.log', maxBytes=5000000, backupCount=3)
+handler = RotatingFileHandler("my_logger.log", maxBytes=5000000, backupCount=3)
 logger.addHandler(handler)
 formatter = logging.Formatter(
-    '%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
+    "%(asctime)s, %(levelname)s, %(message)s, %(funcName)s",
 )
 handler.setFormatter(formatter)
 
 test_params = {
-    'text': 'Москва',
-    'results': FIRST_RESULT,
-    'apikey': 'wrong_token_only_for_test',
-    'lang': 'ru',
-    'type': 'geo',
+    "text": "Москва",
+    "results": FIRST_RESULT,
+    "apikey": "wrong_token_only_for_test",
+    "lang": "ru",
+    "type": "geo",
 }
 
 
@@ -85,19 +85,19 @@ def is_token_present() -> None:
 
     """
     if not YA_TOKENS:
-        logger.critical('Необходимый токены: %s не обнаружены', 'YA_TOKENS')
-        raise TokenError('YA_TOKEN')
+        logger.critical("Необходимый токены: %s не обнаружены", "YA_TOKENS")
+        raise TokenError("YA_TOKEN")
 
 
 def is_api_ok():
     test_response = requests.get(
         ENDPOINT,
         params={
-            'text': 'Москва',
-            'results': FIRST_RESULT,
-            'apikey': 'wrong_token_only_for_test',
-            'lang': 'ru',
-            'type': 'geo',
+            "text": "Москва",
+            "results": FIRST_RESULT,
+            "apikey": "wrong_token_only_for_test",
+            "lang": "ru",
+            "type": "geo",
         },
     )
     if test_response.status_code in (HTTPStatus.OK, HTTPStatus.FORBIDDEN):
@@ -110,15 +110,15 @@ def is_token_valid(token):
     test_response = requests.get(
         ENDPOINT,
         params={
-            'text': 'Москва',
-            'results': FIRST_RESULT,
-            'apikey': token,
-            'lang': 'ru',
-            'type': 'geo',
+            "text": "Москва",
+            "results": FIRST_RESULT,
+            "apikey": token,
+            "lang": "ru",
+            "type": "geo",
         },
     )
     if test_response.status_code == HTTPStatus.FORBIDDEN:
-        logger.error('Токен заблокирован')
+        logger.error("Токен заблокирован")
         return False
     return True
 
@@ -143,20 +143,20 @@ def get_city(city: str, token: str) -> str:
     response = requests.get(
         ENDPOINT,
         params={
-            'text': f"{city}",
-            'results': FIRST_RESULT,
-            'apikey': token,
-            'lang': 'ru',
-            'type': 'geo',
+            "text": f"{city}",
+            "results": FIRST_RESULT,
+            "apikey": token,
+            "lang": "ru",
+            "type": "geo",
         },
     )
 
-    coordinates = response.json()['features'][0]['geometry']['coordinates']
+    coordinates = response.json()["features"][0]["geometry"]["coordinates"]
     bounded_result = list(
         chain.from_iterable(
-            response.json()['properties']['ResponseMetaData'][
-                'SearchResponse'
-            ]['boundedBy'],
+            response.json()["properties"]["ResponseMetaData"]["SearchResponse"][
+                "boundedBy"
+            ],
         ),
     )
     try:
@@ -170,14 +170,14 @@ def get_city(city: str, token: str) -> str:
             right_box_longitude=bounded_result[3],
         )
     except IntegrityError:
-        logger.warning(f'Город {city} уже добавлен в базу данных')
+        logger.warning(f"Город {city} уже добавлен в базу данных")
     return (
-        f'{bounded_result[0]},{bounded_result[1]}~'
-        f'{bounded_result[2]},{bounded_result[3]}'
+        f"{bounded_result[0]},{bounded_result[1]}~"
+        f"{bounded_result[2]},{bounded_result[3]}"
     )
 
 
-@func_logger('Получение ответа API')
+@func_logger("Получение ответа API")
 def get_api_answer(
     max_results: int,
     city: str,
@@ -204,23 +204,23 @@ def get_api_answer(
 
     """
     if not is_token_valid(token):
-        raise TokenNotValidError('Токен заблокирован')
+        raise TokenNotValidError("Токен заблокирован")
     if not is_api_ok():
-        raise HTTPError('Проблемы  с сетью')
+        raise HTTPError("Проблемы  с сетью")
 
     _city = get_city(city, token)
     response = requests.get(
         ENDPOINT,
         params={
-            'text': f'{category} {city}',
-            'results': max_results,
-            'apikey': token,
-            'lang': 'ru',
-            'type': 'biz',
-            'bbox': _city,
+            "text": f"{category} {city}",
+            "results": max_results,
+            "apikey": token,
+            "lang": "ru",
+            "type": "biz",
+            "bbox": _city,
         },
     )
-    return response.json().get('features')
+    return response.json().get("features")
 
 
 def _parse_from_file(cities: list[str]) -> None:
@@ -254,11 +254,11 @@ def _parse_from_file(cities: list[str]) -> None:
                 break
             if is_valid:
                 logger.info(
-                    f'Все заведения из категории {category} города {city} '
-                    f'были добавлены',
+                    f"Все заведения из категории {category} города {city} "
+                    f"были добавлены",
                 )
         if is_valid:
-            logger.info(f'импорт города {city} завершен успешно!')
+            logger.info(f"импорт города {city} завершен успешно!")
 
 
 def parser(city: str, category: str, token: str) -> None:
@@ -279,11 +279,11 @@ def parser(city: str, category: str, token: str) -> None:
     time.sleep(0.2)
     place = dict()
     if not is_token_valid(token):
-        raise TokenNotValidError('Токен заблокирован')
+        raise TokenNotValidError("Токен заблокирован")
     if not is_api_ok():
-        raise HTTPError('Проблемы  с сетью')
+        raise HTTPError("Проблемы  с сетью")
 
-    logger.info(f'{token[10:]}')
+    logger.info(f"{token[10:]}")
     api_answer = get_api_answer(
         MAX_RESULTS_PER_CITY,
         city,
@@ -292,12 +292,12 @@ def parser(city: str, category: str, token: str) -> None:
     )
 
     for obj in api_answer:
-        place['longitude'] = obj['geometry']['coordinates'][0]
-        place['latitude'] = obj['geometry']['coordinates'][1]
+        place["longitude"] = obj["geometry"]["coordinates"][0]
+        place["latitude"] = obj["geometry"]["coordinates"][1]
         try:
             category_names = [
-                key['name']
-                for key in obj['properties']['CompanyMetaData']['Categories']
+                key["name"]
+                for key in obj["properties"]["CompanyMetaData"]["Categories"]
             ]
             categories = [
                 Category.objects.create(name=name)
@@ -305,53 +305,53 @@ def parser(city: str, category: str, token: str) -> None:
                 if not Category.objects.filter(name=name).exists()
             ]
         except KeyError:
-            _category, _ = Category.objects.get_or_create(name='Неизвестно')
+            _category, _ = Category.objects.get_or_create(name="Неизвестно")
             categories = [
                 _category,
             ]
         except IntegrityError:
-            logger.debug('Такой тип заведения уже добавлен')
+            logger.debug("Такой тип заведения уже добавлен")
 
         try:
-            place['name'] = obj['properties']['CompanyMetaData']['name'][
+            place["name"] = obj["properties"]["CompanyMetaData"]["name"][
                 :MAX_LENGTH_NAME
             ]
-            place['address'] = extract_address(
-                obj['properties']['description'],
+            place["address"] = extract_address(
+                obj["properties"]["description"],
             )
         except KeyError as error:
-            logger.debug(f'Отсутствует ключ {error} в API')
+            logger.debug(f"Отсутствует ключ {error} в API")
 
         try:
-            place['city_id'] = City.objects.get(name=city).pk
+            place["city_id"] = City.objects.get(name=city).pk
         except IntegrityError:
-            place['city_id'] = 99999
+            place["city_id"] = 99999
         except KeyError as error:
-            logger.debug(f'Отсутствует ключ {error} в API')
+            logger.debug(f"Отсутствует ключ {error} в API")
 
         try:
-            place['phone'] = obj['properties']['CompanyMetaData']['Phones'][0][
-                'formatted'
+            place["phone"] = obj["properties"]["CompanyMetaData"]["Phones"][0][
+                "formatted"
             ]
         except KeyError as error:
-            logger.debug(f'Отсутствует ключ {error} в API')
-            place['phone'] = 'Номер отсутствует'
+            logger.debug(f"Отсутствует ключ {error} в API")
+            place["phone"] = "Номер отсутствует"
 
         try:
-            place['url'] = obj['properties']['CompanyMetaData']['url']
+            place["url"] = obj["properties"]["CompanyMetaData"]["url"]
         except KeyError:
-            place['url'] = 'ссылка отсутствует'
+            place["url"] = "ссылка отсутствует"
 
         try:
-            place['worktime_from'] = obj['properties']['CompanyMetaData'][
-                'Hours'
-            ]['Availabilities'][0]['Intervals'][0]['from']
-            place['worktime_to'] = obj['properties']['CompanyMetaData'][
-                'Hours'
-            ]['Availabilities'][0]['Intervals'][0]['to']
+            place["worktime_from"] = obj["properties"]["CompanyMetaData"]["Hours"][
+                "Availabilities"
+            ][0]["Intervals"][0]["from"]
+            place["worktime_to"] = obj["properties"]["CompanyMetaData"]["Hours"][
+                "Availabilities"
+            ][0]["Intervals"][0]["to"]
         except KeyError:
-            place['worktime_from'] = parse_time('00:00:01')
-            place['worktime_to'] = parse_time('23:59:59')
+            place["worktime_from"] = parse_time("00:00:01")
+            place["worktime_to"] = parse_time("23:59:59")
 
         try:
             [
@@ -362,43 +362,40 @@ def parser(city: str, category: str, token: str) -> None:
                 for category in categories
             ]
         except IntegrityError:
-            logger.debug('Отношение уже было создано')
+            logger.debug("Отношение уже было создано")
 
 
 class Command(BaseCommand):
-    help = 'Команда для записи данных в базу'
+    help = "Команда для записи данных в базу"
 
     def add_arguments(self, func):
-        func.add_argument('--city', type=str, help='Название города')
-        func.add_argument('--file', type=str, help='Название файла')
+        func.add_argument("--city", type=str, help="Название города")
+        func.add_argument("--file", type=str, help="Название файла")
 
     def handle(self, *args, **options):
         is_token_present()
-        city = options['city']
-        file = options['file']
+        city = options["city"]
+        file = options["file"]
 
         if city:
             [parser(city, category, YA_TOKENS[0]) for category in CATEGORIES]
-            logger.info(f'Импорт города {city} завершен успешно!')
+            logger.info(f"Импорт города {city} завершен успешно!")
             return
         elif file and not city:
-            file_path = os.path.join('data', file)
-            with open(file_path, "r", encoding='utf-8') as file:
+            file_path = os.path.join("data", file)
+            with open(file_path, "r", encoding="utf-8") as file:
                 cities = [city.strip() for city in file.readlines()]
                 try:
                     _parse_from_file(cities)
-                    logger.info(f'Импорт городов {cities} завершен успешно!')
+                    logger.info(f"Импорт городов {cities} завершен успешно!")
                 except HTTPError:
                     logger.critical(MESSAGE_ERROR_REQUEST)
                 except TokensIsOutError:
-                    logger.critical('Рабочие токены закончились')
+                    logger.critical("Рабочие токены закончились")
         elif not city and not file:
             [
-                [
-                    parser(city, category, YA_TOKENS[0])
-                    for category in CATEGORIES
-                ]
+                [parser(city, category, YA_TOKENS[0]) for category in CATEGORIES]
                 for city in CITIES
             ]
-            logger.info(f'Импорт городов {CITIES} завершен успешно!')
+            logger.info(f"Импорт городов {CITIES} завершен успешно!")
             return

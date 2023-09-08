@@ -21,7 +21,7 @@ from telegrambot.exceptions import ReviewBecomeError
 from telegrambot.utils import logger, send_message
 
 
-@func_logger('Ищем заведение по названию в БД', level='info')
+@func_logger("Ищем заведение по названию в БД", level="info")
 async def search_place_name_in_database(
     place_name: str,
     city: str,
@@ -50,7 +50,7 @@ async def search_place_name_in_database(
     return await get_place_value(place_name)
 
 
-@func_logger('создаем объект отзыва', level='info')
+@func_logger("создаем объект отзыва", level="info")
 async def add_review_in_database(
     place: Place,
     review_text: str,
@@ -99,12 +99,12 @@ async def read_review_from_database(_place: Place, message: types.Message):
         """
         try:
             reviews = Review.objects.filter(place=_place.pk).select_related(
-                'place',
-                'author',
+                "place",
+                "author",
             )
         except Exception as error:
             logger.critical(
-                f'Проблемы со считыванием отзывов из базы данных {error}',
+                f"Проблемы со считыванием отзывов из базы данных {error}",
             )
             raise ReviewBecomeError
 
@@ -112,38 +112,37 @@ async def read_review_from_database(_place: Place, message: types.Message):
 
         reviews_other_text = [
             review.text
-            for review in reviews.exclude(author_id=user.pk).order_by('date')
+            for review in reviews.exclude(author_id=user.pk).order_by("date")
         ]
         reviews_user_text = [
-            review.text
-            for review in reviews.filter(author_id=user.pk).order_by('date')
+            review.text for review in reviews.filter(author_id=user.pk).order_by("date")
         ]
         if reviews_user_text and reviews_other_text:
-            return '\n'.join(
-                ['<b>Мои отзывы:</b>']
+            return "\n".join(
+                ["<b>Мои отзывы:</b>"]
                 + reviews_user_text
-                + ['<b>Все отзывы:</b>']
+                + ["<b>Все отзывы:</b>"]
                 + reviews_other_text,
             )
         elif not reviews_user_text and reviews_other_text:
             return (
-                '\n'.join(['<b>Все отзывы:</b>'] + reviews_other_text)
+                "\n".join(["<b>Все отзывы:</b>"] + reviews_other_text)
                 if reviews_other_text or reviews_user_text
-                else f'Отзывов на <b>{_place.name}</b> пока нет, '
-                f'\nно Вы можете добавить через меню'
+                else f"Отзывов на <b>{_place.name}</b> пока нет, "
+                f"\nно Вы можете добавить через меню"
             )
         elif reviews_user_text and not reviews_other_text:
-            return '\n'.join(['<b>Мои отзывы:</b>'] + reviews_user_text)
+            return "\n".join(["<b>Мои отзывы:</b>"] + reviews_user_text)
         else:
             return (
-                f'Отзывов на <b>{_place.name}</b> пока нет, \nно Вы можете '
-                f'их добавить через меню'
+                f"Отзывов на <b>{_place.name}</b> пока нет, \nно Вы можете "
+                f"их добавить через меню"
             )
 
     return await get_review_list(_place)
 
 
-@func_logger('считывание из базы всех заведений', level='info')
+@func_logger("считывание из базы всех заведений", level="info")
 async def read_all_data_from_base(message: types.Message) -> None:
     """Reading all `Place` data from database.
 
@@ -155,12 +154,12 @@ async def read_all_data_from_base(message: types.Message) -> None:
         await send_message(
             bot,
             message,
-            f'Город: {place.city}\nИмя заведения:{place.name}\nОписание:'
-            f'{place.category}\nСсылка: {place.url}',
+            f"Город: {place.city}\nИмя заведения:{place.name}\nОписание:"
+            f"{place.category}\nСсылка: {place.url}",
         )
 
 
-@func_logger('Поднимаем базу для подсчета расстояний', level='info')
+@func_logger("Поднимаем базу для подсчета расстояний", level="info")
 async def read_places_coordinates(
     location: list[float],
     _category: str,
@@ -221,7 +220,7 @@ async def read_places_coordinates(
 async def get_cities():
     @sync_to_async()
     def _get_cities():
-        cities = City.objects.all().select_related().order_by('name')
+        cities = City.objects.all().select_related().order_by("name")
         return [city.name for city in cities]
 
     return await _get_cities()

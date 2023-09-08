@@ -1,3 +1,5 @@
+import random
+from copy import copy
 from datetime import datetime
 
 from aiogram.filters.callback_data import CallbackData
@@ -7,6 +9,20 @@ TEST_USER = User(
     id=1235,
     is_bot=False,
     first_name="Test",
+    last_name="Bot",
+    username="testbot",
+    language_code="ru-RU",
+    is_premium=True,
+    added_to_attachment_menu=None,
+    can_join_groups=None,
+    can_read_all_group_messages=None,
+    supports_inline_queries=None,
+)
+
+FIRST_TIME_USER = User(
+    id=random.randint(10000, 100000),
+    is_bot=False,
+    first_name="Test2",
     last_name="Bot",
     username="testbot",
     language_code="ru-RU",
@@ -47,13 +63,13 @@ TEST_MESSAGE = Message(
     date=datetime.now(),
     chat=TEST_CHAT,
     from_user=TEST_USER,
-    text='text_text',
+    text="text_text",
 )
 
 
 def get_message(text: str, chat=TEST_CHAT, from_user=TEST_USER):
     return Message(
-        message_id=123,
+        message_id=random.randint(10000, 100000),
         date=datetime.now(),
         chat=chat,
         from_user=from_user,
@@ -116,12 +132,12 @@ def get_message(text: str, chat=TEST_CHAT, from_user=TEST_USER):
 
 
 def get_chat(
-        id: int = None,
-        type: str = "private",
-        title: str = "TEST_TITLE",
-        username: str = TEST_CHAT.username,
-        *args,
-        **kwargs
+    id: int = None,
+    type: str = "private",
+    title: str = "TEST_TITLE",
+    username: str = TEST_CHAT.username,
+    *args,
+    **kwargs
 ) -> Chat:
     return Chat(
         id=id,
@@ -135,8 +151,7 @@ def get_chat(
     )
 
 
-def get_callback_query(data: str | CallbackData, from_user=TEST_USER,
-                       message=None):
+def get_callback_query(data: str | CallbackData, from_user=TEST_USER, message=None):
     return CallbackQuery(
         id="test",
         from_user=from_user,

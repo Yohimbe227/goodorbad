@@ -1,6 +1,7 @@
 import re
 
 from aiogram import types
+
 # from aiogram.dispatcher.filters import BoundFilter
 from aiogram.filters import BaseFilter
 from fuzzywuzzy import fuzz
@@ -14,13 +15,16 @@ STRICTNESS_FILTER = 75
 
 class IsCurseMessage(BaseFilter):
     """Filter for curse words."""
-    def __init__(self, ):
+
+    def __init__(
+        self,
+    ):
         with open(
-            BASE_DIR / 'data/banned_words.txt',
-            'r',
-            encoding='utf-8',
+            BASE_DIR / "data/banned_words.txt",
+            "r",
+            encoding="utf-8",
         ) as reader:
-            self.curse_words = ''.join(reader.readlines()).split('\n')[:-1]
+            self.curse_words = "".join(reader.readlines()).split("\n")[:-1]
 
     @staticmethod
     def replace_letters(word: str = None) -> str:
@@ -60,7 +64,7 @@ class IsCurseMessage(BaseFilter):
             return True
         punctuation = r'!|"|#|$|%|&|, |-|;|>|@|_|~| '
         for word in re.split(punctuation, message.text)[:-1]:
-            word = ''.join(
+            word = "".join(
                 [
                     word[index]
                     for index in range(len(word) - 1)
@@ -68,17 +72,16 @@ class IsCurseMessage(BaseFilter):
                 ]
                 + [word[-1]]
                 if word
-                else '',
+                else "",
             ).lower()
             word = self.replace_letters(word)
             for word_bad in self.curse_words:
                 strictness = fuzz.token_sort_ratio(word_bad, word)
                 if strictness >= STRICTNESS_FILTER:
                     logger.info(
-                        f'{word_bad} | {strictness}% Матерное слово '
-                        f'{word_bad}',
+                        f"{word_bad} | {strictness}% Матерное слово " f"{word_bad}",
                     )
-                    await message.reply('А ну не матюкаться!')
+                    await message.reply("А ну не матюкаться!")
                     await message.delete()
                     return False
         return True

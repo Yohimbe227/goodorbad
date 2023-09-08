@@ -6,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 
 import requests
 from aiogram import Dispatcher, types, F
+
 # from aiogram.dispatcher import FSMContext
 # from aiogram.dispatcher.filters import Text
 # from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -48,14 +49,14 @@ logger = logging.getLogger(
 )
 
 handler = RotatingFileHandler(
-    'nearest_places.log',
+    "nearest_places.log",
     maxBytes=5000000,
     backupCount=3,
 )
 logger.addHandler(handler)
-logger.setLevel('DEBUG')
+logger.setLevel("DEBUG")
 formatter = logging.Formatter(
-    '%(asctime)s, %(levelname)s, %(message)s, %(funcName)s',
+    "%(asctime)s, %(levelname)s, %(message)s, %(funcName)s",
 )
 handler.setFormatter(formatter)
 
@@ -67,7 +68,7 @@ class FSMClientSearchPlace(StatesGroup):
     additional = State()
 
 
-@func_logger('Старт поиска ближайших мест', level='info')
+@func_logger("Старт поиска ближайших мест", level="info")
 async def start_search_place(message: types.Message, state: FSMContext) -> None:
     """Start the nearest place search.
 
@@ -80,12 +81,12 @@ async def start_search_place(message: types.Message, state: FSMContext) -> None:
     await send_message(
         bot,
         message,
-        'Уточните свои пожелания',
+        "Уточните свои пожелания",
         reply_markup=kb_client_categories,
     )
 
 
-@func_logger('Выбираем тип заведения', level='info')
+@func_logger("Выбираем тип заведения", level="info")
 async def search_place_request_location(
     message: types.Message,
     state: FSMContext,
@@ -105,9 +106,9 @@ async def search_place_request_location(
         await send_message(
             bot,
             message,
-            'Отправьте свою локацию, чтобы мы могли подобрать ближайшие '
-            'заведения или напишите свой приблизительный адресс, '
-            'содержащий город, улицу и номер дома, формат не важен.',
+            "Отправьте свою локацию, чтобы мы могли подобрать ближайшие "
+            "заведения или напишите свой приблизительный адресс, "
+            "содержащий город, улицу и номер дома, формат не важен.",
             reply_markup=kb_client_location,
         )
         await state.set_state(FSMClientSearchPlace.second)
@@ -115,13 +116,13 @@ async def search_place_request_location(
         await send_message(
             bot,
             message,
-            'Такого типа заведения в нашей базе нет,'
-            ' воспользуйтесь вариантами с клавиатуры!',
+            "Такого типа заведения в нашей базе нет,"
+            " воспользуйтесь вариантами с клавиатуры!",
             reply_markup=get_keyboard(PLACE_TYPES.keys()),
         )
 
 
-@func_logger('Получаем данные локации', level='info')
+@func_logger("Получаем данные локации", level="info")
 async def search_place_done(message: types.Message, state: FSMContext) -> None:
     """Retrieving user geolocation data.
 
@@ -141,24 +142,24 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
             response = requests.get(
                 GEO_ENDPOINT,
                 params={
-                    'geocode': message.text,
-                    'apikey': YA_GEO_TOKEN,
-                    'format': 'json',
+                    "geocode": message.text,
+                    "apikey": YA_GEO_TOKEN,
+                    "format": "json",
                 },
             )
         except requests.RequestException as error:
             raise HTTPError(f"Эндпоинт {GEO_ENDPOINT}' не доступен") from error
         try:
-            location = response.json()['response']['GeoObjectCollection'][
-                'featureMember'
-            ][0]['GeoObject']['Point']['pos'].split(' ')
+            location = response.json()["response"]["GeoObjectCollection"][
+                "featureMember"
+            ][0]["GeoObject"]["Point"]["pos"].split(" ")
             location = list(map(float, location[::-1]))
         except (KeyError, IndexError):
             await send_message(
                 bot,
                 message,
-                f'Проверьте введенный адресс <b>{message.text}</b>, '
-                f'а то не находится ничего!',
+                f"Проверьте введенный адресс <b>{message.text}</b>, "
+                f"а то не находится ничего!",
                 reply_markup=kb_client_return,
             )
             location = None
@@ -169,7 +170,7 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
         data = await state.get_data()
         if places_distance := await read_places_coordinates(
             location,
-            data['category'],
+            data["category"],
         ):
             await state.update_data(places_distance=places_distance)
             nearest_places = await n_min(
@@ -190,26 +191,26 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 await send_message(
                     bot,
                     message,
-                    '',
+                    "",
                     reply_markup=kb_client,
                 )
             await send_message(
                 bot,
                 message,
-                'Тут ничего нет, совсем. Или Ваш город не поддерживается',
+                "Тут ничего нет, совсем. Или Ваш город не поддерживается",
                 reply_markup=kb_client_return,
             )
-    if message.content_type not in ('text', 'location'):
+    if message.content_type not in ("text", "location"):
         await send_message(
             bot,
             message,
-            'Сюда стоит слать только адресс или свои '
-            'координаты по кнопочке с клавиатуры',
+            "Сюда стоит слать только адресс или свои "
+            "координаты по кнопочке с клавиатуры",
         )
         await message.delete()
 
 
-@func_logger('Получаем следующее заведение', level='info')
+@func_logger("Получаем следующее заведение", level="info")
 async def search_place_additional(message: types.Message, state: FSMContext):
     """
     Sending locations for additional places and receiving
@@ -220,14 +221,14 @@ async def search_place_additional(message: types.Message, state: FSMContext):
         await send_message(
             bot,
             message,
-            'Не нужно сюда ничего печатать, жмите кнопочки на клавиатуре!',
+            "Не нужно сюда ничего печатать, жмите кнопочки на клавиатуре!",
             reply_markup=kb_place_client_next,
         )
     else:
         data = await state.get_data()
         match message.text:
-            case 'Второе':
-                place_name = data['nearest_places'][1][0].name
+            case "Второе":
+                place_name = data["nearest_places"][1][0].name
                 await send_message(
                     bot,
                     message,
@@ -236,11 +237,11 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                 )
                 await bot.send_location(
                     message.from_user.id,
-                    data['nearest_places'][1][0].latitude,
-                    data['nearest_places'][1][0].longitude,
+                    data["nearest_places"][1][0].latitude,
+                    data["nearest_places"][1][0].longitude,
                 )
-            case 'Третье':
-                place_name = data['nearest_places'][2][0].name
+            case "Третье":
+                place_name = data["nearest_places"][2][0].name
                 await send_message(
                     bot,
                     message,
@@ -249,41 +250,38 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                 )
                 await bot.send_location(
                     message.from_user.id,
-                    data['nearest_places'][2][0].latitude,
-                    data['nearest_places'][2][0].longitude,
+                    data["nearest_places"][2][0].latitude,
+                    data["nearest_places"][2][0].longitude,
                 )
 
-            case 'Больше заведений!':
-                places_distance = copy(data['places_distance'])
+            case "Больше заведений!":
+                places_distance = copy(data["places_distance"])
                 [
                     places_distance.remove(element)
-                    for element in data['places_distance']
-                    if element
-                    in [place for place in data['nearest_places']]
+                    for element in data["places_distance"]
+                    if element in [place for place in data["nearest_places"]]
                 ]
                 await state.update_data(places_distance=places_distance)
                 len_place_to_send = len(places_distance)
                 if places_distance:
-                    await state.update_data(nearest_places = await n_min(
-                        data['places_distance'],
-                        NUMBER_OF_PLACES_TO_SHOW,
+                    await state.update_data(
+                        nearest_places=await n_min(
+                            data["places_distance"],
+                            NUMBER_OF_PLACES_TO_SHOW,
+                        )
                     )
-                                            )
-                if (
-                    places_distance
-                    and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
-                ):
+                if places_distance and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW:
                     await send_message(
                         bot,
                         message,
-                        'Это последние :(',
+                        "Это последние :(",
                         reply_markup=kb_client,
                     )
                     await send_message_with_list_of_places(
                         message,
                         bot,
                         len_place_to_send,
-                        data['nearest_places'],
+                        data["nearest_places"],
                         reply_markup=kb_client,
                     )
                     await state.clear()
@@ -291,7 +289,7 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                     await send_message(
                         bot,
                         message,
-                        'Больше нет заведений по Вашему запросу :(',
+                        "Больше нет заведений по Вашему запросу :(",
                         reply_markup=kb_client,
                     )
                     await state.clear()
@@ -300,7 +298,7 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                         message,
                         bot,
                         NUMBER_OF_PLACES_TO_SHOW,
-                        data['nearest_places'],
+                        data["nearest_places"],
                     )
 
 
@@ -309,7 +307,7 @@ async def register_handlers_nearest_place(dp: Dispatcher):
     dp.message.filter(IsCurseMessage())
     dp.message.register(
         start_search_place,
-        F.text.in_({'Ближайшее место для...', '/next_place'}),
+        F.text.in_({"Ближайшее место для...", "/next_place"}),
     )
     dp.message.register(
         search_place_request_location,

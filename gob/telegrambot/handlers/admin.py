@@ -28,7 +28,14 @@ class FSMAdmin(StatesGroup):
 router = Router()
 
 
-@router.message(F.from_user.id == ID, Command(commands=['загрузить', ]), )
+@router.message(
+    F.from_user.id == ID,
+    Command(
+        commands=[
+            "загрузить",
+        ]
+    ),
+)
 async def city_add(message: types.Message, state: FSMContext) -> None:
     """
     Starting a dialog to load a new city.
@@ -41,15 +48,18 @@ async def city_add(message: types.Message, state: FSMContext) -> None:
     await send_message(
         bot,
         message,
-        'Приветствую босс!!!',
+        "Приветствую босс!!!",
     )
     await state.set_state(FSMAdmin.city)
     await message.reply(
-        'Введите город для добавления в базу',
+        "Введите город для добавления в базу",
     )
 
 
-@router.message(FSMAdmin.city, F.text, )
+@router.message(
+    FSMAdmin.city,
+    F.text,
+)
 async def save_city_to_base(message: types.Message, state: FSMContext) -> None:
     """Process the first answer and write it in the dictionary.
 
@@ -58,12 +68,14 @@ async def save_city_to_base(message: types.Message, state: FSMContext) -> None:
         state: current state.
 
     """
-    await sync_to_async(call_command)('update', city=message.text)
-    await send_message(bot, message, f'Город {message.text} добавлен!')
+    await sync_to_async(call_command)("update", city=message.text)
+    await send_message(bot, message, f"Город {message.text} добавлен!")
     await state.clear()
 
 
-@dp.message(F.text.lower().in_({'отмена', 'вернуться', 'cancel'}), ~StateFilter(default_state))
+@dp.message(
+    F.text.lower().in_({"отмена", "вернуться", "cancel"}), ~StateFilter(default_state)
+)
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     """Exit from the state.
 
@@ -76,5 +88,4 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     if current_state is None:
         return
     await state.clear()
-    await message.reply('OK', reply_markup=kb_client)
-
+    await message.reply("OK", reply_markup=kb_client)

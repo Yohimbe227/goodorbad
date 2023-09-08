@@ -20,8 +20,8 @@ from telegrambot.utils import send_message, prints, check_tokens
 router = Router()
 
 
-@func_logger('Старт бота', level='info')
-@router.message(F.text.lower().in_({'/start', 'старт', 'start'}))
+@func_logger("Старт бота", level="info")
+@router.message(F.text.lower().in_({"/start", "старт", "start"}))
 async def command_start(message: types.Message) -> None:
     """Initial Login to the System.
 
@@ -36,9 +36,9 @@ async def command_start(message: types.Message) -> None:
 
     """
     _params_user = {
-        'username': message.from_user.id,
-        'last_name': message.from_user.last_name,
-        'first_name': message.from_user.first_name,
+        "username": message.from_user.id,
+        "last_name": message.from_user.last_name,
+        "first_name": message.from_user.first_name,
     }
     params_user = {key: value for key, value in _params_user.items() if value}
 
@@ -55,18 +55,17 @@ async def command_start(message: types.Message) -> None:
             START_MESSAGE.format(username=message.from_user.first_name),
             reply_markup=kb_client,
         )
-        await message.delete()
     else:
         await send_message(
             bot,
             message,
-            f'И снова здравствуйте {message.from_user.first_name}!',
+            f"И снова здравствуйте {message.from_user.first_name}!",
             reply_markup=kb_client,
         )
 
 
-@func_logger('вывод всех заведений', level='info')
-@router.message(F.text == 'все места!')
+@func_logger("вывод всех заведений", level="info")
+@router.message(F.text == "все места!")
 async def _places_all(message: types.Message) -> None:
     """Output of all places.
 
@@ -79,8 +78,16 @@ async def _places_all(message: types.Message) -> None:
     await database_functions.read_all_data_from_base(message)
 
 
-@func_logger('вывод сообщения о боте', level='info')
-@router.message(F.text.lower().in_({'о боте', '/about', 'about', }))
+@func_logger("вывод сообщения о боте", level="info")
+@router.message(
+    F.text.lower().in_(
+        {
+            "о боте",
+            "/about",
+            "about",
+        }
+    )
+)
 async def about_bot(message: types.Message) -> None:
     """Отсылает сообщение с описанием основного функционала бота.
 
@@ -96,8 +103,15 @@ async def about_bot(message: types.Message) -> None:
     )
 
 
-@router.message(F.text == 'Я HR и мне нравится!')
-@router.message(F.text.lower().in_({'О боте', '/about', }))
+@router.message(F.text == "Я HR и мне нравится!")
+@router.message(
+    F.text.lower().in_(
+        {
+            "О боте",
+            "/about",
+        }
+    )
+)
 async def hr_attention(message: types.Message) -> None:
     """Отсылает сообщение с описанием основного функционала бота.
 
@@ -108,17 +122,18 @@ async def hr_attention(message: types.Message) -> None:
     await send_message(
         bot,
         message,
-        'Спасибо за интерес, жуть как приятно, встретимся на собесе :)',
+        "Спасибо за интерес, жуть как приятно, встретимся на собесе :)",
         reply_markup=kb_client,
     )
     await sleep(3)
     await send_message(
         bot,
         message,
-        'Ну или нет :(',
+        "Ну или нет :(",
         reply_markup=kb_client,
     )
-    await bot.send_message(ID, 'Кто-то заюзал эту функцию, может даже HR')
+    await bot.send_message(ID, "Кто-то заюзал эту функцию, может даже HR")
+
 
 #
 # def register_handlers_client(disp: Dispatcher):
