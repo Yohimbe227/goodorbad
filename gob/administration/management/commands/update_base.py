@@ -112,21 +112,23 @@ def parser(number_of_pages: int, city: str) -> None:
                             # Тут временный костыль. Время работы берется
                             # только по пятнице!
                             place["worktime_from"] = convert_time(
-                                place_source["schedule"]["Fri"]["working_hours"][0][
-                                    "from"
-                                ],
+                                place_source["schedule"]["Fri"][
+                                    "working_hours"
+                                ][0]["from"],
                             )
                             place["worktime_to"] = convert_time(
-                                place_source["schedule"]["Fri"]["working_hours"][0][
-                                    "to"
-                                ],
+                                place_source["schedule"]["Fri"][
+                                    "working_hours"
+                                ][0]["to"],
                             )
                         except KeyError as error:
                             logger.info(f"Отсутствует ключ {error} в API")
                     case _:
                         place["name"] = place_source["name"]
                         try:
-                            place["address_name"] = place_source["address_name"]
+                            place["address_name"] = place_source[
+                                "address_name"
+                            ]
                         except KeyError as error:
                             logger.error(f"Нет такого ключа {error}")
 

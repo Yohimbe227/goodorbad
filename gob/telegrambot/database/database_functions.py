@@ -115,7 +115,8 @@ async def read_review_from_database(_place: Place, message: types.Message):
             for review in reviews.exclude(author_id=user.pk).order_by("date")
         ]
         reviews_user_text = [
-            review.text for review in reviews.filter(author_id=user.pk).order_by("date")
+            review.text
+            for review in reviews.filter(author_id=user.pk).order_by("date")
         ]
         if reviews_user_text and reviews_other_text:
             return "\n".join(

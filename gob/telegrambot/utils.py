@@ -8,7 +8,7 @@ from aiogram import Bot
 from administration.models import Place
 from telegrambot.costants import MAX_RANGE_SEARCH
 from telegrambot.decorators import func_logger
-from telegrambot.exceptions import SendMessageError, TokenError
+from telegrambot.exceptions import TokenError
 from telegrambot.keyboards.client_kb import kb_place_client_next
 
 logging.basicConfig(

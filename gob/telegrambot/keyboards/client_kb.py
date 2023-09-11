@@ -13,7 +13,9 @@ button_read_review = KeyboardButton(text="Узнать отзывы")
 button_add_review = KeyboardButton(text="Добавить отзыв")
 button_HR = KeyboardButton(text="Я HR и мне нравится!")
 button_return = KeyboardButton(text="Вернуться")
-button_location = KeyboardButton(text="Отправить локацию", request_location=True)
+button_location = KeyboardButton(
+    text="Отправить локацию", request_location=True
+)
 kb_start = ReplyKeyboardMarkup(
     keyboard=[
         [

@@ -79,7 +79,8 @@ class IsCurseMessage(BaseFilter):
                 strictness = fuzz.token_sort_ratio(word_bad, word)
                 if strictness >= STRICTNESS_FILTER:
                     logger.info(
-                        f"{word_bad} | {strictness}% Матерное слово " f"{word_bad}",
+                        f"{word_bad} | {strictness}% Матерное слово "
+                        f"{word_bad}",
                     )
                     await message.reply("А ну не матюкаться!")
                     await message.delete()

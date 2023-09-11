@@ -40,4 +40,7 @@ class EmptyKeyboardError(Error):
 
 class ReviewBecomeError(Error):
     def __str__(self):
-        return f"{type(self).__name__}. Что-то не так с получением отзыва " f"из базы"
+        return (
+            f"{type(self).__name__}. Что-то не так с получением отзыва "
+            f"из базы"
+        )

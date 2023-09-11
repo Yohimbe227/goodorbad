@@ -13,21 +13,29 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="city",
             name="left_box_latitude",
-            field=models.FloatField(blank=True, null=True, verbose_name="широта"),
+            field=models.FloatField(
+                blank=True, null=True, verbose_name="широта"
+            ),
         ),
         migrations.AddField(
             model_name="city",
             name="left_box_longitude",
-            field=models.FloatField(blank=True, null=True, verbose_name="долгота"),
+            field=models.FloatField(
+                blank=True, null=True, verbose_name="долгота"
+            ),
         ),
         migrations.AddField(
             model_name="city",
             name="right_box_latitude",
-            field=models.FloatField(blank=True, null=True, verbose_name="широта"),
+            field=models.FloatField(
+                blank=True, null=True, verbose_name="широта"
+            ),
         ),
         migrations.AddField(
             model_name="city",
             name="right_box_longitude",
-            field=models.FloatField(blank=True, null=True, verbose_name="долгота"),
+            field=models.FloatField(
+                blank=True, null=True, verbose_name="долгота"
+            ),
         ),
     ]

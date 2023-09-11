@@ -69,7 +69,9 @@ class FSMClientSearchPlace(StatesGroup):
 
 
 @func_logger("Старт поиска ближайших мест", level="info")
-async def start_search_place(message: types.Message, state: FSMContext) -> None:
+async def start_search_place(
+    message: types.Message, state: FSMContext
+) -> None:
     """Start the nearest place search.
 
     Args:
@@ -270,7 +272,10 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                             NUMBER_OF_PLACES_TO_SHOW,
                         )
                     )
-                if places_distance and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW:
+                if (
+                    places_distance
+                    and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
+                ):
                     await send_message(
                         bot,
                         message,

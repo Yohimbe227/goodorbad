@@ -69,11 +69,15 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=50, unique=True)),
                 (
                     "latitude",
-                    models.FloatField(blank=True, null=True, verbose_name="широта"),
+                    models.FloatField(
+                        blank=True, null=True, verbose_name="широта"
+                    ),
                 ),
                 (
                     "longitude",
-                    models.FloatField(blank=True, null=True, verbose_name="долгота"),
+                    models.FloatField(
+                        blank=True, null=True, verbose_name="долгота"
+                    ),
                 ),
             ],
             options={
@@ -96,7 +100,9 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=60, verbose_name="имя")),
                 (
                     "address",
-                    models.TextField(blank=True, null=True, verbose_name="Адрес"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Адрес"
+                    ),
                 ),
                 (
                     "phone",
@@ -106,7 +112,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.TextField(blank=True, null=True, verbose_name="описание"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="описание"
+                    ),
                 ),
                 (
                     "worktime_from",
@@ -147,15 +155,21 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "sponsored",
-                    models.BooleanField(default=False, verbose_name="проплачено"),
+                    models.BooleanField(
+                        default=False, verbose_name="проплачено"
+                    ),
                 ),
                 (
                     "latitude",
-                    models.FloatField(blank=True, null=True, verbose_name="широта"),
+                    models.FloatField(
+                        blank=True, null=True, verbose_name="широта"
+                    ),
                 ),
                 (
                     "longitude",
-                    models.FloatField(blank=True, null=True, verbose_name="долгота"),
+                    models.FloatField(
+                        blank=True, null=True, verbose_name="долгота"
+                    ),
                 ),
                 (
                     "category",

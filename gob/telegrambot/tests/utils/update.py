@@ -20,7 +20,7 @@ TEST_USER = User(
 )
 
 FIRST_TIME_USER = User(
-    id=random.randint(10000, 100000),
+    id=555,
     is_bot=False,
     first_name="Test2",
     last_name="Bot",
@@ -151,7 +151,9 @@ def get_chat(
     )
 
 
-def get_callback_query(data: str | CallbackData, from_user=TEST_USER, message=None):
+def get_callback_query(
+    data: str | CallbackData, from_user=TEST_USER, message=None
+):
     return CallbackQuery(
         id="test",
         from_user=from_user,

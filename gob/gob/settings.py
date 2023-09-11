@@ -15,6 +15,7 @@ sentry_sdk.init(
 )
 
 load_dotenv()
+load_dotenv(".test.env")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,7 +46,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "administration.apps.AdministrationConfig",
-    # 'telegrambot.apps.TelegrambotConfig',
     "django_extensions",
 ]
 
@@ -94,12 +94,26 @@ DATABASES = {
         "PASSWORD": os.getenv(
             "POSTGRES_PASSWORD",
         ),
-        "HOST": os.getenv("DB_HOST", default="localhost"),
-        "PORT": os.getenv(
-            "DB_PORT",
-            default="5432",
-        ),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     },
+    # "test": {
+    #     "ENGINE": os.getenv(
+    #         "TEST_DB_ENGINE",
+    #         # default="django.db.backends.postgresql_psycopg2",
+    #     ),
+    #     "NAME": os.getenv(
+    #         "TEST_DB_NAME",
+    #     ),
+    #     "USER": os.getenv(
+    #         "TEST_POSTGRES_USER",
+    #     ),
+    #     "PASSWORD": os.getenv(
+    #         "TEST_POSTGRES_PASSWORD",
+    #     ),
+    #     "HOST": os.getenv("TEST_DB_HOST"),
+    #     "PORT": os.getenv("TEST_DB_PORT"),
+    # },
 }
 
 AUTH_PASSWORD_VALIDATORS = [

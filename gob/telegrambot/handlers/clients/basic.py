@@ -46,7 +46,7 @@ async def command_start(message: types.Message) -> None:
         author, created = await User.objects.aget_or_create(**params_user)
         author.last_login = timezone.now()
         await sync_to_async(author.save)()
-    except (MultipleObjectsReturned, IntegrityError) as error:
+    except MultipleObjectsReturned as error:
         raise UnknownError(error)
     if created:
         await send_message(

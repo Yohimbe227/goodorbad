@@ -1,3 +1,5 @@
+import os
+from unittest import TestCase
 from unittest.mock import AsyncMock
 
 import pytest
@@ -5,7 +7,11 @@ import pytest_asyncio
 from aiogram import Dispatcher
 
 from aiogram.fsm.storage.memory import MemoryStorage
+from django.core.management import call_command
+from django.db import connection
+from dotenv import load_dotenv
 
+from gob import settings
 from telegrambot.tests.utils.mocked_bot import MockedBot
 
 
@@ -42,5 +48,6 @@ async def message():
 @pytest.fixture
 def mock_send_message(mocker):
     return mocker.patch(
-        "telegrambot.handlers.clients.basic.send_message", new_callable=AsyncMock
+        "telegrambot.handlers.clients.basic.send_message",
+        new_callable=AsyncMock,
     )

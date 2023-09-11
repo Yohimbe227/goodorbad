@@ -74,7 +74,8 @@ async def save_city_to_base(message: types.Message, state: FSMContext) -> None:
 
 
 @dp.message(
-    F.text.lower().in_({"отмена", "вернуться", "cancel"}), ~StateFilter(default_state)
+    F.text.lower().in_({"отмена", "вернуться", "cancel"}),
+    ~StateFilter(default_state),
 )
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     """Exit from the state.

@@ -154,9 +154,9 @@ def get_city(city: str, token: str) -> str:
     coordinates = response.json()["features"][0]["geometry"]["coordinates"]
     bounded_result = list(
         chain.from_iterable(
-            response.json()["properties"]["ResponseMetaData"]["SearchResponse"][
-                "boundedBy"
-            ],
+            response.json()["properties"]["ResponseMetaData"][
+                "SearchResponse"
+            ]["boundedBy"],
         ),
     )
     try:
@@ -343,12 +343,12 @@ def parser(city: str, category: str, token: str) -> None:
             place["url"] = "ссылка отсутствует"
 
         try:
-            place["worktime_from"] = obj["properties"]["CompanyMetaData"]["Hours"][
-                "Availabilities"
-            ][0]["Intervals"][0]["from"]
-            place["worktime_to"] = obj["properties"]["CompanyMetaData"]["Hours"][
-                "Availabilities"
-            ][0]["Intervals"][0]["to"]
+            place["worktime_from"] = obj["properties"]["CompanyMetaData"][
+                "Hours"
+            ]["Availabilities"][0]["Intervals"][0]["from"]
+            place["worktime_to"] = obj["properties"]["CompanyMetaData"][
+                "Hours"
+            ]["Availabilities"][0]["Intervals"][0]["to"]
         except KeyError:
             place["worktime_from"] = parse_time("00:00:01")
             place["worktime_to"] = parse_time("23:59:59")
@@ -394,7 +394,10 @@ class Command(BaseCommand):
                     logger.critical("Рабочие токены закончились")
         elif not city and not file:
             [
-                [parser(city, category, YA_TOKENS[0]) for category in CATEGORIES]
+                [
+                    parser(city, category, YA_TOKENS[0])
+                    for category in CATEGORIES
+                ]
                 for city in CITIES
             ]
             logger.info(f"Импорт городов {CITIES} завершен успешно!")

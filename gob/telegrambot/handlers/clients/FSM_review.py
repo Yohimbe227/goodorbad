@@ -110,7 +110,9 @@ async def add_place_name(message: types.Message, state: FSMContext) -> None:
                 await state.clear()
 
         case _:
-            buttons = [place.name for place in places[:MAX_QUANTITY_OF_PLACES_ON_KB]]
+            buttons = [
+                place.name for place in places[:MAX_QUANTITY_OF_PLACES_ON_KB]
+            ]
             await send_message(
                 bot,
                 message,
