@@ -1,5 +1,4 @@
 import random
-from copy import copy
 from datetime import datetime
 
 from aiogram.filters.callback_data import CallbackData
@@ -69,8 +68,8 @@ TEST_MESSAGE = Message(
 
 def get_message(text: str, chat=TEST_CHAT, from_user=TEST_USER):
     return Message(
-        message_id=random.randint(10000, 100000),
-        date=datetime.now(),
+        message_id=123,
+        date=datetime(2023, 9, 12, 17, 49, 48, 231077),
         chat=chat,
         from_user=from_user,
         sender_chat=TEST_CHAT,

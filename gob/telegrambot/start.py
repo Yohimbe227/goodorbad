@@ -6,10 +6,11 @@ import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gob.settings")
 django.setup()
+
 from telegrambot.creation import dp, bot
 from telegrambot.handlers.admin import router as admin_router
 from telegrambot.handlers.other import router as other_router
-from telegrambot.handlers.clients.basic import router as basic_router
+from telegrambot.handlers.clients.basic import start_router as basic_router
 from telegrambot.handlers.clients import FSM_nearest_place, FSM_review
 
 

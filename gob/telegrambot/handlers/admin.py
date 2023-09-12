@@ -13,9 +13,7 @@ from asgiref.sync import sync_to_async
 
 from telegrambot.costants import ID
 from telegrambot.creation import bot, dp
-from telegrambot.database import database_functions
 from telegrambot.keyboards.client_kb import kb_client
-from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import send_message
 
 

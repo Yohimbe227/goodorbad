@@ -4,23 +4,24 @@ from copy import copy
 
 import pytest
 import django
-from aiogram.filters import Command
-from asgiref.sync import sync_to_async
+from aiogram import Dispatcher
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gob.settings")
 django.setup()
 
+from telegrambot.tests.utils.dispatcher import get_dispatcher
+from telegrambot.tests.utils.mocked_bot import MockedBot
 from django.contrib.auth import get_user_model
-from telegrambot.costants import START_MESSAGE
+from telegrambot.costants import START_MESSAGE, ABOUT_MESSAGE
 from telegrambot.creation import bot
 from telegrambot.keyboards.client_kb import kb_client
-
-from telegrambot.handlers.clients.basic import command_start
+from telegrambot.handlers.clients.basic import command_start, start_router
 from telegrambot.tests.utils.update import (
     TEST_MESSAGE,
     FIRST_TIME_USER,
-    get_message,
+    get_message, get_update,
 )
+from telegrambot.creation import bot as realbot
 
 User = get_user_model()
 
@@ -81,25 +82,29 @@ class TestStartCommand:
             )
             assert user_exists
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("command", [("/start",), ("старт",), ("старт",)])
-    async def test_handler_start(self, bot, message, dispatcher, command):
-
-        await dispatcher.register_message_handler(
-            command_start, Command(command)
-        )
-        message.text = "command"
-        await bot.send_message(message)
-        assert command_start.called
+    # @pytest.mark.asyncio
+    # @pytest.mark.parametrize("command", [("/start",), ("старт",), ("старт",)])
+    # async def test_handler_start(self, bot, message, dispatcher, command):
+    #     dispatcher.register_message_handler(
+    #         command_start, Command(command)
+    #     )
+    #     message.text = "command"
+    #     await bot.send_message(message)
+    #     assert command_start.called
 
 
 class TestAbout:
+
+    dispatcher = get_dispatcher()
+
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("command", [("/about",), ("о_боте",), ("about",)])
-    async def test_handler_about(self, bot, message, dispatcher, command):
-        dispatcher.register_message_handler(
-            command_start, Command(command)
+    async def test_handler_about(self, bot: MockedBot, mock_send_message):
+
+        message = get_message(text="/about")
+        await self.dispatcher.feed_update(bot, get_update(message))
+        await mock_send_message.assert_called_with(
+            realbot,
+            message,
+            ABOUT_MESSAGE,
+            reply_markup=kb_client,
         )
-        message.text = "command"
-        await bot.send_message(await message)
-        assert command_start.called

@@ -1,7 +1,6 @@
 from asyncio import sleep
 
 from django.core.exceptions import MultipleObjectsReturned
-from django.db import IntegrityError
 
 from aiogram import types, Router, F
 
@@ -15,13 +14,13 @@ from telegrambot.database import database_functions
 from telegrambot.decorators import func_logger
 from telegrambot.exceptions import UnknownError
 from telegrambot.keyboards.client_kb import kb_client
-from telegrambot.utils import send_message, prints, check_tokens
+from telegrambot.utils import send_message
 
-router = Router()
+start_router = Router(name="start")
 
 
 @func_logger("Старт бота", level="info")
-@router.message(F.text.lower().in_({"/start", "старт", "start"}))
+@start_router.message(F.text.lower().in_({"/start", "старт", "start"}))
 async def command_start(message: types.Message) -> None:
     """Initial Login to the System.
 
@@ -65,7 +64,7 @@ async def command_start(message: types.Message) -> None:
 
 
 @func_logger("вывод всех заведений", level="info")
-@router.message(F.text == "все места!")
+@start_router.message(F.text == "все места!")
 async def _places_all(message: types.Message) -> None:
     """Output of all places.
 
@@ -79,7 +78,7 @@ async def _places_all(message: types.Message) -> None:
 
 
 @func_logger("вывод сообщения о боте", level="info")
-@router.message(
+@start_router.message(
     F.text.lower().in_(
         {
             "о боте",
@@ -103,8 +102,8 @@ async def about_bot(message: types.Message) -> None:
     )
 
 
-@router.message(F.text == "Я HR и мне нравится!")
-@router.message(
+@start_router.message(F.text == "Я HR и мне нравится!")
+@start_router.message(
     F.text.lower().in_(
         {
             "О боте",
