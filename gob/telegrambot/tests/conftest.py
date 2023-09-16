@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 import pytest_asyncio
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Update
+from aiogram.types import Update, Message
 
 from telegrambot.creation import dp
 from telegrambot.handlers.clients.FSM_nearest_place import \
