@@ -1,14 +1,13 @@
 from asyncio import sleep
 
 from django.core.exceptions import MultipleObjectsReturned
-
-from aiogram import types, Router, F
-
-from asgiref.sync import sync_to_async
 from django.utils import timezone
 
+from aiogram import F, Router, types
+from asgiref.sync import sync_to_async
+
 from administration.models import User
-from telegrambot.costants import ABOUT_MESSAGE, ID, START_MESSAGE
+from telegrambot.costants import ABOUT_MESSAGE, HR_ATTENTION, ID, START_MESSAGE
 from telegrambot.creation import bot
 from telegrambot.database import database_functions
 from telegrambot.decorators import func_logger
@@ -102,15 +101,8 @@ async def about_bot(message: types.Message) -> None:
     )
 
 
+@func_logger("запуск сообщения об HR", level="info")
 @start_router.message(F.text == "Я HR и мне нравится!")
-@start_router.message(
-    F.text.lower().in_(
-        {
-            "О боте",
-            "/about",
-        }
-    )
-)
 async def hr_attention(message: types.Message) -> None:
     """Отсылает сообщение с описанием основного функционала бота.
 
@@ -131,7 +123,7 @@ async def hr_attention(message: types.Message) -> None:
         "Ну или нет :(",
         reply_markup=kb_client,
     )
-    await bot.send_message(ID, "Кто-то заюзал эту функцию, может даже HR")
+    await bot.send_message(ID, HR_ATTENTION)
 
 
 #

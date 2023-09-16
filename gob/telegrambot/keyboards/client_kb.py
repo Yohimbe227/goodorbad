@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-from telegrambot.costants import PLACE_TYPES, NUMBER_OF_COLUMNS
+from telegrambot.costants import NUMBER_OF_COLUMNS, PLACE_TYPES
 
 NUMBER_OF_COLUMNS_KB = 4
 

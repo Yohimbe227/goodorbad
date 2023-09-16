@@ -6,10 +6,9 @@ in `data` dictionary
 import logging
 from logging.handlers import RotatingFileHandler
 
-from aiogram import Dispatcher, types, F
+from aiogram import Dispatcher, F, types
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
-
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardRemove
 
 from telegrambot.costants import MAX_QUANTITY_OF_PLACES_ON_KB
@@ -127,7 +126,6 @@ async def add_place_name(message: types.Message, state: FSMContext) -> None:
 async def add_place_review(message: types.Message, state: FSMContext):
     """Получаем отзыв и сохраняем его в базу данных."""
 
-    # async with state.proxy() as data:
     await state.update_data(review=message.text)
     data = await state.get_data()
     await add_review_in_database(data["places"], data["review"], message)

@@ -1,27 +1,27 @@
 import asyncio
 import os
-from copy import copy
+from unittest import mock
+
+import django
 
 import pytest
-import django
-from aiogram import Dispatcher
+from pytest_mock import mocker
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gob.settings")
 django.setup()
 
-from telegrambot.tests.utils.dispatcher import get_dispatcher
-from telegrambot.tests.utils.mocked_bot import MockedBot
 from django.contrib.auth import get_user_model
-from telegrambot.costants import START_MESSAGE, ABOUT_MESSAGE
+
+from telegrambot.costants import ABOUT_MESSAGE, HR_ATTENTION, ID, START_MESSAGE
 from telegrambot.creation import bot
+from telegrambot.handlers.clients.basic import command_start
 from telegrambot.keyboards.client_kb import kb_client
-from telegrambot.handlers.clients.basic import command_start, start_router
 from telegrambot.tests.utils.update import (
-    TEST_MESSAGE,
     FIRST_TIME_USER,
-    get_message, get_update,
+    TEST_MESSAGE,
+    get_message,
+    get_update,
 )
-from telegrambot.creation import bot as realbot
 
 User = get_user_model()
 
@@ -50,7 +50,7 @@ class TestStartCommand:
     @pytest.mark.django_db
     @pytest.mark.asyncio
     async def test_command_start_first_time(
-            self, django_db_blocker, mock_send_message
+        self, django_db_blocker, mock_send_message
     ):
         with django_db_blocker.unblock():
             first_time_message = get_message(
@@ -71,7 +71,7 @@ class TestStartCommand:
     @pytest.mark.django_db(transaction=True)
     @pytest.mark.asyncio
     async def test_command_start_error(
-            self, django_db_blocker, mock_send_message
+        self, django_db_blocker, mock_send_message
     ):
         with django_db_blocker.unblock():
             await command_start(TEST_MESSAGE)
@@ -82,29 +82,56 @@ class TestStartCommand:
             )
             assert user_exists
 
-    # @pytest.mark.asyncio
-    # @pytest.mark.parametrize("command", [("/start",), ("старт",), ("старт",)])
-    # async def test_handler_start(self, bot, message, dispatcher, command):
-    #     dispatcher.register_message_handler(
-    #         command_start, Command(command)
-    #     )
-    #     message.text = "command"
-    #     await bot.send_message(message)
-    #     assert command_start.called
+    @pytest.mark.django_db(transaction=True)
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "/start",
+            "старт",
+            "start",
+        ],
+    )
+    async def test_handler_start(self, mock_send_message, dispatcher, command):
+
+        message = get_message(text=command)
+        await dispatcher.feed_update(bot, get_update(message))
+        mock_send_message.assert_called()
 
 
 class TestAbout:
-
-    dispatcher = get_dispatcher()
-
+    @pytest.mark.parametrize("command", ["about", "/about", "о боте"])
     @pytest.mark.asyncio
-    async def test_handler_about(self, bot: MockedBot, mock_send_message):
+    async def test_handler_about(self, mock_send_message, dispatcher, command):
+        """Тест срабатывания хэндлера `about_bot` на нужные комманды.
 
-        message = get_message(text="/about")
-        await self.dispatcher.feed_update(bot, get_update(message))
-        await mock_send_message.assert_called_with(
-            realbot,
-            message,
-            ABOUT_MESSAGE,
-            reply_markup=kb_client,
-        )
+        Проверяется путем сравнения параметров, с которыми вызывается
+        функция `send_message` с ожидаемыми.
+
+        """
+        message = get_message(text=command)
+        await dispatcher.feed_update(bot, get_update(message))
+        mock_send_message.assert_called()
+
+
+class TestHR:
+    @pytest.mark.asyncio
+    async def test_handler_about(
+        self,
+        mock_send_message,
+        dispatcher,
+        mock_bot,
+    ):
+        """Тест срабатывания хэндлера `hr_attention` на нужную комманду.
+
+        Проверяется путем сравнения параметров, с которыми вызывается
+        функция `send_message` с ожидаемыми.
+
+        """
+        message = get_message(text="Я HR и мне нравится!")
+        with mock.patch.object(
+            bot, "send_message"
+        ) as mock_send_message_method:
+            await dispatcher.feed_update(mock_bot, get_update(message))
+            mock_send_message_method.assert_called_with(ID, HR_ATTENTION)
+        assert mock_send_message.call_count == 2

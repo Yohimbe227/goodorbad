@@ -2,8 +2,7 @@ import heapq
 import logging
 from typing import Any
 
-from aiogram import types
-from aiogram import Bot
+from aiogram import Bot, types
 
 from administration.models import Place
 from telegrambot.costants import MAX_RANGE_SEARCH

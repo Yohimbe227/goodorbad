@@ -1,13 +1,12 @@
 """
 Module for admin.
 """
+from django.core.management import call_command
+
+from aiogram import Dispatcher, F, Router, filters, types
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup, default_state
-from django.core.management import call_command
-
-from aiogram import Dispatcher, types, F, filters, Router
-
 from aiogram.types import InlineKeyboardMarkup
 from asgiref.sync import sync_to_async
 

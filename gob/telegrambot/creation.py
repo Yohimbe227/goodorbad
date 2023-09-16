@@ -1,6 +1,5 @@
-from aiogram import Bot
+from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram import Dispatcher
 
 from telegrambot.costants import TELEGRAM_TOKEN
 from telegrambot.utils import check_tokens

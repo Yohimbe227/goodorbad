@@ -1,9 +1,8 @@
-from aiogram import types, Router
+from aiogram import Router, types
 
 from telegrambot.creation import bot
 from telegrambot.moderator import IsCurseMessage
 from telegrambot.utils import send_message
-
 
 router = Router()
 

@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 
-from telegrambot.creation import dp, bot
+from telegrambot.creation import bot, dp
 from telegrambot.handlers import admin, other
 
 # other

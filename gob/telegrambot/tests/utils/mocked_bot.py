@@ -19,7 +19,9 @@ class MockedSession(BaseSession):
         self.requests: Deque[Request] = deque()
         self.closed = True
 
-    def add_result(self, response: Response[TelegramType]) -> Response[TelegramType]:
+    def add_result(
+        self, response: Response[TelegramType]
+    ) -> Response[TelegramType]:
         """
         Mocked method for add result
         :param response: Response to add
@@ -63,12 +65,17 @@ class MockedSession(BaseSession):
             return method
         else:
             self.check_response(
-                method=method, status_code=response.error_code, content=response.json()
+                method=method,
+                status_code=response.error_code,
+                content=response.json(),
             )
             return response.result  # type: ignore
 
     async def stream_content(
-        self, url: str, timeout: int, chunk_size: int,
+        self,
+        url: str,
+        timeout: int,
+        chunk_size: int,
     ) -> AsyncGenerator[bytes, None]:  # pragma: no cover
         """
         Just mocked and shutted down method

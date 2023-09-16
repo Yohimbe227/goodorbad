@@ -5,15 +5,12 @@ from copy import copy
 from logging.handlers import RotatingFileHandler
 
 import requests
-from aiogram import Dispatcher, types, F
-
-# from aiogram.dispatcher import FSMContext
-# from aiogram.dispatcher.filters import Text
-# from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram import Dispatcher, F, types
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 
 from telegrambot.costants import (
+    ENDPOINT_ERROR_MESSAGE,
     GEO_ENDPOINT,
     KEYBOARD_ADDITIONAL,
     NUMBER_OF_PLACES_TO_SHOW,
@@ -62,7 +59,6 @@ handler.setFormatter(formatter)
 
 
 class FSMClientSearchPlace(StatesGroup):
-    flag = State()
     first = State()
     second = State()
     additional = State()
@@ -139,6 +135,13 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
         HTTPError: If endpoint is not available.
 
     """
+    if not message.text and not message.location:
+        await send_message(
+            bot,
+            message,
+            "Сюда имеет смысл слать только текст или локацию",
+        )
+        location = None
     if message.text:
         try:
             response = requests.get(
@@ -150,7 +153,10 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 },
             )
         except requests.RequestException as error:
-            raise HTTPError(f"Эндпоинт {GEO_ENDPOINT}' не доступен") from error
+            logger.critical(ENDPOINT_ERROR_MESSAGE.format(GEO_ENDPOINT))
+            raise HTTPError(
+                ENDPOINT_ERROR_MESSAGE.format(GEO_ENDPOINT)
+            ) from error
         try:
             location = response.json()["response"]["GeoObjectCollection"][
                 "featureMember"
@@ -168,6 +174,8 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
 
     if message.location:
         location = list(dict(message.location).values())[:2]
+        # 2 первых значения в этом списке будут координаты, остальное не нужно.
+
     if message.location or location:
         data = await state.get_data()
         if places_distance := await read_places_coordinates(
