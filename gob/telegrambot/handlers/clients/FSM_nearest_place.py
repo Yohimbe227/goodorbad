@@ -13,6 +13,8 @@ from telegrambot.costants import (
     ENDPOINT_ERROR_MESSAGE,
     GEO_ENDPOINT,
     KEYBOARD_ADDITIONAL,
+    LOCATION_REQUEST,
+    NO_PLACE_PRESENTED,
     NUMBER_OF_PLACES_TO_SHOW,
     PLACE_TYPES,
     YA_GEO_TOKEN,
@@ -104,9 +106,7 @@ async def search_place_request_location(
         await send_message(
             bot,
             message,
-            "Отправьте свою локацию, чтобы мы могли подобрать ближайшие "
-            "заведения или напишите свой приблизительный адресс, "
-            "содержащий город, улицу и номер дома, формат не важен.",
+            LOCATION_REQUEST,
             reply_markup=kb_client_location,
         )
         await state.set_state(FSMClientSearchPlace.second)
@@ -114,8 +114,7 @@ async def search_place_request_location(
         await send_message(
             bot,
             message,
-            "Такого типа заведения в нашей базе нет,"
-            " воспользуйтесь вариантами с клавиатуры!",
+            NO_PLACE_PRESENTED,
             reply_markup=get_keyboard(PLACE_TYPES.keys()),
         )
 

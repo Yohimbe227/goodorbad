@@ -3,16 +3,19 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 import pytest_asyncio
+from aiogram.dispatcher.event.handler import HandlerObject
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Update, Message
 
-from telegrambot.creation import dp
-from telegrambot.handlers.clients.FSM_nearest_place import \
-    register_handlers_nearest_place
-from telegrambot.handlers.clients.FSM_review import register_handlers_review
+from telegrambot.creation import bot, dp
 from telegrambot.handlers.clients.basic import start_router
+from telegrambot.handlers.clients.FSM_nearest_place import (
+    register_handlers_nearest_place,
+)
+from telegrambot.handlers.clients.FSM_review import register_handlers_review
 from telegrambot.tests.utils.mocked_bot import MockedBot
-from telegrambot.tests.utils.update import get_update
+from telegrambot.tests.utils.update import TEST_CHAT, TEST_USER, get_update
 
 
 @pytest.fixture()
@@ -20,9 +23,13 @@ def mock_bot():
     return MockedBot()
 
 
-@pytest.fixture(scope="session")
-def storage():
-    return MemoryStorage()
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def storage():
+    tmp_storage = MemoryStorage()
+    try:
+        yield tmp_storage
+    finally:
+        await tmp_storage.close()
 
 
 @pytest.fixture(scope="session")
@@ -51,27 +58,10 @@ def message():
     return _message
 
 
-@pytest.fixture()
-def update(message):
-    _update = get_update(message)
-    _update.update_id = 128
-    _update.message = message
-    _update.__config__ = {'validate_assignment': False}
-    return _update
-
-
 @pytest_asyncio.fixture()
 def mock_send_message(mocker):
     return mocker.patch(
         "telegrambot.handlers.clients.basic.send_message",
-        new_callable=AsyncMock,
-    )
-
-
-@pytest.fixture
-def mock_about_bot_handler(mocker):
-    return mocker.patch(
-        "telegrambot.handlers.clients.basic.about_bot",
         new_callable=AsyncMock,
     )
 
@@ -82,3 +72,18 @@ def mock_send_message_nearest_place(mocker):
         "telegrambot.handlers.clients.FSM_nearest_place.send_message",
         new_callable=AsyncMock,
     )
+
+
+@pytest_asyncio.fixture()
+def state(storage):
+    return FSMContext(
+        storage=storage,
+        key=StorageKey(
+            bot_id=bot.id, user_id=TEST_USER.id, chat_id=TEST_CHAT.id
+        ),
+    )
+
+
+# @pytest.fixture
+# def handler_obj(callback=None):
+#     return HandlerObject(callback)
