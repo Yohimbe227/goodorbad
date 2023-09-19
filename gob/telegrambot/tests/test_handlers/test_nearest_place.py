@@ -1,15 +1,17 @@
+from unittest.mock import AsyncMock
+
 import pytest
 
 from telegrambot.costants import (
     LOCATION_REQUEST,
     NO_PLACE_PRESENTED,
-    PLACE_TYPES,
+    PLACE_TYPES, WARNING_LOCATION,
 )
 from telegrambot.creation import bot
 from telegrambot.handlers.clients.FSM_nearest_place import (
     FSMClientSearchPlace,
     search_place_request_location,
-    start_search_place,
+    start_search_place, search_place_done,
 )
 from telegrambot.keyboards.client_kb import (
     get_keyboard,
@@ -32,7 +34,7 @@ class StartSearchPlace:
 
     @pytest.mark.asyncio
     async def test_start_search_place_response(
-            self, mock_send_message_nearest_place, dispatcher
+        self, mock_send_message_nearest_place, dispatcher
     ):
         """Тест срабатывания хэндлера `start_search_place` на нужные команды.
 
@@ -54,7 +56,9 @@ class StartSearchPlace:
 
     @pytest.mark.asyncio
     async def test_state_first(
-            self, mock_send_message_nearest_place, state,
+        self,
+        mock_send_message_nearest_place,
+        state,
     ):
         """Проверяем состояние `state` после срабатывания `start_search_place`."""
 
@@ -63,11 +67,10 @@ class StartSearchPlace:
 
 
 class TestSearchPlaceRequestLocation:
-
     @pytest.mark.parametrize("message_text", list(PLACE_TYPES.keys()))
     @pytest.mark.asyncio
     async def test_state_first(
-            self, mock_send_message_nearest_place, message_text, state
+        self, mock_send_message_nearest_place, message_text, state
     ):
         """Проверяем состояние `state`.
 
@@ -80,8 +83,9 @@ class TestSearchPlaceRequestLocation:
         assert await state.get_state() == FSMClientSearchPlace.second
 
     @pytest.mark.asyncio
-    async def test_wrong_place_category(self, mock_send_message_nearest_place,
-                                        state):
+    async def test_wrong_place_category(
+        self, mock_send_message_nearest_place, state
+    ):
         """Проверяем состояние `state`.
 
         После срабатывания `search_place_request_location`.
@@ -101,4 +105,24 @@ class TestSearchPlaceRequestLocation:
 
 
 class TestSearchPlaceDone:
-    ...
+    @pytest.mark.asyncio
+    async def test_wrong_type_message_location(
+        self,
+        mock_send_message_nearest_place,
+    ):
+        """Проверяем отклик на содержание сообщения `message`."""
+        message = AsyncMock()
+        message.location = None
+        message.text = None
+        await search_place_done(
+            message,
+            state=FSMClientSearchPlace.second,
+        )
+        expected_args = [
+            bot,
+            message,
+            "WARNING_LOCATION",
+        ]
+        assert compare_lists(
+            get_attribute_list(mock_send_message_nearest_place), expected_args
+        )

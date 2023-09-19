@@ -17,6 +17,7 @@ from telegrambot.costants import (
     NO_PLACE_PRESENTED,
     NUMBER_OF_PLACES_TO_SHOW,
     PLACE_TYPES,
+    WARNING_LOCATION,
     YA_GEO_TOKEN,
 )
 from telegrambot.creation import bot
@@ -124,7 +125,7 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
     """Retrieving user geolocation data.
 
     The location data can come in the form of a telegram object or as an
-    address, entered by the user.
+    address, entered by user.
 
     Args:
         message: Object `message` telegram with everyone info.
@@ -134,12 +135,14 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
         HTTPError: If endpoint is not available.
 
     """
-    if not message.text and not message.location:
+    if message.content_type not in ("text", "location"):
         await send_message(
             bot,
             message,
-            "Сюда имеет смысл слать только текст или локацию",
+            "Сюда стоит слать только адресс или свои "
+            "координаты по кнопочке с клавиатуры",
         )
+        await message.delete()
         location = None
     if message.text:
         try:
@@ -209,14 +212,6 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 "Тут ничего нет, совсем. Или Ваш город не поддерживается",
                 reply_markup=kb_client_return,
             )
-    if message.content_type not in ("text", "location"):
-        await send_message(
-            bot,
-            message,
-            "Сюда стоит слать только адресс или свои "
-            "координаты по кнопочке с клавиатуры",
-        )
-        await message.delete()
 
 
 @func_logger("Получаем следующее заведение", level="info")

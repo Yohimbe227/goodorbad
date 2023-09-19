@@ -65,7 +65,7 @@ TEST_MESSAGE = Message(
 )
 
 
-def get_message(text: str, chat=TEST_CHAT, from_user=TEST_USER):
+def get_message(text: str, chat=TEST_CHAT, from_user=TEST_USER, location=None):
     return Message(
         message_id=123,
         date=datetime(2023, 9, 12, 17, 49, 48, 231077),
@@ -102,7 +102,7 @@ def get_message(text: str, chat=TEST_CHAT, from_user=TEST_USER):
         game=None,
         poll=None,
         venue=None,
-        location=None,
+        location=location,
         new_chat_members=None,
         left_chat_member=None,
         new_chat_title=None,
