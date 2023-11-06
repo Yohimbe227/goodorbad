@@ -1,17 +1,24 @@
-from unittest.mock import AsyncMock
-
+from unittest.mock import AsyncMock, MagicMock
+import requests
 import pytest
+import requests_mock
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message
 
 from telegrambot.costants import (
     LOCATION_REQUEST,
     NO_PLACE_PRESENTED,
-    PLACE_TYPES, WARNING_LOCATION,
+    PLACE_TYPES,
+    WARNING_LOCATION,
+    GEO_ENDPOINT,
 )
 from telegrambot.creation import bot
+from telegrambot.handlers.clients import FSM_nearest_place
 from telegrambot.handlers.clients.FSM_nearest_place import (
     FSMClientSearchPlace,
     search_place_request_location,
-    start_search_place, search_place_done,
+    start_search_place,
+    search_place_done,
 )
 from telegrambot.keyboards.client_kb import (
     get_keyboard,
@@ -121,8 +128,31 @@ class TestSearchPlaceDone:
         expected_args = [
             bot,
             message,
-            "WARNING_LOCATION",
+            WARNING_LOCATION,
         ]
         assert compare_lists(
             get_attribute_list(mock_send_message_nearest_place), expected_args
         )
+        message.delete.assert_called()
+
+    @pytest.mark.django_db
+    @pytest.mark.asyncio
+    async def test_search_place_done(
+        self,
+        mock_send_message_nearest_place,
+        mock_geocode_maps,
+        state,
+        monkeypatch,
+        state_data,
+    ):
+
+        message = AsyncMock()
+        message.text = "Орел"
+        message.location = None
+
+        monkeypatch.setattr(state, "get_data", lambda: state_data)
+        await search_place_done(message, state)
+        assert mock_send_message_nearest_place.call_count == 2
+        assert mock_geocode_maps.get()["response"]["GeoObjectCollection"][
+            "featureMember"
+        ][0]["GeoObject"]["Point"]["pos"].split(" ") == ["37.617698", "55.755864", ]

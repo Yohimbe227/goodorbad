@@ -3,20 +3,21 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 import pytest_asyncio
-from aiogram.dispatcher.event.handler import HandlerObject
+import requests_mock
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import Message
+from aiohttp import web
 
 from telegrambot.creation import bot, dp
 from telegrambot.handlers.clients.basic import start_router
 from telegrambot.handlers.clients.FSM_nearest_place import (
-    register_handlers_nearest_place,
+    register_handlers_nearest_place, search_place_done,
 )
 from telegrambot.handlers.clients.FSM_review import register_handlers_review
 from telegrambot.tests.utils.mocked_bot import MockedBot
-from telegrambot.tests.utils.update import TEST_CHAT, TEST_USER, get_update
-
+from telegrambot.tests.utils.update import TEST_CHAT, TEST_USER
 
 @pytest.fixture()
 def mock_bot():
@@ -54,7 +55,7 @@ async def dispatcher():
 
 @pytest_asyncio.fixture()
 def message():
-    _message = MagicMock()
+    _message = AsyncMock()
     return _message
 
 
@@ -84,6 +85,7 @@ def state(storage):
     )
 
 
-# @pytest.fixture
-# def handler_obj(callback=None):
-#     return HandlerObject(callback)
+@pytest.fixture
+def state_mock():
+    return AsyncMock(spec=FSMContext)
+

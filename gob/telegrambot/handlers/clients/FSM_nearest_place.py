@@ -164,6 +164,7 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 "featureMember"
             ][0]["GeoObject"]["Point"]["pos"].split(" ")
             location = list(map(float, location[::-1]))
+            print(location)
         except (KeyError, IndexError):
             await send_message(
                 bot,
