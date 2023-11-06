@@ -11,7 +11,7 @@ admin.site.unregister(User)
 
 
 class BaseAdmin(admin.ModelAdmin):
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
 
 
 class CategoryPlaceInline(admin.TabularInline):
@@ -23,27 +23,27 @@ class CategoryPlaceInline(admin.TabularInline):
 class PlaceAdmin(BaseAdmin):
     inlines = (CategoryPlaceInline,)
     list_display = (
-        'pk',
-        'name',
-        'show_count',
-        'created',
-        'city',
-        'address',
-        'sponsored',
+        "pk",
+        "name",
+        "show_count",
+        "created",
+        "city",
+        "address",
+        "sponsored",
     )
     list_editable = (
-        'name',
-        'sponsored',
+        "name",
+        "sponsored",
     )
-    list_filter = ('city',)
-    search_fields = ('name__istartswith',)
-    empty_value_display = '-пусто-'
+    list_filter = ("city",)
+    search_fields = ("name__istartswith",)
+    empty_value_display = "-пусто-"
 
     def show_count(self, obj):
-        result = Place.objects.filter(name=obj).aggregate(Count('reviews'))
-        return result['reviews__count']
+        result = Place.objects.filter(name=obj).aggregate(Count("reviews"))
+        return result["reviews__count"]
 
-    show_count.short_description = 'количество отзывов'
+    show_count.short_description = "количество отзывов"
     form = PlaceForm
 
 
@@ -55,53 +55,53 @@ class PlaceTypeAdmin(BaseAdmin):
 @admin.register(Review)
 class ReviewAdmin(BaseAdmin):
     list_display = (
-        'pk',
-        'text',
-        'author',
-        'date',
+        "pk",
+        "text",
+        "author",
+        "date",
     )
 
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display = (
-        'pk',
-        'username',
-        'first_name',
-        'last_name',
-        'show_count',
+        "pk",
+        "username",
+        "first_name",
+        "last_name",
+        "show_count",
     )
 
     @staticmethod
     def show_count(obj):
         result = Place.objects.filter(reviews__author=obj).aggregate(
-            Count('reviews'),
+            Count("reviews"),
         )
-        return result['reviews__count']
+        return result["reviews__count"]
 
-    show_count.short_description = 'количество отзывов клиента'
+    show_count.short_description = "количество отзывов клиента"
 
 
 @admin.register(City)
 class CityAdmin(BaseAdmin):
     list_display = (
-        'pk',
-        'name',
-        'latitude',
-        'longitude',
-        'show_count_places',
-        'show_count_reviews',
+        "pk",
+        "name",
+        "latitude",
+        "longitude",
+        "show_count_places",
+        "show_count_reviews",
     )
 
     def show_count_places(self, obj):
-        result = Place.objects.filter(city=obj).aggregate(Count('city'))
-        return result['city__count']
+        result = Place.objects.filter(city=obj).aggregate(Count("city"))
+        return result["city__count"]
 
     def show_count_reviews(self, obj):
         result = Review.objects.filter(place__city=obj).aggregate(
-            Count('place__city'),
+            Count("place__city"),
         )
-        return result['place__city__count']
+        return result["place__city__count"]
 
-    show_count_places.short_description = 'количество заведений'
-    show_count_reviews.short_description = 'количество отзывов'
+    show_count_places.short_description = "количество заведений"
+    show_count_reviews.short_description = "количество отзывов"

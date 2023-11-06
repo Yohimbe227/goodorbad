@@ -1,7 +1,9 @@
 import re
 
 from aiogram import types
-from aiogram.dispatcher.filters import BoundFilter
+
+# from aiogram.dispatcher.filters import BoundFilter
+from aiogram.filters import BaseFilter
 from fuzzywuzzy import fuzz
 
 from gob.settings import BASE_DIR
@@ -11,15 +13,18 @@ from telegrambot.decorators import logger
 STRICTNESS_FILTER = 75
 
 
-class IsCurseMessage(BoundFilter):
+class IsCurseMessage(BaseFilter):
     """Filter for curse words."""
 
-    with open(
-        BASE_DIR / 'data/banned_words.txt',
-        'r',
-        encoding='utf-8',
-    ) as reader:
-        CurseWords = ''.join(reader.readlines()).split('\n')[:-1]
+    def __init__(
+        self,
+    ):
+        with open(
+            BASE_DIR / "data/banned_words.txt",
+            "r",
+            encoding="utf-8",
+        ) as reader:
+            self.curse_words = "".join(reader.readlines()).split("\n")[:-1]
 
     @staticmethod
     def replace_letters(word: str = None) -> str:
@@ -36,10 +41,10 @@ class IsCurseMessage(BoundFilter):
         """
         word = word.lower()
         for key, value in ALPHABET.items():
-            word = re.sub(value, key, word)
+            word = re.sub(re.escape(value), key, word)
         return word
 
-    async def check(self, message: types.Message) -> bool:
+    async def __call__(self, message: types.Message) -> bool:
         """
         Curse word filter.
 
@@ -57,10 +62,9 @@ class IsCurseMessage(BoundFilter):
         """
         if not message.text:
             return True
-
         punctuation = r'!|"|#|$|%|&|, |-|;|>|@|_|~| '
         for word in re.split(punctuation, message.text)[:-1]:
-            word = ''.join(
+            word = "".join(
                 [
                     word[index]
                     for index in range(len(word) - 1)
@@ -68,17 +72,17 @@ class IsCurseMessage(BoundFilter):
                 ]
                 + [word[-1]]
                 if word
-                else '',
+                else "",
             ).lower()
             word = self.replace_letters(word)
-            for word_bad in self.CurseWords:
+            for word_bad in self.curse_words:
                 strictness = fuzz.token_sort_ratio(word_bad, word)
                 if strictness >= STRICTNESS_FILTER:
                     logger.info(
-                        f'{word_bad} | {strictness}% Матерное слово '
-                        f'{word_bad}',
+                        f"{word_bad} | {strictness}% Матерное слово "
+                        f"{word_bad}",
                     )
-                    await message.reply('А ну не матюкаться!')
+                    await message.reply("А ну не матюкаться!")
                     await message.delete()
                     return False
         return True
