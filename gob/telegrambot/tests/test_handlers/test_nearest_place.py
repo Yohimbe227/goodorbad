@@ -145,7 +145,6 @@ class TestSearchPlaceDone:
         monkeypatch,
         state_data,
     ):
-
         message = AsyncMock()
         message.text = "Орел"
         message.location = None
