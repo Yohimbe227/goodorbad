@@ -67,7 +67,27 @@ jobs:
             sudo docker compose up -d
             sudo docker compose exec -T telega python manage.py collectstatic --no-input
             sudo docker compose exec -T telega python manage.py migrate
-            nohup sudo docker compose exec -T telega python telegrambot/start.py &
+            # Добавляем запуск бота через systemd
+
+      - name: Create systemd unit for bot
+        template:
+          src: templates/bot.service.j2
+          dest: /etc/systemd/system/bot.service
+
+      - name: Reload systemd
+        systemd:
+          daemon_reload: yes
+
+      - name: Enable bot service
+        systemd:
+          name: bot
+          enabled: yes
+
+      - name: Start bot service
+        systemd:
+          name: bot
+          state: started
+#            nohup sudo docker compose exec -T telega python telegrambot/start.py &
 
   send_message:
     runs-on: ubuntu-latest
