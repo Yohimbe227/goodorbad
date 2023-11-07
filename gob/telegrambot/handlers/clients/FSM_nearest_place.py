@@ -309,7 +309,6 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                         data["nearest_places"],
                     )
 
-
 async def register_handlers_nearest_place(dp: Dispatcher):
     """Handlers registrations."""
     dp.message.filter(IsCurseMessage())
