@@ -63,10 +63,11 @@ jobs:
             echo YA_GEO_TOKEN=${{ secrets.YA_GEO_TOKEN }} >> .env
             echo TELEGRAM_TOKEN_FOR_MESSAGE=${{ secrets.TELEGRAM_TOKEN_FOR_MESSAGE }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            apt install nohup
             sudo docker compose up -d
             sudo docker compose exec -T telega python manage.py collectstatic --no-input
             sudo docker compose exec -T telega python manage.py migrate
-            sudo docker compose exec -T telega python telegrambot/start.py&
+            nohup sudo docker compose exec -T telega python telegrambot/start.py &
 
   send_message:
     runs-on: ubuntu-latest
