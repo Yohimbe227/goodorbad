@@ -23,8 +23,8 @@ services:
       - db
     environment:
       - DJANGO_SETTINGS_MODULE=gob.settings
-#    env_file:
-#      - .env
+    env_file:
+      - .env
 
   nginx:
     image: nginx:1.18.0-alpine
