@@ -47,6 +47,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /home
+            sudo rm .env
             echo "Current directory: ${{ github.workspace }}"
             touch .env
             sudo docker compose pull telega
