@@ -66,7 +66,7 @@ jobs:
             sudo docker compose up -d
             sudo docker compose exec -T telega python manage.py collectstatic --no-input
             sudo docker compose exec -T telega python manage.py migrate
-            sudo python telegrambot/start.py&
+            sudo docker compose exec -T telega python telegrambot/start.py&
 
   send_message:
     runs-on: ubuntu-latest
