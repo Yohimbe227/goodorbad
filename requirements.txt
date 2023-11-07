@@ -56,7 +56,7 @@ pathspec==0.10.3
 pep8==1.7.1
 platformdirs==2.6.2
 pluggy==1.2.0
-psycopg2==2.9.6
+psycopg2==2.9.9
 pyaes==1.6.1
 pycodestyle==2.10.0
 pycparser==2.21
