@@ -14,4 +14,5 @@ COPY . .
 LABEL author='Kamanin Y.N.' version=2.0
 
 ENV PYTHONPATH "${PYTHONPATH}:/app"
-CMD python telegrambot/start.py
+
+CMD ["gunicorn", "backend.wsgi:application", "--bind", "0:8000" ]
