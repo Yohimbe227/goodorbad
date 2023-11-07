@@ -21,6 +21,8 @@ services:
       - media_value:/app/media/
     depends_on:
       - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=gob.settings
 #    env_file:
 #      - .env
 
