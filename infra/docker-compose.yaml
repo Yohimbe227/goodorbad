@@ -16,8 +16,6 @@ services:
   telega:
     image: yohimbe/goodorbad:v1
     restart: always
-    command:
-      sh -c "python telegrambot/start.py"
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/

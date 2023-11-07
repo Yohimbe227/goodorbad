@@ -62,6 +62,7 @@ jobs:
             echo YA_TOKEN=${{ secrets.YA_TOKEN }} >> .env
             echo YA_GEO_TOKEN=${{ secrets.YA_GEO_TOKEN }} >> .env
             echo TELEGRAM_TOKEN_FOR_MESSAGE=${{ secrets.TELEGRAM_TOKEN_FOR_MESSAGE }} >> .env
+            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker compose up -d
             sudo docker compose exec -T telega gunicorn gob.wsgi:application --bind 0:8000
             sudo docker compose exec -T telega python manage.py collectstatic --no-input
