@@ -4,7 +4,6 @@ import sys
 
 import django
 
-# sys.path.append('../gob')
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gob.settings")
 django.setup()
 
