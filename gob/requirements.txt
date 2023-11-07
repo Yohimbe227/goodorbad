@@ -88,7 +88,6 @@ tomli==2.0.1
 tornado==6.1
 trio==0.22.2
 Twisted==22.10.0
-twisted-iocpsupport==1.0.4
 typing_extensions==4.7.1
 tzdata==2022.7
 tzlocal==4.2
