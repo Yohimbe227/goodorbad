@@ -17,7 +17,7 @@ services:
     image: yohimbe/goodorbad:v1
     restart: always
     command:
-      sh -c "python manage.py startbot"
+      sh -c "python telegrambot/start.py"
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
