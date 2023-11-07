@@ -15,4 +15,4 @@ LABEL author='Kamanin Y.N.' version=2.0
 
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
-CMD ["gunicorn", "backend.wsgi:application", "--bind", "0:8000" ]
+CMD ["gunicorn", "gob.wsgi:application", "--bind", "0:8000" ]
