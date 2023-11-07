@@ -5,11 +5,11 @@ WORKDIR /app
 COPY requirements.txt .
 
 RUN python -m pip install --upgrade pip
-RUN apt-get update
+RUN apt-get update && apt-get install -y libpq-dev
 
 
 RUN pip3 install -r ./requirements.txt --no-cache-dir
 
 COPY . .
 
-LABEL author='Kamanin Y.N.' version=1.0
+LABEL author='Kamanin Y.N.' version=2.0
