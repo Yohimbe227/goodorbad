@@ -66,17 +66,18 @@ jobs:
             sudo docker compose up -d
             sudo docker compose exec -T telega python manage.py collectstatic --no-input
             sudo docker compose exec -T telega python manage.py migrate
+            sudo docker compose exec -T telega python telegrambot/start.py &
             # Добавляем запуск бота через systemd
-      - name: Install systemd
-        run: |
-         sudo apt-get update
-         sudo apt-get install -y systemd
-
-      - name: Start Telegram Bot Service
-        run: |
-           sudo systemctl daemon-reload
-           sudo systemctl enable /gob/telegrambot.service
-           sudo systemctl start telegrambot.service
+#      - name: Install systemd
+#        run: |
+#         sudo apt-get update
+#         sudo apt-get install -y systemd
+#
+#      - name: Start Telegram Bot Service
+#        run: |
+#           sudo systemctl daemon-reload
+#           sudo systemctl enable /gob/telegrambot.service
+#           sudo systemctl start telegrambot.service
 
 #            nohup sudo docker compose exec -T telega python telegrambot/start.py &
 
