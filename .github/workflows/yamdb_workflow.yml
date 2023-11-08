@@ -75,7 +75,7 @@ jobs:
       - name: Start Telegram Bot Service
         run: |
            sudo systemctl daemon-reload
-           sudo systemctl enable $PWD/gob/telegrambot.service
+           sudo systemctl enable /gob/telegrambot.service
            sudo systemctl start telegrambot.service
 
 #            nohup sudo docker compose exec -T telega python telegrambot/start.py &
