@@ -63,30 +63,21 @@ jobs:
             echo YA_GEO_TOKEN=${{ secrets.YA_GEO_TOKEN }} >> .env
             echo TELEGRAM_TOKEN_FOR_MESSAGE=${{ secrets.TELEGRAM_TOKEN_FOR_MESSAGE }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-            apt install nohup
             sudo docker compose up -d
             sudo docker compose exec -T telega python manage.py collectstatic --no-input
             sudo docker compose exec -T telega python manage.py migrate
             # Добавляем запуск бота через systemd
+      - name: Install systemd
+        run: |
+         sudo apt-get update
+         sudo apt-get install -y systemd
 
-      - name: Create systemd unit for bot
-        template:
-          src: templates/bot.service.j2
-          dest: /etc/systemd/system/bot.service
+      - name: Start Telegram Bot Service
+        run: |
+           sudo systemctl daemon-reload
+           sudo systemctl enable $PWD/telegrambot.service
+           sudo systemctl start telegrambot.service
 
-      - name: Reload systemd
-        systemd:
-          daemon_reload: yes
-
-      - name: Enable bot service
-        systemd:
-          name: bot
-          enabled: yes
-
-      - name: Start bot service
-        systemd:
-          name: bot
-          state: started
 #            nohup sudo docker compose exec -T telega python telegrambot/start.py &
 
   send_message:
