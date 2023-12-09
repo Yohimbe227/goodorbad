@@ -81,7 +81,6 @@ jobs:
 #           sudo systemctl start telegrambot.service
 
 #            nohup sudo docker compose exec -T telega python telegrambot/start.py &
-
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
