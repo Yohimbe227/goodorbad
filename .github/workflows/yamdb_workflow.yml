@@ -28,6 +28,7 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/goodorbad:v1
           context: gob
           file: gob/Dockerfile
+
   deploy:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
