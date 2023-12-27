@@ -7,6 +7,7 @@ User = get_user_model()
 
 
 class City(models.Model):
+    """City model."""
     name = models.CharField(
         max_length=50,
         unique=True,
@@ -27,6 +28,8 @@ class City(models.Model):
 
 
 class Category(models.Model):
+    """Категория заведения."""
+
     name = models.CharField(
         max_length=50,
         unique=True,
@@ -41,6 +44,7 @@ class Category(models.Model):
 
 
 class Place(models.Model):
+    """Модель заведения."""
     # This need to use __eq__ metod!
     __hash__ = models.Model.__hash__
     name = models.CharField(
@@ -115,6 +119,10 @@ class Place(models.Model):
     )
 
     def __eq__(self, other):
+        """Сравнение заведений.
+
+        Завединие сравнивается по имени и координатам.
+        """
         return (
             self.name == other.name
             and self.latitude == other.latitude
@@ -140,12 +148,16 @@ class Place(models.Model):
         return self.name
 
     def clean(self) -> None:
+        """Обрезаем URL., чтобы влезал в поле БД."""
+        if self.url and len(self.url) > 198:
+            self.url = ""
         if self.url and len(self.url) > 198:
             self.url = ""
         super().clean()
 
 
 class Review(models.Model):
+    """Модель отзывов."""
     place = models.ForeignKey(
         Place,
         on_delete=models.CASCADE,
@@ -174,6 +186,7 @@ class Review(models.Model):
 
 
 class CategoryPlace(models.Model):
+    """Модель связи между категориями и заведениями."""
     place = models.ForeignKey(
         Place,
         on_delete=models.SET_NULL,
