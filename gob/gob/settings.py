@@ -36,6 +36,7 @@ DJANGO_ALLOW_ASYNC_UNSAFE = "True"
 
 CSRF_TRUSTED_ORIGINS = [
     "http://185.244.48.124",
+    "http://www.orel-repit.ru",
 ]
 
 INSTALLED_APPS = [
