@@ -95,7 +95,7 @@ DATABASES = {
             "POSTGRES_PASSWORD",
         ),
         "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
+        "PORT": os.getenv("DB_PORT", default="5433"),
     },
     # "test": {
     #     "ENGINE": os.getenv(
