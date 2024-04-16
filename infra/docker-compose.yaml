@@ -32,6 +32,8 @@ services:
       - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/ssl/orel.crt:/etc/nginx/orel.crt:ro
+      - ./nginx/ssl/orel.key:/etc/nginx/orel.key:ro
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
