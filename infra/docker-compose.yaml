@@ -16,6 +16,7 @@ services:
   telega:
     image: yohimbe/goodorbad:v1
     restart: always
+
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
@@ -25,7 +26,6 @@ services:
       - DJANGO_SETTINGS_MODULE=gob.settings
     env_file:
       - .env
-
   nginx:
     image: nginx:1.18.0-alpine
     ports:
