@@ -15,7 +15,7 @@ sentry_sdk.init(
 )
 
 load_dotenv()
-# load_dotenv(".test.env")
+load_dotenv(".test.env")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
