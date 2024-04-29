@@ -8,6 +8,7 @@ import requests
 from aiogram import Dispatcher, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from icecream import ic
 
 from telegrambot.costants import (
     ENDPOINT_ERROR_MESSAGE,
@@ -139,7 +140,7 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
         await send_message(
             bot,
             message,
-            "Сюда стоит слать только адресс или свои "
+            "Сюда стоит слать только адрес или свои "
             "координаты по кнопочке с клавиатуры",
         )
         await message.delete()
@@ -164,12 +165,11 @@ async def search_place_done(message: types.Message, state: FSMContext) -> None:
                 "featureMember"
             ][0]["GeoObject"]["Point"]["pos"].split(" ")
             location = list(map(float, location[::-1]))
-            print(location)
         except (KeyError, IndexError):
             await send_message(
                 bot,
                 message,
-                f"Проверьте введенный адресс <b>{message.text}</b>, "
+                f"Проверьте введенный адрес <b>{message.text}</b>, "
                 f"а то не находится ничего!",
                 reply_markup=kb_client_return,
             )
@@ -268,13 +268,12 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                 ]
                 await state.update_data(places_distance=places_distance)
                 len_place_to_send = len(places_distance)
+                nearest_places = await n_min(
+                    places_distance,
+                    NUMBER_OF_PLACES_TO_SHOW,
+                )
                 if places_distance:
-                    await state.update_data(
-                        nearest_places=await n_min(
-                            data["places_distance"],
-                            NUMBER_OF_PLACES_TO_SHOW,
-                        )
-                    )
+                    await state.update_data(nearest_places=nearest_places)
                 if (
                     places_distance
                     and len_place_to_send < NUMBER_OF_PLACES_TO_SHOW
@@ -306,8 +305,9 @@ async def search_place_additional(message: types.Message, state: FSMContext):
                         message,
                         bot,
                         NUMBER_OF_PLACES_TO_SHOW,
-                        data["nearest_places"],
+                        nearest_places,
                     )
+
 
 async def register_handlers_nearest_place(dp: Dispatcher):
     """Handlers registrations."""

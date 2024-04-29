@@ -15,6 +15,7 @@ from django.db import IntegrityError
 from django.utils.dateparse import parse_time
 
 import requests
+from icecream import ic
 
 from administration.models import Category, CategoryPlace, City, Place
 from telegrambot.costants import MAX_LENGTH_NAME
@@ -46,7 +47,7 @@ CATEGORIES = (
     "Сауна",
 )
 CITIES = (
-    "Нягань",
+    "Орёл",
     "Москва",
     "Санкт-Петербург",
     "Новосибирск",
@@ -290,6 +291,7 @@ def parser(city: str, category: str, token: str) -> None:
         category,
         token,
     )
+    # ic(api_answer)
 
     for obj in api_answer:
         place["longitude"] = obj["geometry"]["coordinates"][0]
@@ -299,10 +301,11 @@ def parser(city: str, category: str, token: str) -> None:
                 key["name"]
                 for key in obj["properties"]["CompanyMetaData"]["Categories"]
             ]
+            print(category_names)
             categories = [
-                Category.objects.create(name=name)
+                Category.objects.get_or_create(name=name)[0]
                 for name in category_names
-                if not Category.objects.filter(name=name).exists()
+                # if not Category.objects.filter(name=name).exists()
             ]
         except KeyError:
             _category, _ = Category.objects.get_or_create(name="Неизвестно")
@@ -352,7 +355,6 @@ def parser(city: str, category: str, token: str) -> None:
         except KeyError:
             place["worktime_from"] = parse_time("00:00:01")
             place["worktime_to"] = parse_time("23:59:59")
-
         try:
             [
                 CategoryPlace.objects.get_or_create(
@@ -376,7 +378,6 @@ class Command(BaseCommand):
         is_token_present()
         city = options["city"]
         file = options["file"]
-
         if city:
             [parser(city, category, YA_TOKENS[0]) for category in CATEGORIES]
             logger.info(f"Импорт города {city} завершен успешно!")
