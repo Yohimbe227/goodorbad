@@ -8,7 +8,6 @@ import requests
 from aiogram import Dispatcher, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from icecream import ic
 
 from telegrambot.costants import (
     ENDPOINT_ERROR_MESSAGE,
@@ -18,7 +17,6 @@ from telegrambot.costants import (
     NO_PLACE_PRESENTED,
     NUMBER_OF_PLACES_TO_SHOW,
     PLACE_TYPES,
-    WARNING_LOCATION,
     YA_GEO_TOKEN,
 )
 from telegrambot.creation import bot
