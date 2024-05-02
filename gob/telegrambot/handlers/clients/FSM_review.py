@@ -11,7 +11,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardRemove
 
-from telegrambot.costants import MAX_QUANTITY_OF_PLACES_ON_KB
+from telegrambot.costants import (
+    MAX_QUANTITY_OF_PLACES_ON_KB,
+    NOT_FOUND_PLACE_MESSAGE,
+    INPUT_YOUR_MESSAGE,
+    TOO_GLOBAL_REQUEST,
+)
 from telegrambot.creation import bot
 from telegrambot.database.database_functions import (
     add_review_in_database,
@@ -71,56 +76,50 @@ async def add_city(message: types.Message, state: FSMContext) -> None:
         )
 
 
-@func_logger("Вводится название заведения", level="info")
 async def add_place_name(message: types.Message, state: FSMContext) -> None:
-    """Get the name of the place."""
-
+    """
+    Get the name of the place from the user, search for it in the database,
+    and handle the response based on the number of matching results.
+    """
     await state.update_data(name=message.text)
     data = await state.get_data()
-    places = await search_place_name_in_database(
-        data["name"],
-        data["city"],
-    )
-    print(places)
-    match len(places):
-        case 0:
+    places = await search_place_name_in_database(data["name"], data["city"])
+    num_places = len(places)
+    if num_places == 0:
+        await send_message(
+            message.bot,
+            message,
+            NOT_FOUND_PLACE_MESSAGE.format(data["name"]),
+        )
+    elif num_places == 1:
+        place_name = places[0]
+        if data["mode"] == "write":
             await send_message(
-                bot,
+                message.bot,
                 message,
-                f'Мы не нашли такого заведения {data["name"]}.'
-                f" Может что-то не так с названием?",
+                INPUT_YOUR_MESSAGE.format(place_name),
+                reply_markup=ReplyKeyboardRemove(),
             )
-        case 1:
-            if data["mode"] == "write":
-                await send_message(
-                    bot,
-                    message,
-                    f'Введите Ваш отзыв на <b>"{places[0]}"</b>',
-                    reply_markup=ReplyKeyboardRemove(),
-                )
-                await state.update_data(places=places[0])
-                await state.set_state(FSMClientReview.review)
-            else:
-                await send_message(
-                    bot,
-                    message,
-                    await read_review_from_database(places[0], message),
-                    reply_markup=kb_client,
-                )
-                await state.clear()
-
-        case _:
-            buttons = [
-                place.name for place in places[:MAX_QUANTITY_OF_PLACES_ON_KB]
-            ]
+            await state.update_data(places=place_name)
+            await state.set_state(FSMClientReview.review)
+        else:
             await send_message(
-                bot,
+                message.bot,
                 message,
-                f'Слишком общий запрос "{data["name"]}". Уточните!'
-                f"\nна клавиатуре самые похожие названия, но Вы можете "
-                f"ввести свое!",
-                reply_markup=get_keyboard(buttons),
+                await read_review_from_database(place_name, message),
+                reply_markup=kb_client,
             )
+            await state.clear()
+    else:
+        buttons = [
+            place.name for place in places[:MAX_QUANTITY_OF_PLACES_ON_KB]
+        ]
+        await send_message(
+            message.bot,
+            message,
+            TOO_GLOBAL_REQUEST.format(data["name"]),
+            reply_markup=get_keyboard(buttons),
+        )
 
 
 @func_logger("Добавляется текст отзыва", level="info")
