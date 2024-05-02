@@ -43,6 +43,7 @@ async def search_place_name_in_database(
         This is an auxiliary function for performing synchronous actions
         with the database in an asynchronous function.
         """
+        print(name, city)
         return list(
             Place.objects.filter(Q(name__icontains=name) & Q(city__name=city)),
         )
@@ -162,7 +163,7 @@ async def read_all_data_from_base(message: types.Message) -> None:
 
 @func_logger("Поднимаем базу для подсчета расстояний", level="info")
 async def read_places_coordinates(
-    location: list[float],
+    location: tuple[float, float],
     _category: str,
 ) -> list[tuple[Place, float]]:
     """

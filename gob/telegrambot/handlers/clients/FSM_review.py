@@ -55,7 +55,7 @@ async def start_add_review(message: types.Message, state: FSMContext) -> None:
     )
 
 
-@func_logger("Добавляется город...", level="info")
+@func_logger("Вводится город...", level="info")
 async def add_city(message: types.Message, state: FSMContext) -> None:
     """Get the name of the user's city."""
 
@@ -81,6 +81,7 @@ async def add_place_name(message: types.Message, state: FSMContext) -> None:
         data["name"],
         data["city"],
     )
+    print(places)
     match len(places):
         case 0:
             await send_message(
