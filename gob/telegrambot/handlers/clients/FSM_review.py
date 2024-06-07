@@ -121,7 +121,6 @@ async def add_place_name(message: types.Message, state: FSMContext) -> None:
             reply_markup=get_keyboard(buttons),
         )
 
-
 @func_logger("Добавляется текст отзыва", level="info")
 async def add_place_review(message: types.Message, state: FSMContext):
     """Получаем отзыв и сохраняем его в базу данных."""
