@@ -121,6 +121,7 @@ async def add_place_name(message: types.Message, state: FSMContext) -> None:
             reply_markup=get_keyboard(buttons),
         )
 
+
 @func_logger("Добавляется текст отзыва", level="info")
 async def add_place_review(message: types.Message, state: FSMContext):
     """Получаем отзыв и сохраняем его в базу данных."""
@@ -143,7 +144,12 @@ async def start_read_review(message: types.Message, state: FSMContext):
 
     await state.update_data(mode="read")
     await state.set_state(FSMClientReview.city)
-    await send_message(bot, message, "Введите город!", reply_markup=kb_city)
+    await send_message(
+        bot,
+        message,
+        "Введите город!",
+        reply_markup=kb_city,
+    )
 
 
 async def register_handlers_review(dp: Dispatcher) -> None:
