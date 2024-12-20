@@ -125,7 +125,6 @@ async def hr_attention(message: types.Message) -> None:
     )
     await bot.send_message(ID, HR_ATTENTION)
 
-
 #
 # def register_handlers_client(disp: Dispatcher):
 #     """Handlers registration."""
