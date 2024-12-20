@@ -45,6 +45,7 @@ async def command_start(message: types.Message) -> None:
         author.last_login = timezone.now()
         await sync_to_async(author.save)()
     except MultipleObjectsReturned as error:
+
         raise UnknownError(error)
     if created:
         await send_message(
